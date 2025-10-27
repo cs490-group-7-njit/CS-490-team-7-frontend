@@ -21,6 +21,7 @@ function App() {
           {/* public routes */}
           <Route path="/" element={<SmartHome />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/signup" element={<RegisterPage />} />
 
           {/* protected routes */}
