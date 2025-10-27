@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { getMyShops } from '../api/shops'
-import { createStaff, deleteStaff, getStaffBySalon } from '../api/staff'
+import { createStaff, deleteStaff, getStaffBySalon, updateStaffSchedule } from '../api/staff'
 import Header from '../components/Header'
 import ScheduleModal from '../components/ScheduleModal'
 import { useAuth } from '../context/AuthContext'
@@ -139,8 +139,8 @@ function StaffManagementPage() {
     setSaveMessage('')
 
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Make API call to backend to save the schedule
+      await updateStaffSchedule(selectedShop.id, scheduleData.staffId, scheduleData.schedule)
 
       // Update the staff member's schedule in local state
       setStaff(prevStaff =>
@@ -161,14 +161,11 @@ function StaffManagementPage() {
       setShowScheduleModal(false)
 
       // Show success feedback
-      const staffName = selectedStaff?.name || 'Staff member'
+      const staffName = selectedStaff?.title || 'Staff member'
       setSaveMessage(`✅ Schedule saved successfully for ${staffName}!`)
 
       // Clear message after 3 seconds
       setTimeout(() => setSaveMessage(''), 3000)
-
-      // TODO: Make API call to backend when ready
-      // await updateStaffSchedule(scheduleData.staffId, scheduleData.schedule)
 
     } catch (error) {
       console.error('Failed to save schedule:', error)

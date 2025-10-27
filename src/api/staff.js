@@ -56,13 +56,18 @@ export async function deleteStaff(salonId, staffId) {
   }
 }
 
-// Schedule management API functions (placeholder for UC 1.7)
-export async function getStaffSchedule(staffId) {
-  return get(`/staff/${staffId}/schedule`)
-}
-
-export async function updateStaffSchedule(staffId, scheduleData) {
-  return put(`/staff/${staffId}/schedule`, scheduleData)
+// Schedule management API functions (UC 1.6)
+export async function updateStaffSchedule(salonId, staffId, scheduleData) {
+  try {
+    const payload = {
+      schedule: scheduleData
+    }
+    const response = await put(`/salons/${salonId}/staff/${staffId}/schedule`, payload)
+    return response
+  } catch (error) {
+    console.error('Error updating staff schedule:', error)
+    throw error
+  }
 }
 
 export async function blockTime(staffId, blockData) {
