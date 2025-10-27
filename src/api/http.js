@@ -43,3 +43,9 @@ export function put(path, payload) {
     body: JSON.stringify(payload),
   })
 }
+
+export function del(path) {
+  return request(path, {
+    method: 'DELETE',
+  })
+}

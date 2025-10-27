@@ -1,19 +1,62 @@
-import { get, post, put } from './http'
+import { get, post, put, del } from './http'
 
-// Staff management API functions
-export async function getStaff() {
-  return get('/staff')
+/**
+ * UC 1.6: Staff Management API functions
+ */
+
+// Get all staff members for a salon
+export async function getStaffBySalon(salonId) {
+  try {
+    const response = await get(`/salons/${salonId}/staff`)
+    return response
+  } catch (error) {
+    console.error('Error fetching staff:', error)
+    throw error
+  }
 }
 
-export async function addStaff(staffData) {
-  return post('/staff', staffData)
+// Create a new staff member
+export async function createStaff(salonId, staffData) {
+  try {
+    const payload = {
+      title: staffData.title,
+      user_id: staffData.user_id || null
+    }
+    const response = await post(`/salons/${salonId}/staff`, payload)
+    return response
+  } catch (error) {
+    console.error('Error creating staff:', error)
+    throw error
+  }
 }
 
-export async function updateStaff(staffId, staffData) {
-  return put(`/staff/${staffId}`, staffData)
+// Update a staff member
+export async function updateStaff(salonId, staffId, staffData) {
+  try {
+    const payload = {
+      title: staffData.title,
+      user_id: staffData.user_id || null
+    }
+    const response = await put(`/salons/${salonId}/staff/${staffId}`, payload)
+    return response
+  } catch (error) {
+    console.error('Error updating staff:', error)
+    throw error
+  }
 }
 
-// Schedule management API functions
+// Delete a staff member
+export async function deleteStaff(salonId, staffId) {
+  try {
+    const response = await del(`/salons/${salonId}/staff/${staffId}`)
+    return response
+  } catch (error) {
+    console.error('Error deleting staff:', error)
+    throw error
+  }
+}
+
+// Schedule management API functions (placeholder for UC 1.7)
 export async function getStaffSchedule(staffId) {
   return get(`/staff/${staffId}/schedule`)
 }
