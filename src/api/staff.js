@@ -1,4 +1,4 @@
-import { get, post, put, del } from './http'
+import { del, get, post, put } from './http'
 
 /**
  * UC 1.6: Staff Management API functions

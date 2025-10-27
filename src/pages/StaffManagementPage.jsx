@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { getMyShops } from '../api/shops'
+import { createStaff, deleteStaff, getStaffBySalon } from '../api/staff'
 import Header from '../components/Header'
 import ScheduleModal from '../components/ScheduleModal'
 import { useAuth } from '../context/AuthContext'
-import { getMyShops } from '../api/shops'
-import { getStaffBySalon, createStaff, updateStaff, deleteStaff } from '../api/staff'
 import './staff-management.css'
 
 function StaffManagementPage() {
@@ -137,39 +137,39 @@ function StaffManagementPage() {
   const handleScheduleSave = async (scheduleData) => {
     setIsLoading(true)
     setSaveMessage('')
-    
+
     try {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 500))
-      
+
       // Update the staff member's schedule in local state
-      setStaff(prevStaff => 
-        prevStaff.map(member => 
-          member.id === scheduleData.staffId 
-            ? { 
-                ...member, 
-                hasSchedule: true,
-                workingDays: Object.keys(scheduleData.schedule).filter(
-                  day => scheduleData.schedule[day].enabled && scheduleData.schedule[day].shifts.length > 0
-                )
-              }
+      setStaff(prevStaff =>
+        prevStaff.map(member =>
+          member.id === scheduleData.staffId
+            ? {
+              ...member,
+              hasSchedule: true,
+              workingDays: Object.keys(scheduleData.schedule).filter(
+                day => scheduleData.schedule[day].enabled && scheduleData.schedule[day].shifts.length > 0
+              )
+            }
             : member
         )
       )
 
       // Close the modal
       setShowScheduleModal(false)
-      
+
       // Show success feedback
       const staffName = selectedStaff?.name || 'Staff member'
       setSaveMessage(`✅ Schedule saved successfully for ${staffName}!`)
-      
+
       // Clear message after 3 seconds
       setTimeout(() => setSaveMessage(''), 3000)
-      
+
       // TODO: Make API call to backend when ready
       // await updateStaffSchedule(scheduleData.staffId, scheduleData.schedule)
-      
+
     } catch (error) {
       console.error('Failed to save schedule:', error)
       setSaveMessage('❌ Failed to save schedule. Please try again.')
@@ -182,12 +182,12 @@ function StaffManagementPage() {
   return (
     <div className="page staff-management-page">
       <Header />
-      
+
       <main className="staff-management-container">
         <div className="staff-management-content">
           <header className="page-header">
             <h1>Staff Management</h1>
-            <button 
+            <button
               className="btn btn-secondary view-schedule-btn"
               onClick={handleViewSchedule}
             >
@@ -214,7 +214,7 @@ function StaffManagementPage() {
               {shops.length > 0 && (
                 <div className="shop-selector">
                   <label htmlFor="shop-select">Select Shop:</label>
-                  <select 
+                  <select
                     id="shop-select"
                     value={selectedShop?.id || ''}
                     onChange={(e) => handleShopChange(parseInt(e.target.value))}
@@ -230,7 +230,7 @@ function StaffManagementPage() {
 
               <div className="staff-section">
                 <h2>Staff Members</h2>
-                
+
                 {showAddStaffForm && (
                   <form className="add-staff-form" onSubmit={handleAddStaffSubmit}>
                     <div className="form-group">
@@ -248,8 +248,8 @@ function StaffManagementPage() {
                       <button type="submit" className="btn btn-primary" disabled={isLoading}>
                         {isLoading ? 'Adding...' : 'Add Staff'}
                       </button>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="btn btn-secondary"
                         onClick={() => {
                           setShowAddStaffForm(false)
@@ -261,7 +261,7 @@ function StaffManagementPage() {
                     </div>
                   </form>
                 )}
-                
+
                 <div className="staff-grid">
                   {staff.length === 0 ? (
                     <p className="empty-state">No staff members added yet</p>
@@ -273,28 +273,28 @@ function StaffManagementPage() {
                             {staffMember.title.charAt(0)}
                           </div>
                         </div>
-                        
+
                         <div className="staff-info">
                           <h3>{staffMember.title}</h3>
                           {staffMember.user && (
                             <p className="staff-name">{staffMember.user.name}</p>
                           )}
                         </div>
-                        
+
                         <div className="staff-actions">
-                          <button 
+                          <button
                             className="btn btn-primary btn-sm"
                             onClick={() => handleEditSchedule(staffMember)}
                           >
                             Edit Schedule
                           </button>
-                          <button 
+                          <button
                             className="btn btn-outline btn-sm"
                             onClick={() => handleBlockTime(staffMember)}
                           >
                             Block Time
                           </button>
-                          <button 
+                          <button
                             className="btn btn-danger btn-sm"
                             onClick={() => handleDeleteStaff(staffMember)}
                           >
@@ -305,9 +305,9 @@ function StaffManagementPage() {
                     ))
                   )}
                 </div>
-                
+
                 {!showAddStaffForm && (
-                  <button 
+                  <button
                     className="btn btn-primary add-staff-btn"
                     onClick={handleAddStaff}
                   >
