@@ -26,7 +26,7 @@ export async function createShop(shopData) {
     postal_code: shopData.address?.zipCode,
     phone: shopData.phone,
   }
-  
+
   console.log('Sending salon data:', salonData)
   return post('/salons', salonData)
 }
@@ -57,7 +57,7 @@ export async function uploadShopImages(shopId, images) {
   images.forEach((image, index) => {
     formData.append(`images`, image)
   })
-  
+
   return post(`/vendor/shops/${shopId}/images`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -67,7 +67,7 @@ export async function uploadShopImages(shopId, images) {
 
 export async function updateShop(salonId, shopData) {
   console.log('🔄 Updating shop:', salonId, shopData)
-  
+
   try {
     // Map frontend form data to backend salon format
     const salonData = {
@@ -81,20 +81,20 @@ export async function updateShop(salonId, shopData) {
       postal_code: shopData.address?.zipCode || '',
       phone: shopData.phone || '',
     }
-    
+
     console.log('📡 Sending update to API:', salonData)
     const response = await put(`/salons/${salonId}`, salonData)
-    
+
     console.log('✅ Update Response:', response)
     return response
-    
+
   } catch (error) {
     console.error('❌ Update API Error:', error)
-    
+
     // Fallback: Update localStorage if API fails
     const storageKey = `vendor_shops_${shopData.vendor_id}`
     const existingShops = JSON.parse(localStorage.getItem(storageKey) || '[]')
-    
+
     const updatedShops = existingShops.map(shop => {
       if (shop.id === salonId) {
         return {
@@ -115,15 +115,28 @@ export async function updateShop(salonId, shopData) {
       }
       return shop
     })
-    
+
     localStorage.setItem(storageKey, JSON.stringify(updatedShops))
-    
+
     console.log('📦 Fallback: Updated in localStorage')
-    
+
     return {
       salon: updatedShops.find(shop => shop.id === salonId),
       message: 'Shop updated (API unavailable - saved locally)'
     }
+  }
+}
+
+// UC 1.5: Submit salon for verification
+export async function submitForVerification(salonId, businessTin) {
+  try {
+    const response = await put(`/salons/${salonId}/verify`, {
+      business_tin: businessTin
+    })
+    return response
+  } catch (error) {
+    console.error('❌ Verification submission error:', error)
+    throw error
   }
 }
 

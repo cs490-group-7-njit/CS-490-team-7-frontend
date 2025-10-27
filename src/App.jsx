@@ -3,15 +3,15 @@ import './App.css'
 import PrivateRoute from './components/PrivateRoute'
 import SmartHome from './components/SmartHome'
 import { AuthProvider } from './context/AuthContext'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import DashboardPage from './pages/DashboardPage'
-import StaffManagementPage from './pages/StaffManagementPage'
-import MyShopsPage from './pages/MyShopsPage'
 import AddShopPage from './pages/AddShopPage'
+import ClientFormPage from "./pages/ClientFormPage"
+import ClientsPage from "./pages/ClientsPage"
+import DashboardPage from './pages/DashboardPage'
 import EditShopPage from './pages/EditShopPage'
-import ClientsPage from "./pages/ClientsPage";
-import ClientFormPage from "./pages/ClientFormPage";
+import LoginPage from './pages/LoginPage'
+import MyShopsPage from './pages/MyShopsPage'
+import RegisterPage from './pages/RegisterPage'
+import StaffManagementPage from './pages/StaffManagementPage'
 
 function App() {
   return (
