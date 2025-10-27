@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import './ScheduleModal.css'
 
 const DAYS_OF_WEEK = [
@@ -23,14 +23,14 @@ function ScheduleModal({ staffMember, onClose, onSave }) {
     // Initialize with existing schedule data if available
     if (staffMember) {
       const initialSchedule = { ...DEFAULT_SCHEDULE }
-      
+
       // Mock existing schedule data
       initialSchedule.Monday = { enabled: true, shifts: [{ start: '10:00', end: '14:30' }, { start: '15:30', end: '19:00' }] }
       initialSchedule.Tuesday = { enabled: true, shifts: [{ start: '09:00', end: '12:30' }, { start: '13:30', end: '18:00' }] }
       initialSchedule.Wednesday = { enabled: true, shifts: [{ start: '09:00', end: '17:00' }] }
       initialSchedule.Thursday = { enabled: true, shifts: [{ start: '09:00', end: '17:00' }] }
       initialSchedule.Friday = { enabled: true, shifts: [{ start: '09:00', end: '17:00' }] }
-      
+
       setSchedule(initialSchedule)
     }
   }, [staffMember])
@@ -44,7 +44,7 @@ function ScheduleModal({ staffMember, onClose, onSave }) {
         shifts: !prev[day].enabled ? [{ start: '09:00', end: '17:00' }] : []
       }
     }))
-    
+
     // Clear any errors for this day
     if (errors[day]) {
       setErrors(prev => ({
@@ -79,12 +79,12 @@ function ScheduleModal({ staffMember, onClose, onSave }) {
       ...prev,
       [day]: {
         ...prev[day],
-        shifts: prev[day].shifts.map((shift, index) => 
+        shifts: prev[day].shifts.map((shift, index) =>
           index === shiftIndex ? { ...shift, [field]: value } : shift
         )
       }
     }))
-    
+
     // Clear errors when user starts typing
     if (errors[day]) {
       setErrors(prev => ({
@@ -96,27 +96,27 @@ function ScheduleModal({ staffMember, onClose, onSave }) {
 
   const validateSchedule = () => {
     const newErrors = {}
-    
+
     Object.keys(schedule).forEach(day => {
       if (!schedule[day].enabled) return
-      
+
       const shifts = schedule[day].shifts
       if (shifts.length === 0) return
-      
+
       // Check for overlapping shifts
       for (let i = 0; i < shifts.length; i++) {
         const currentShift = shifts[i]
-        
+
         // Validate individual shift
         if (currentShift.start >= currentShift.end) {
           newErrors[day] = 'Start time must be before end time'
           break
         }
-        
+
         // Check for overlaps with other shifts
         for (let j = i + 1; j < shifts.length; j++) {
           const nextShift = shifts[j]
-          
+
           if (
             (currentShift.start < nextShift.end && currentShift.end > nextShift.start) ||
             (nextShift.start < currentShift.end && nextShift.end > currentShift.start)
@@ -125,11 +125,11 @@ function ScheduleModal({ staffMember, onClose, onSave }) {
             break
           }
         }
-        
+
         if (newErrors[day]) break
       }
     })
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -147,10 +147,10 @@ function ScheduleModal({ staffMember, onClose, onSave }) {
     <div className="modal-overlay">
       <div className="schedule-modal">
         <header className="modal-header">
-          <h2>Set Schedule - {staffMember?.name}</h2>
+          <h2>Set Schedule - {staffMember?.title || staffMember?.name}</h2>
           <button className="close-btn" onClick={onClose}>×</button>
         </header>
-        
+
         <div className="modal-body">
           {DAYS_OF_WEEK.map(day => (
             <div key={day} className="day-schedule">
@@ -164,7 +164,7 @@ function ScheduleModal({ staffMember, onClose, onSave }) {
                   <span className="day-name">{day}</span>
                 </label>
               </div>
-              
+
               {schedule[day].enabled && (
                 <div className="shifts-container">
                   {schedule[day].shifts.map((shift, index) => (
@@ -184,7 +184,7 @@ function ScheduleModal({ staffMember, onClose, onSave }) {
                           className="time-input"
                         />
                       </div>
-                      
+
                       {schedule[day].shifts.length > 1 && (
                         <button
                           className="remove-shift-btn"
@@ -196,14 +196,14 @@ function ScheduleModal({ staffMember, onClose, onSave }) {
                       )}
                     </div>
                   ))}
-                  
+
                   <button
                     className="add-shift-btn"
                     onClick={() => addShift(day)}
                   >
                     + Add Time Slot
                   </button>
-                  
+
                   {errors[day] && (
                     <div className="error-message">
                       ⚠ {errors[day]}
@@ -214,7 +214,7 @@ function ScheduleModal({ staffMember, onClose, onSave }) {
             </div>
           ))}
         </div>
-        
+
         <footer className="modal-footer">
           <button className="btn btn-secondary" onClick={onClose}>
             Cancel
