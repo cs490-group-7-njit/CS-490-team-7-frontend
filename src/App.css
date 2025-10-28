@@ -166,6 +166,53 @@ body {
   font-weight: 600;
 }
 
+/* User Menu and Logout Styles */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-name {
+  color: #4b4453;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  background-color: #fff;
+  color: #374151;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.logout-btn:active {
+  transform: translateY(1px);
+}
+
+.nav-link {
+  color: inherit;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
 .hero {
   width: min(1120px, 100%);
   display: grid;
@@ -396,6 +443,21 @@ body {
   .nav-links {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .user-menu {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .user-name {
+    font-size: 0.8rem;
+  }
+
+  .logout-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
   }
 
   .search {
