@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import './dashboard.css'
@@ -26,13 +27,32 @@ const demoStats = {
 }
 
 function DashboardPage() {
-  const { user } = useAuth()
+  const { user, refreshActivity } = useAuth()
+  const navigate = useNavigate()
+
+  // Refresh user activity when dashboard is accessed
+  useEffect(() => {
+    refreshActivity()
+  }, [refreshActivity])
 
   const greeting = useMemo(() => {
     const name = user?.name || 'Vendor'
     const firstName = name.split(' ')[0]
     return `Welcome to your Dashboard, ${firstName}`
   }, [user])
+
+  const handleNavigation = (item) => {
+    switch (item) {
+      case 'Staff':
+        navigate('/staff')
+        break
+      case 'Dashboard':
+        // Already on dashboard
+        break
+      default:
+        console.log(`Navigate to ${item}`)
+    }
+  }
 
   return (
     <div className="page dashboard-page">
@@ -51,7 +71,12 @@ function DashboardPage() {
               'Marketing',
               'Shop',
             ].map((item) => (
-              <button key={item} type="button" className="sidebar-item">
+              <button 
+                key={item} 
+                type="button" 
+                className="sidebar-item"
+                onClick={() => handleNavigation(item)}
+              >
                 {item}
               </button>
             ))}
