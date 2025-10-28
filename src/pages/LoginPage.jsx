@@ -15,19 +15,39 @@ function LoginPage() {
       title: 'Client',
       defaultCredentials: { email: 'client@example.com', password: 'password' },
       welcomeTitle: 'Welcome Back, Client',
-      welcomeMessage: 'Sign in to book appointments and manage your beauty services'
+      welcomeMessage: 'Sign in to book appointments and manage your beauty services',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="18" r="6" stroke="#0f766e" strokeWidth="2.5" fill="none"/>
+          <path d="M10 38c0-7.732 6.268-14 14-14s14 6.268 14 14" stroke="#0f766e" strokeWidth="2.5" strokeLinecap="round"/>
+        </svg>
+      )
     },
     vendor: {
       title: 'Vendor',
       defaultCredentials: { email: 'vicky.vendor@example.com', password: 'password' },
       welcomeTitle: 'Welcome Back, Partner',
-      welcomeMessage: 'Access your salon dashboard to manage services and appointments'
+      welcomeMessage: 'Access your salon dashboard to manage services and appointments',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+          <path d="M10 18h28v18H10z" stroke="#0f766e" strokeWidth="2.5" fill="none"/>
+          <path d="M6 18l4-8h28l4 8" stroke="#0f766e" strokeWidth="2.5" fill="none"/>
+          <path d="M18 26h12" stroke="#0f766e" strokeWidth="2.5" strokeLinecap="round"/>
+        </svg>
+      )
     },
     admin: {
       title: 'Admin',
       defaultCredentials: { email: 'admin@example.com', password: 'password' },
       welcomeTitle: 'Admin Portal',
-      welcomeMessage: 'Sign in to manage the platform and oversee operations'
+      welcomeMessage: 'Sign in to manage the platform and oversee operations',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+          <rect x="12" y="12" width="24" height="24" rx="3" stroke="#0f766e" strokeWidth="2.5" fill="none"/>
+          <path d="M18 20h12M18 24h12M18 28h8" stroke="#0f766e" strokeWidth="2.2" strokeLinecap="round"/>
+          <circle cx="32" cy="16" r="4" stroke="#0f766e" strokeWidth="2.2" fill="none"/>
+        </svg>
+      )
     }
   }
 
@@ -110,26 +130,7 @@ function LoginPage() {
 
           {/* Login Content */}
           <div className="login-icon" aria-hidden="true">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 48 48"
-              fill="none"
-            >
-              <path
-                d="M24 8v32M8 24h32"
-                stroke="#0f766e"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <circle
-                cx="24"
-                cy="24"
-                r="20"
-                stroke="#0f766e"
-                strokeWidth="2.4"
-              />
-            </svg>
+            {currentTab.icon}
           </div>
           <h2>{currentTab.welcomeTitle}</h2>
           <p>{currentTab.welcomeMessage}</p>
