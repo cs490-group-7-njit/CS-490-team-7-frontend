@@ -322,6 +322,242 @@
   color: #334155;
 }
 
+/* Client Dashboard Styles */
+.points-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.distance {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.rating {
+  color: #f59e0b;
+  font-weight: 500;
+  margin: 4px 0;
+}
+
+.availability {
+  color: #059669;
+  font-size: 0.9rem;
+  margin: 8px 0;
+}
+
+.bookings {
+  color: #7c3aed;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.visits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.visit-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.visit-details {
+  flex: 1;
+}
+
+.visit-salon {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.visit-service {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0 0 4px 0;
+}
+
+.visit-date {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.visit-rating {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rewards-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+
+.reward-item h4 {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.reward-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0f766e;
+  margin: 0;
+}
+
+/* Admin Dashboard Styles */
+.admin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.metric-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.metric-card h3 {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  display: block;
+}
+
+.metric-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 8px 0 0 0;
+}
+
+.pending-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  border-left: 4px solid #e2e8f0;
+}
+
+.action-item.high {
+  border-left-color: #ef4444;
+  background: rgba(254, 242, 242, 0.8);
+}
+
+.action-item.medium {
+  border-left-color: #f59e0b;
+  background: rgba(255, 251, 235, 0.8);
+}
+
+.action-item.low {
+  border-left-color: #10b981;
+  background: rgba(236, 253, 245, 0.8);
+}
+
+.action-details h4 {
+  margin: 0 0 4px 0;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+.action-details p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.priority-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.priority-badge.high {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.priority-badge.medium {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.priority-badge.low {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.insights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.insight-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.insight-item h4 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.insight-item p {
+  margin: 0;
+  color: #0f766e;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.revenue-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f766e;
+}
+
 @media (max-width: 960px) {
   .dashboard-layout {
     grid-template-columns: 1fr;
@@ -329,5 +565,23 @@
 
   .dashboard-sidebar {
     display: none;
+  }
+
+  .admin-metrics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .rewards-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .visit-item, .action-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .visit-rating {
+    align-self: flex-end;
   }
 }
