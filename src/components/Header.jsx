@@ -1,6 +1,14 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 function Header({ showSearch = true, showSignupLink = false }) {
+  const { user, logout, isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
   return (
     <header className={`top-nav ${showSearch ? '' : 'top-nav--compact'}`}>
       <Link to="/" className="brand">
@@ -35,16 +43,39 @@ function Header({ showSearch = true, showSignupLink = false }) {
       )}
 
       <nav className="nav-links" aria-label="Primary navigation">
-        <a href="#">Salons</a>
-        <a href="#">Shops</a>
-        {showSignupLink && (
-          <Link to="/signup" className="signup-link">
-            Signup
-          </Link>
+        {!isAuthenticated ? (
+          <>
+            <a href="#">Salons</a>
+            <a href="#">Shops</a>
+            {showSignupLink && (
+              <Link to="/signup" className="signup-link">
+                Signup
+              </Link>
+            )}
+            <a href="#" className="support-link">
+              Support
+            </a>
+          </>
+        ) : (
+          <>
+            <Link to="/dashboard" className="nav-link">
+              Dashboard
+            </Link>
+            <Link to="/staff" className="nav-link">
+              Staff
+            </Link>
+            <div className="user-menu">
+              <span className="user-name">Hello, {user?.name?.split(' ')[0] || 'User'}</span>
+              <button 
+                onClick={handleLogout}
+                className="logout-btn"
+                title="Logout"
+              >
+                Logout
+              </button>
+            </div>
+          </>
         )}
-        <a href="#" className="support-link">
-          Support
-        </a>
       </nav>
     </header>
   )

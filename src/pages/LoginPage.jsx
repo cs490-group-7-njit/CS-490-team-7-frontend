@@ -1,8 +1,32 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
+import { useAuth } from '../context/AuthContext'
 import loginBackground from '../assets/login-bg.jpg'
 
 function LoginPage() {
+  const navigate = useNavigate()
+  const { login } = useAuth()
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [status, setStatus] = useState({ loading: false, error: null })
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setStatus({ loading: true, error: null })
+
+    try {
+      await login({ email: form.email, password: form.password })
+      navigate('/dashboard')
+    } catch (error) {
+      setStatus({ loading: false, error: error.message || 'Login failed' })
+    }
+  }
+
   return (
     <div
       className="page login-page"
@@ -48,7 +72,7 @@ function LoginPage() {
             List your salon, showcase your work, and connect with new clients.
           </p>
 
-          <form className="login-form">
+          <form className="login-form" onSubmit={handleSubmit}>
             <label className="input-label" htmlFor="login-email">
               Email Address
             </label>
@@ -59,6 +83,8 @@ function LoginPage() {
               placeholder="Email Address"
               autoComplete="email"
               required
+              value={form.email}
+              onChange={handleChange}
             />
 
             <label className="input-label" htmlFor="login-password">
@@ -71,10 +97,18 @@ function LoginPage() {
               placeholder="Password"
               autoComplete="current-password"
               required
+              value={form.password}
+              onChange={handleChange}
             />
 
-            <button type="submit" className="button login-submit">
-              Log In
+            {status.error && <p className="form-error">{status.error}</p>}
+
+            <button
+              type="submit"
+              className="button login-submit"
+              disabled={status.loading}
+            >
+              {status.loading ? 'Logging In…' : 'Log In'}
             </button>
           </form>
 
