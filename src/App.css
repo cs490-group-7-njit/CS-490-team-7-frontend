@@ -317,7 +317,7 @@ body {
 }
 
 .login-card {
-  width: min(90%, 360px);
+  width: min(90%, 400px);
   background: rgba(173, 232, 221, 0.92);
   border-radius: 28px;
   padding: 32px 36px 40px;
@@ -327,6 +327,40 @@ body {
   gap: 18px;
   align-items: center;
   text-align: center;
+}
+
+/* Login Tabs Styles */
+.login-tabs {
+  display: flex;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 4px;
+  margin-bottom: 8px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: #0f3f39;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab-button:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.tab-button.active {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #0f766e;
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.15);
 }
 
 .login-card h2 {
@@ -483,5 +517,11 @@ body {
 @media (max-width: 600px) {
   .login-card {
     padding: 28px 24px 34px;
+    width: min(95%, 360px);
+  }
+
+  .tab-button {
+    font-size: 0.75rem;
+    padding: 6px 8px;
   }
 }
