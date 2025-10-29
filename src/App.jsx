@@ -15,6 +15,7 @@ import MyShopsPage from './pages/MyShopsPage'
 import RegisterPage from './pages/RegisterPage'
 import ServicesPage from './pages/ServicesPage'
 import StaffManagementPage from './pages/StaffManagementPage'
+import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
 
 function App() {
   return (
