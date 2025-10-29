@@ -119,6 +119,16 @@ function App() {
             )}
           />
 
+          {/* UC-2.5: Manage Appointments (Vendor) */}
+          <Route
+            path="/vendor/appointments"
+            element={(
+              <PrivateRoute>
+                <VendorAppointmentsPage />
+              </PrivateRoute>
+            )}
+          />
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
