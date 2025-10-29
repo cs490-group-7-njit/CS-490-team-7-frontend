@@ -8,7 +8,7 @@ import { del, get, post, put } from './http'
 export async function getStaffBySalon(salonId) {
   try {
     const response = await get(`/salons/${salonId}/staff`)
-    return response
+    return response.staff || []
   } catch (error) {
     console.error('Error fetching staff:', error)
     throw error
