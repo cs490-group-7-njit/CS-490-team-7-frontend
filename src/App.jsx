@@ -5,6 +5,7 @@ import SmartHome from './components/SmartHome'
 import { AuthProvider } from './context/AuthContext'
 import AddShopPage from './pages/AddShopPage'
 import AppointmentBookingPage from './pages/AppointmentBookingPage'
+import AppointmentDetailsPage from './pages/AppointmentDetailsPage'
 import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
 import DashboardPage from './pages/DashboardPage'
