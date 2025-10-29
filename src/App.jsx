@@ -11,6 +11,7 @@ import EditShopPage from './pages/EditShopPage'
 import LoginPage from './pages/LoginPage'
 import MyShopsPage from './pages/MyShopsPage'
 import RegisterPage from './pages/RegisterPage'
+import ServicesPage from './pages/ServicesPage'
 import StaffManagementPage from './pages/StaffManagementPage'
 
 function App() {
@@ -39,6 +40,15 @@ function App() {
             element={
               <PrivateRoute>
                 <StaffManagementPage />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/services"
+            element={
+              <PrivateRoute>
+                <ServicesPage />
               </PrivateRoute>
             }
           />
