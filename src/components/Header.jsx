@@ -65,7 +65,6 @@ function Header({ showSearch = true, showSignupLink = false }) {
               Staff
             </Link>
             <div className="user-menu">
-              <span className="user-name">Hello, {user?.name?.split(' ')[0] || 'User'}</span>
               <button 
                 onClick={handleLogout}
                 className="logout-btn"

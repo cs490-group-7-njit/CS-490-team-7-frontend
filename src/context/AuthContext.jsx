@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { loginVendor } from '../api/auth'
+import { loginUser } from '../api/auth'
 const AuthContext = createContext(null)
 const STORAGE_KEY = 'salonhub.auth'
 
@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
   }, [state])
 
   const login = useCallback(async (credentials) => {
-    const result = await loginVendor(credentials)
+    const result = await loginUser(credentials)
     const newState = { 
       user: result.user, 
       token: result.token, 
