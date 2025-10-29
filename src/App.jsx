@@ -4,6 +4,7 @@ import PrivateRoute from './components/PrivateRoute'
 import SmartHome from './components/SmartHome'
 import { AuthProvider } from './context/AuthContext'
 import AddShopPage from './pages/AddShopPage'
+import AppointmentBookingPage from './pages/AppointmentBookingPage'
 import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
 import DashboardPage from './pages/DashboardPage'
@@ -93,6 +94,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <ClientFormPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.3: Book Appointments */}
+          <Route
+            path="/appointments"
+            element={(
+              <PrivateRoute>
+                <AppointmentBookingPage />
               </PrivateRoute>
             )}
           />
