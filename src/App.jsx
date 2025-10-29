@@ -108,6 +108,16 @@ function App() {
             )}
           />
 
+          {/* UC-2.4: View Appointment Details */}
+          <Route
+            path="/appointments/:appointmentId"
+            element={(
+              <PrivateRoute>
+                <AppointmentDetailsPage />
+              </PrivateRoute>
+            )}
+          />
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
