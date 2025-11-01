@@ -13,6 +13,8 @@ import EditShopPage from './pages/EditShopPage'
 import LoginPage from './pages/LoginPage'
 import MyShopsPage from './pages/MyShopsPage'
 import RegisterPage from './pages/RegisterPage'
+import SalonDetailsPage from './pages/SalonDetailsPage'
+import SalonsSearchPage from './pages/SalonsSearchPage'
 import ServicesPage from './pages/ServicesPage'
 import StaffManagementPage from './pages/StaffManagementPage'
 import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
@@ -27,6 +29,12 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/signup" element={<RegisterPage />} />
+
+          {/* UC-2.7: Search/Filter Salons */}
+          <Route path="/salons/search" element={<SalonsSearchPage />} />
+
+          {/* UC-2.6: View Salon Details */}
+          <Route path="/salons/:salonId" element={<SalonDetailsPage />} />
 
           {/* protected routes */}
           <Route

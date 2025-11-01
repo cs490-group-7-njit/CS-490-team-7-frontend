@@ -9,6 +9,18 @@ function Header({ showSearch = true, showSignupLink = false }) {
     logout()
     navigate('/login')
   }
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    const searchInput = e.currentTarget.querySelector('input[type="search"]')
+    const query = searchInput?.value?.trim()
+    if (query) {
+      navigate(`/salons/search?query=${encodeURIComponent(query)}`)
+    } else {
+      navigate('/salons/search')
+    }
+  }
+
   return (
     <header className={`top-nav ${showSearch ? '' : 'top-nav--compact'}`}>
       <Link to="/" className="brand">
@@ -16,8 +28,8 @@ function Header({ showSearch = true, showSignupLink = false }) {
       </Link>
 
       {showSearch && (
-        <div className="search">
-          <button className="menu-button" aria-label="Open navigation">
+        <form onSubmit={handleSearch} className="search">
+          <button type="button" className="menu-button" aria-label="Open navigation">
             <span className="menu-line" />
             <span className="menu-line" />
             <span className="menu-line" />
@@ -27,7 +39,7 @@ function Header({ showSearch = true, showSignupLink = false }) {
             placeholder="Search for Salon"
             aria-label="Search for salon"
           />
-          <button className="search-button" aria-label="Search">
+          <button type="submit" className="search-button" aria-label="Search">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -39,13 +51,13 @@ function Header({ showSearch = true, showSignupLink = false }) {
               />
             </svg>
           </button>
-        </div>
+        </form>
       )}
 
       <nav className="nav-links" aria-label="Primary navigation">
         {!isAuthenticated ? (
           <>
-            <a href="#">Salons</a>
+            <Link to="/salons/search" className="nav-link">Salons</Link>
             <a href="#">Shops</a>
             {showSignupLink && (
               <Link to="/signup" className="signup-link">

@@ -16,11 +16,11 @@ function LandingPage() {
             that matches who you are and who you want to be.
           </p>
           <div className="actions">
-            <Link to="/register" className="button primary">
-              Sign Up
+            <Link to="/salons/search" className="button primary">
+              Find Salons
             </Link>
-            <Link to="/login" className="button secondary">
-              Login
+            <Link to="/register" className="button secondary">
+              Sign Up
             </Link>
           </div>
         </section>
