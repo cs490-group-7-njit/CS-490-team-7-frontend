@@ -1,15 +1,45 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import Header from '../components/Header'
+import { useNavigate, useParams } from 'react-router-dom'
+import { getSalonReviews } from '../api/reviews'
 import { getSalonDetails } from '../api/salons'
+import Header from '../components/Header'
+import ReviewForm from '../components/ReviewForm'
+import ReviewList from '../components/ReviewList'
+import { useAuth } from '../context/AuthContext'
+import '../styles/reviews.css'
 import './salon-details.css'
 
 function SalonDetailsPage() {
   const { salonId } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [salon, setSalon] = useState(null)
+  const [reviews, setReviews] = useState([])
+  const [averageRating, setAverageRating] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [loadingReviews, setLoadingReviews] = useState(false)
   const [error, setError] = useState(null)
+
+  const fetchReviews = async (id) => {
+    setLoadingReviews(true)
+    try {
+      const data = await getSalonReviews(id)
+      setReviews(data.reviews || [])
+      setAverageRating(data.average_rating || 0)
+    } catch (err) {
+      console.error('Failed to fetch reviews:', err)
+    } finally {
+      setLoadingReviews(false)
+    }
+  }
+
+  const handleReviewCreated = () => {
+    fetchReviews(parseInt(salonId))
+  }
+
+  const handleReviewDeleted = () => {
+    fetchReviews(parseInt(salonId))
+  }
 
   useEffect(() => {
     const fetchSalon = async () => {
@@ -18,6 +48,7 @@ function SalonDetailsPage() {
       try {
         const data = await getSalonDetails(parseInt(salonId))
         setSalon(data.salon)
+        await fetchReviews(parseInt(salonId))
       } catch (err) {
         console.error('Failed to fetch salon details:', err)
         setError('Failed to load salon details. Please try again.')
@@ -158,20 +189,58 @@ function SalonDetailsPage() {
             </section>
           )}
 
-          {/* Ratings */}
-          {salon.average_rating !== undefined && (
-            <section className="ratings-section">
-              <h2>Reviews</h2>
-              <div className="ratings-info">
-                <div className="rating-display">
-                  <span className="rating-stars">⭐ {salon.average_rating}</span>
-                  <span className="rating-count">
-                    {salon.total_reviews} review{salon.total_reviews !== 1 ? 's' : ''}
-                  </span>
+          {/* Reviews & Ratings */}
+          <section className="reviews-section">
+            <h2>Reviews & Ratings</h2>
+
+            {/* Average Rating Display */}
+            {averageRating > 0 && (
+              <div className="average-rating-section">
+                <div className="average-rating-display">
+                  <div className="large-rating">{averageRating.toFixed(1)}</div>
+                  <div className="star-display">
+                    {'⭐'.repeat(Math.round(averageRating))}
+                  </div>
+                  <div className="review-count">
+                    Based on {reviews.length} review{reviews.length !== 1 ? 's' : ''}
+                  </div>
                 </div>
               </div>
-            </section>
-          )}
+            )}
+
+            {/* Review Form - Only show if user is authenticated */}
+            {user && (
+              <div className="review-form-container">
+                <h3>Leave a Review</h3>
+                <ReviewForm
+                  salonId={parseInt(salonId)}
+                  clientId={user.id}
+                  onReviewCreated={handleReviewCreated}
+                />
+              </div>
+            )}
+
+            {!user && (
+              <div className="login-prompt">
+                <p>Please <button onClick={() => navigate('/login')} className="link-button">sign in</button> to leave a review</p>
+              </div>
+            )}
+
+            {/* Reviews List */}
+            {loadingReviews ? (
+              <div className="loading-reviews">Loading reviews...</div>
+            ) : reviews.length > 0 ? (
+              <ReviewList
+                reviews={reviews}
+                currentUserId={user?.id}
+                onReviewDeleted={handleReviewDeleted}
+              />
+            ) : (
+              <div className="no-reviews">
+                <p>No reviews yet. Be the first to review this salon!</p>
+              </div>
+            )}
+          </section>
 
           {/* Vendor Info */}
           {salon.vendor && (
@@ -191,7 +260,7 @@ function SalonDetailsPage() {
         <section className="cta-section">
           <h2>Ready to book?</h2>
           <p>Schedule your appointment today</p>
-          <button 
+          <button
             onClick={() => navigate('/appointments')}
             className="cta-button"
           >
