@@ -3,9 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { getSalonReviews } from '../api/reviews'
 import { getSalonDetails } from '../api/salons'
 import Header from '../components/Header'
+import ReviewFilterBar from '../components/ReviewFilterBar'
 import ReviewForm from '../components/ReviewForm'
 import ReviewList from '../components/ReviewList'
 import { useAuth } from '../context/AuthContext'
+import '../styles/review-filter.css'
 import '../styles/reviews.css'
 import './salon-details.css'
 
@@ -19,13 +21,29 @@ function SalonDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [loadingReviews, setLoadingReviews] = useState(false)
   const [error, setError] = useState(null)
+  const [totalReviews, setTotalReviews] = useState(0)
+  const [filteredCount, setFilteredCount] = useState(0)
+  const [reviewFilters, setReviewFilters] = useState({
+    sort_by: 'date',
+    order: 'desc',
+    min_rating: undefined,
+  })
 
-  const fetchReviews = async (id) => {
+  const fetchReviews = async (id, filters = {}) => {
     setLoadingReviews(true)
     try {
-      const data = await getSalonReviews(id)
+      const params = new URLSearchParams()
+      params.append('sort_by', filters.sort_by || 'date')
+      params.append('order', filters.order || 'desc')
+      if (filters.min_rating) {
+        params.append('min_rating', filters.min_rating)
+      }
+
+      const data = await getSalonReviews(id, params.toString())
       setReviews(data.reviews || [])
       setAverageRating(data.average_rating || 0)
+      setTotalReviews(data.total_reviews || 0)
+      setFilteredCount(data.filtered_count || data.reviews?.length || 0)
     } catch (err) {
       console.error('Failed to fetch reviews:', err)
     } finally {
@@ -33,12 +51,17 @@ function SalonDetailsPage() {
     }
   }
 
+  const handleFilterChange = (filters) => {
+    setReviewFilters(filters)
+    fetchReviews(parseInt(salonId), filters)
+  }
+
   const handleReviewCreated = () => {
-    fetchReviews(parseInt(salonId))
+    fetchReviews(parseInt(salonId), reviewFilters)
   }
 
   const handleReviewDeleted = () => {
-    fetchReviews(parseInt(salonId))
+    fetchReviews(parseInt(salonId), reviewFilters)
   }
 
   useEffect(() => {
@@ -48,7 +71,7 @@ function SalonDetailsPage() {
       try {
         const data = await getSalonDetails(parseInt(salonId))
         setSalon(data.salon)
-        await fetchReviews(parseInt(salonId))
+        await fetchReviews(parseInt(salonId), reviewFilters)
       } catch (err) {
         console.error('Failed to fetch salon details:', err)
         setError('Failed to load salon details. Please try again.')
@@ -224,6 +247,15 @@ function SalonDetailsPage() {
               <div className="login-prompt">
                 <p>Please <button onClick={() => navigate('/login')} className="link-button">sign in</button> to leave a review</p>
               </div>
+            )}
+
+            {/* Review Filter Bar */}
+            {reviews.length > 0 && (
+              <ReviewFilterBar
+                onFilterChange={handleFilterChange}
+                totalReviews={totalReviews}
+                filteredCount={filteredCount}
+              />
             )}
 
             {/* Reviews List */}

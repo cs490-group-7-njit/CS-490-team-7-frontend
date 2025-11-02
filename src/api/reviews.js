@@ -1,13 +1,17 @@
 import { del, get, post, put } from './http'
 
 /**
- * Get all reviews for a salon with average rating (UC 2.8)
+ * Get all reviews for a salon with filtering, sorting, and pagination (UC 2.9)
  * @param {number} salonId - The salon ID
- * @returns {Promise<Object>} Reviews list with average rating and total count
+ * @param {string} queryString - Optional query string with filters (sort_by, order, min_rating, limit, offset)
+ * @returns {Promise<Object>} Reviews list with average rating, total count, and pagination info
  */
-export const getSalonReviews = async (salonId) => {
+export const getSalonReviews = async (salonId, queryString = '') => {
   try {
-    const response = await get(`/salons/${salonId}/reviews`)
+    const url = queryString
+      ? `/salons/${salonId}/reviews?${queryString}`
+      : `/salons/${salonId}/reviews`
+    const response = await get(url)
     return response
   } catch (error) {
     console.error(`Error fetching reviews for salon ${salonId}:`, error)

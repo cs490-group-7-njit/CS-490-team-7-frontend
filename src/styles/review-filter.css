@@ -1,0 +1,133 @@
+/* Review Filter Bar Styles */
+
+.review-filter-bar {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-info {
+  flex: 0 0 auto;
+}
+
+.filter-summary {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  min-width: 150px;
+}
+
+.filter-select:hover {
+  border-color: #999;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #d4a574;
+  box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+}
+
+.reset-button {
+  padding: 8px 16px;
+  background-color: #fff;
+  border: 1px solid #d4a574;
+  border-radius: 6px;
+  color: #d4a574;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.reset-button:hover {
+  background-color: #f5f1ed;
+  border-color: #c9956a;
+}
+
+.reset-button:active {
+  transform: scale(0.98);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .review-filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .filter-info {
+    width: 100%;
+  }
+
+  .filter-controls {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .filter-group {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+
+  .reset-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .review-filter-bar {
+    padding: 8px;
+  }
+
+  .filter-select {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+}
