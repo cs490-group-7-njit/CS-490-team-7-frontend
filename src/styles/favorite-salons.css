@@ -1,0 +1,299 @@
+/* UC 2.20: Favorite Salons Page Styling */
+
+.favorite-salons-page {
+  min-height: 100vh;
+  background-color: #fafafa;
+  padding-bottom: 3rem;
+}
+
+.favorites-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.favorites-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.favorites-header h1 {
+  font-size: 2.5rem;
+  color: #0f766e;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.favorites-header .subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.favorites-info {
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.favorites-info p {
+  margin: 0;
+  color: #374151;
+  font-size: 1rem;
+}
+
+.favorites-info strong {
+  color: #0f766e;
+  font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+  background: white;
+  border: 2px dashed #d4a574;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state h2 {
+  font-size: 1.5rem;
+  color: #0f766e;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+/* Salons Grid */
+.salons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.salon-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.salon-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  flex: 1;
+}
+
+.business-type {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.info-item {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-item strong {
+  color: #0f766e;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.info-item span {
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.card-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.card-footer .secondary-button {
+  width: 100%;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pagination-button {
+  padding: 0.65rem 1.5rem;
+  background-color: #0f766e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.pagination-button:hover {
+  background-color: #0d5f59;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(15, 118, 110, 0.2);
+}
+
+.pagination-button:active {
+  transform: translateY(0);
+}
+
+.page-info {
+  color: #6b7280;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Loading Container */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+}
+
+.loading {
+  font-size: 1.1rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* Alert Messages */
+.alert {
+  margin-bottom: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.alert-error {
+  background-color: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .favorites-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .favorites-header h1 {
+    font-size: 2rem;
+  }
+
+  .salons-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pagination-button {
+    width: 100%;
+  }
+
+  .page-info {
+    order: -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .favorites-container {
+    padding: 1rem 0.75rem;
+  }
+
+  .favorites-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .favorites-header .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .card-header {
+    padding: 1rem;
+  }
+
+  .card-content {
+    padding: 1rem;
+  }
+
+  .card-footer {
+    padding: 0.75rem 1rem;
+  }
+
+  .empty-state {
+    padding: 2rem 1rem;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+  }
+
+  .empty-state h2 {
+    font-size: 1.2rem;
+  }
+}

@@ -11,6 +11,7 @@ import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
 import DashboardPage from './pages/DashboardPage'
 import EditShopPage from './pages/EditShopPage'
+import FavoriteSalonsPage from './pages/FavoriteSalonsPage'
 import LoginPage from './pages/LoginPage'
 import LoyaltyPointsPage from './pages/LoyaltyPointsPage'
 import MyShopsPage from './pages/MyShopsPage'
@@ -167,6 +168,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <ProfileEditPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.20: Save Favorite Salons */}
+          <Route
+            path="/favorites"
+            element={(
+              <PrivateRoute>
+                <FavoriteSalonsPage />
               </PrivateRoute>
             )}
           />
