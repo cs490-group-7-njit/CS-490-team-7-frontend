@@ -1,0 +1,276 @@
+/* Loyalty Points Page Styles */
+
+.loyalty-points-page {
+  min-height: 100vh;
+}
+
+.loyalty-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.loyalty-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.loyalty-header h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.loyalty-header .subtitle {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+/* Points Summary Card */
+.loyalty-summary {
+  margin-bottom: 50px;
+  display: flex;
+  justify-content: center;
+}
+
+.points-card {
+  background: linear-gradient(135deg, #d4a574 0%, #c9956a 100%);
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 300px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(212, 165, 116, 0.2);
+  color: white;
+}
+
+.points-value {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.points-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.points-sublabel {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* Loyalty by Salon Section */
+.loyalty-salons {
+  margin-bottom: 50px;
+}
+
+.loyalty-salons h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+.loyalty-list {
+  display: grid;
+  gap: 15px;
+}
+
+.loyalty-item {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.loyalty-item:hover {
+  border-color: #d4a574;
+  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.1);
+}
+
+.loyalty-salon-info h3 {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.salon-id {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.loyalty-points-display {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.loyalty-points-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #d4a574;
+}
+
+.loyalty-points-text {
+  font-size: 0.9rem;
+  color: #999;
+  font-weight: 600;
+}
+
+/* No Loyalty State */
+.no-loyalty {
+  text-align: center;
+  padding: 60px 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.no-loyalty p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+.cta-button {
+  background: #d4a574;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  background: #c9956a;
+  transform: translateY(-2px);
+}
+
+/* Rewards Info Section */
+.rewards-info {
+  margin-top: 50px;
+}
+
+.rewards-info h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+.info-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.info-item {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 25px;
+  display: flex;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.info-item:hover {
+  border-color: #d4a574;
+  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.1);
+}
+
+.info-icon {
+  font-size: 2.5rem;
+  min-width: 60px;
+}
+
+.info-item h4 {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.info-item p {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+/* Error and Loading States */
+.error-message {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  color: #c33;
+}
+
+.error-message p {
+  margin-bottom: 15px;
+}
+
+.retry-button {
+  background: #c33;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.retry-button:hover {
+  background: #a22;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.loading {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .loyalty-container {
+    padding: 20px 15px;
+  }
+
+  .loyalty-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .points-card {
+    padding: 30px 20px;
+  }
+
+  .points-value {
+    font-size: 2.5rem;
+  }
+
+  .loyalty-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .loyalty-points-display {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .info-card {
+    grid-template-columns: 1fr;
+  }
+}

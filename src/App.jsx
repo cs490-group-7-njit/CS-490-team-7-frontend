@@ -6,12 +6,15 @@ import { AuthProvider } from './context/AuthContext'
 import AddShopPage from './pages/AddShopPage'
 import AppointmentBookingPage from './pages/AppointmentBookingPage'
 import AppointmentDetailsPage from './pages/AppointmentDetailsPage'
+import AppointmentHistoryPage from './pages/AppointmentHistoryPage'
 import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
 import DashboardPage from './pages/DashboardPage'
 import EditShopPage from './pages/EditShopPage'
 import LoginPage from './pages/LoginPage'
+import LoyaltyPointsPage from './pages/LoyaltyPointsPage'
 import MyShopsPage from './pages/MyShopsPage'
+import ProfileEditPage from './pages/ProfileEditPage'
 import RegisterPage from './pages/RegisterPage'
 import SalonDetailsPage from './pages/SalonDetailsPage'
 import SalonsSearchPage from './pages/SalonsSearchPage'
@@ -134,6 +137,36 @@ function App() {
             element={(
               <PrivateRoute>
                 <VendorAppointmentsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.10: Check Loyalty Points */}
+          <Route
+            path="/loyalty-points"
+            element={(
+              <PrivateRoute>
+                <LoyaltyPointsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.11: View Appointment History */}
+          <Route
+            path="/appointments/history"
+            element={(
+              <PrivateRoute>
+                <AppointmentHistoryPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.17: Edit Profile */}
+          <Route
+            path="/profile/edit"
+            element={(
+              <PrivateRoute>
+                <ProfileEditPage />
               </PrivateRoute>
             )}
           />
