@@ -72,18 +72,24 @@ function AppointmentBookingPage() {
 
   const loadServices = async (salonId) => {
     try {
+      console.log('Loading services for salon:', salonId)
       const data = await getServicesBySalon(salonId)
+      console.log('Services loaded:', data)
       setServices(data)
     } catch (err) {
+      console.error('Error loading services:', err)
       setError(err.message || 'Failed to load services')
     }
   }
 
   const loadStaff = async (salonId) => {
     try {
+      console.log('Loading staff for salon:', salonId)
       const data = await getStaffBySalon(salonId)
+      console.log('Staff loaded:', data)
       setStaff(data)
     } catch (err) {
+      console.error('Error loading staff:', err)
       setError(err.message || 'Failed to load staff')
     }
   }
