@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createAppointment, getAvailableSlots } from '../api/appointments'
 import { getServicesBySalon } from '../api/services'
-import { getMyShops } from '../api/shops'
 import { getStaffBySalon } from '../api/staff'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
@@ -34,18 +33,16 @@ function AppointmentBookingPage() {
     refreshActivity()
   }, [refreshActivity])
 
-  // Load shops on mount (for vendor browsing their own salons)
+  // Load shops on mount (get all published salons)
   useEffect(() => {
-    if (user?.id) {
-      loadShops()
-    }
-  }, [user])
+    loadShops()
+  }, [])
 
   const loadShops = async () => {
     try {
       setIsLoading(true)
       setError(null)
-      const response = await getMyShops(user.id)
+      const response = await searchSalons({ limit: 100 })
       if (response.salons) {
         setShops(response.salons)
       }
