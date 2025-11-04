@@ -288,6 +288,17 @@ function SalonDetailsPage() {
           )}
         </div>
 
+        {/* Analytics Section */}
+        <section className="analytics-link-section">
+          <button
+            onClick={() => navigate(`/salons/${salonId}/analytics`)}
+            className="analytics-button"
+            title="View performance analytics for this salon"
+          >
+            📊 View Analytics
+          </button>
+        </section>
+
         {/* CTA Section */}
         <section className="cta-section">
           <h2>Ready to book?</h2>
