@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const VendorForm = () => {
+const ClientFormPage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
@@ -16,16 +16,16 @@ const VendorForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Vendor submitted:", form);
-    navigate("/vendors");
+    console.log("Client submitted:", form);
+    navigate("/clients");
   };
 
   return (
     <div style={{ padding: "1.5rem" }}>
-      <h1>Add Vendor</h1>
+      <h1>Add Client</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Vendor Name</label>
+          <label>Client Name</label>
           <input name="name" value={form.name} onChange={handleChange} required />
         </div>
         <div>
@@ -40,10 +40,11 @@ const VendorForm = () => {
           <label>Phone</label>
           <input name="phone" value={form.phone} onChange={handleChange} />
         </div>
-        <button type="submit">Save Vendor</button>
+        <button type="submit">Save Client</button>
       </form>
     </div>
   );
 };
 
-export default VendorForm;
+export default ClientFormPage;
+
