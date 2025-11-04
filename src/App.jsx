@@ -14,6 +14,7 @@ import EditShopPage from './pages/EditShopPage'
 import FavoriteSalonsPage from './pages/FavoriteSalonsPage'
 import LoginPage from './pages/LoginPage'
 import LoyaltyPointsPage from './pages/LoyaltyPointsPage'
+import MessagesPage from './pages/MessagesPage'
 import MyShopsPage from './pages/MyShopsPage'
 import NotificationsPage from './pages/NotificationsPage'
 import PaymentHistoryPage from './pages/PaymentHistoryPage'
@@ -163,6 +164,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <NotificationsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.7: Contact Vendor */}
+          <Route
+            path="/messages"
+            element={(
+              <PrivateRoute>
+                <MessagesPage />
               </PrivateRoute>
             )}
           />

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
+import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead } from '../api/notifications'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
-import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../api/notifications'
 import './notifications.css'
 
 function NotificationsPage() {
