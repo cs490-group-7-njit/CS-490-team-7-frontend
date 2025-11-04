@@ -280,12 +280,23 @@
   gap: 10px;
 }
 
+.header-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.favorite-button-container {
+  flex-shrink: 0;
+}
+
 .salon-card-header h3 {
   font-size: 1.2rem;
   font-weight: 700;
   margin: 0;
   color: #2c3e50;
-  flex: 1;
 }
 
 .salon-type {
@@ -551,14 +562,48 @@
   .salon-description {
     font-size: 0.9rem;
   }
+}
 
-  .pagination-info {
-    font-size: 0.9rem;
-    min-width: 120px;
-  }
+/* Favorite Button Styling */
+.favorite-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 1.5rem;
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .pagination-btn {
-    padding: 8px 15px;
-    font-size: 0.9rem;
-  }
+.favorite-button:hover {
+  transform: scale(1.2);
+}
+
+.favorite-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.favorite-button-medium {
+  font-size: 1.5rem;
+}
+
+.favorite-button-large {
+  font-size: 2rem;
+}
+
+.favorite-button-small {
+  font-size: 1.2rem;
+}
+
+.pagination-info {
+  font-size: 0.9rem;
+  min-width: 120px;
+}
+
+.pagination-btn {
+  padding: 8px 15px;
+  font-size: 0.9rem;
 }

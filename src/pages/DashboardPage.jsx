@@ -134,6 +134,9 @@ function DashboardPage() {
       case 'My Shops':
         navigate('/shops')
         break
+      case 'Favorite Salons':
+        navigate('/favorites')
+        break
       case 'Dashboard':
         // Already on dashboard
         break

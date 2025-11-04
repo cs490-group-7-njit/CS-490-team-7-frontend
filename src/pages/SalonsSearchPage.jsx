@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { searchSalons } from '../api/salons'
+import FavoriteButton from '../components/FavoriteButton'
 import Header from '../components/Header'
 import './salons-search.css'
 
@@ -264,10 +265,15 @@ function SalonsSearchPage() {
                         onClick={() => navigate(`/salons/${salon.id}`)}
                       >
                         <div className="salon-card-header">
-                          <h3>{salon.name}</h3>
-                          {salon.business_type && (
-                            <span className="salon-type">{salon.business_type}</span>
-                          )}
+                          <div className="header-title">
+                            <h3>{salon.name}</h3>
+                            {salon.business_type && (
+                              <span className="salon-type">{salon.business_type}</span>
+                            )}
+                          </div>
+                          <div className="favorite-button-container">
+                            <FavoriteButton salonId={salon.id} size="medium" />
+                          </div>
                         </div>
 
                         <p className="salon-description">
