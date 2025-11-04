@@ -1,8 +1,8 @@
-import { useMemo, useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getMyShops } from '../api/shops'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
-import { getMyShops } from '../api/shops'
 import './dashboard.css'
 
 // Vendor Dashboard Data
@@ -100,7 +100,7 @@ function DashboardPage() {
     try {
       setShopsLoading(true)
       const response = await getMyShops(user.id)
-      
+
       if (response.salons && !response.error) {
         const transformedShops = response.salons.map(salon => ({
           id: salon.id,
@@ -163,9 +163,9 @@ function DashboardPage() {
         <aside className="dashboard-sidebar">
           <nav aria-label="Dashboard navigation">
             {getSidebarItems().map((item) => (
-              <button 
-                key={item} 
-                type="button" 
+              <button
+                key={item}
+                type="button"
                 className="sidebar-item"
                 onClick={() => handleNavigation(item)}
               >
@@ -246,13 +246,13 @@ function DashboardPage() {
               <div className="summary-card">
                 <p className="summary-title">My Shops</p>
                 <p className="summary-subtitle">
-                  {shopsLoading 
-                    ? 'Loading shops...' 
+                  {shopsLoading
+                    ? 'Loading shops...'
                     : `You have ${vendorShops.length} ${vendorShops.length === 1 ? 'shop' : 'shops'} registered.`
                   }
                 </p>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="pill-button"
                   onClick={() => navigate('/shops')}
                 >
@@ -281,8 +281,8 @@ function DashboardPage() {
                     </div>
                   )}
                 </div>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="pill-button"
                   onClick={() => navigate('/shops/new')}
                 >
