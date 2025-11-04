@@ -21,6 +21,11 @@ export default function StaffRatingPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
+    if (!staffId) {
+      setError('Staff not found');
+      setTimeout(() => navigate('/dashboard'), 2000);
+      return;
+    }
     loadStaffData();
   }, [staffId]);
 
