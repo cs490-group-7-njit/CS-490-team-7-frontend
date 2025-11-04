@@ -196,7 +196,11 @@ function DashboardPage() {
                   <p className="summary-subtitle">
                     Beauty Paradise - Tomorrow 2:00 PM
                   </p>
-                  <button type="button" className="pill-button">
+                  <button 
+                    type="button" 
+                    className="pill-button"
+                    onClick={() => navigate('/appointments/history')}
+                  >
                     View Details
                   </button>
                 </div>
@@ -325,7 +329,11 @@ function DashboardPage() {
                       <p className="distance">{shop.distance} away</p>
                       <p className="rating">★ {shop.rating}</p>
                       <p className="availability">Next: {shop.nextAvailable}</p>
-                      <button type="button" className="pill-button">
+                      <button 
+                        type="button" 
+                        className="pill-button"
+                        onClick={() => navigate('/salons/search')}
+                      >
                         Book Now
                       </button>
                     </article>
@@ -345,7 +353,11 @@ function DashboardPage() {
                       <h3>{shop.name}</h3>
                       <p className="bookings">{shop.bookings} bookings this month</p>
                       <p className="rating">★ {shop.rating}</p>
-                      <button type="button" className="pill-button">
+                      <button 
+                        type="button" 
+                        className="pill-button"
+                        onClick={() => navigate('/salons/search')}
+                      >
                         View Details
                       </button>
                     </article>
