@@ -22,6 +22,7 @@ import SalonDetailsPage from './pages/SalonDetailsPage'
 import SalonsSearchPage from './pages/SalonsSearchPage'
 import ServicesPage from './pages/ServicesPage'
 import StaffManagementPage from './pages/StaffManagementPage'
+import StaffRatingPage from './pages/StaffRatingPage'
 import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
 
 function App() {
@@ -189,6 +190,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <SalonAnalyticsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.16: Rate Staff */}
+          <Route
+            path="/staff/:staffId/rate"
+            element={(
+              <PrivateRoute>
+                <StaffRatingPage />
               </PrivateRoute>
             )}
           />

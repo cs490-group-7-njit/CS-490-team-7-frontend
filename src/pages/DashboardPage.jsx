@@ -310,8 +310,8 @@ function DashboardPage() {
                     <p className="section-date">Available Today</p>
                     <h2>Nearby Salons</h2>
                   </div>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="primary-button"
                     onClick={() => navigate('/salons/search')}
                   >

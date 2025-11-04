@@ -254,6 +254,14 @@ function AppointmentDetailsPage() {
               <span className="label">Title:</span>
               <span className="value">{appointment.staff.title}</span>
             </div>
+            <div className="detail-row staff-actions">
+              <button
+                className="btn-rate-staff"
+                onClick={() => navigate(`/staff/${appointment.staff.staff_id}/rate`)}
+              >
+                ⭐ Rate This Staff Member
+              </button>
+            </div>
           </section>
 
           {/* DateTime Details */}

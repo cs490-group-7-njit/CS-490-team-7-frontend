@@ -49,3 +49,5 @@ export function del(path) {
     method: 'DELETE',
   })
 }
+
+export { API_BASE_URL as apiBaseURL }
