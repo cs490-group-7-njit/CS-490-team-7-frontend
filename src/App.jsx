@@ -17,6 +17,7 @@ import LoyaltyPointsPage from './pages/LoyaltyPointsPage'
 import MyShopsPage from './pages/MyShopsPage'
 import ProfileEditPage from './pages/ProfileEditPage'
 import RegisterPage from './pages/RegisterPage'
+import SalonAnalyticsPage from './pages/SalonAnalyticsPage'
 import SalonDetailsPage from './pages/SalonDetailsPage'
 import SalonsSearchPage from './pages/SalonsSearchPage'
 import ServicesPage from './pages/ServicesPage'
@@ -178,6 +179,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <FavoriteSalonsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.15: View Salon Performance Analytics */}
+          <Route
+            path="/salons/:salonId/analytics"
+            element={(
+              <PrivateRoute>
+                <SalonAnalyticsPage />
               </PrivateRoute>
             )}
           />
