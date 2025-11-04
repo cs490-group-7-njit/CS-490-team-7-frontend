@@ -88,6 +88,7 @@ function AppointmentBookingPage() {
       const data = await getStaffBySalon(salonId)
       console.log('Staff loaded:', data)
       setStaff(data)
+      // Don't set error even if staff is empty - that's valid
     } catch (err) {
       console.error('Error loading staff:', err)
       setError(err.message || 'Failed to load staff')
