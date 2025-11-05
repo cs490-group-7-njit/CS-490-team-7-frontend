@@ -118,3 +118,31 @@ export async function getRealtimeAnalytics() {
   }
   return response.json()
 }
+
+/**
+ * UC 3.10: Admin Reports API functions
+ */
+
+// Generate reports with various formats and types
+export async function generateReport(options = {}) {
+  const {
+    reportType = 'summary',
+    format = 'json',
+    period = '30d',
+    dateFrom = '',
+    dateTo = ''
+  } = options
+
+  const params = new URLSearchParams()
+  params.append('report_type', reportType)
+  params.append('format', format)
+  params.append('period', period)
+  if (dateFrom) params.append('date_from', dateFrom)
+  if (dateTo) params.append('date_to', dateTo)
+
+  const response = await fetch(`/admin/reports?${params}`)
+  if (!response.ok) {
+    throw new Error('Failed to generate report')
+  }
+  return response.json()
+}

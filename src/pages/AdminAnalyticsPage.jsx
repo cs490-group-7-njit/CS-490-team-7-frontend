@@ -1,22 +1,22 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import Header from '../components/Header'
-import { getAnalyticsData, getRealtimeAnalytics } from '../api/admin'
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
+  ArcElement,
   BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  RadialLinearScale,
   Title,
   Tooltip,
-  Legend,
-  ArcElement,
-  RadialLinearScale,
 } from 'chart.js'
-import { Line, Bar, Doughnut, Radar } from 'react-chartjs-2'
+import { useEffect, useState } from 'react'
+import { Bar, Doughnut, Line } from 'react-chartjs-2'
+import { useNavigate } from 'react-router-dom'
+import { getAnalyticsData, getRealtimeAnalytics, generateReport as generateReportAPI } from '../api/admin'
+import Header from '../components/Header'
+import { useAuth } from '../context/AuthContext'
 import './admin-analytics.css'
 
 ChartJS.register(
@@ -40,6 +40,14 @@ function AdminAnalyticsPage() {
   const [loading, setLoading] = useState(false)
   const [realtimeLoading, setRealtimeLoading] = useState(false)
   const [selectedTimeframe, setSelectedTimeframe] = useState('12months')
+  const [reportType, setReportType] = useState('summary')
+  const [reportFormat, setReportFormat] = useState('json')
+  const [reportPeriod, setReportPeriod] = useState('30d')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [generatingReport, setGeneratingReport] = useState(false)
+  const [reportData, setReportData] = useState(null)
+  const [recentReports, setRecentReports] = useState([])
 
   // Redirect if not admin
   useEffect(() => {
@@ -224,11 +232,11 @@ function AdminAnalyticsPage() {
     days.forEach(day => {
       const dayData = analyticsData.peak_hours.by_day[day] || {}
       const data = []
-      
+
       for (let hour = 0; hour < 24; hour++) {
         data.push(dayData[hour] || 0)
       }
-      
+
       datasets.push({
         label: day,
         data: data,
@@ -524,6 +532,408 @@ function AdminAnalyticsPage() {
     },
   }
 
+  // Report generation
+  const handleGenerateReport = async () => {
+    setGeneratingReport(true)
+    setReportData(null)
+
+    try {
+      const reportParams = {
+        reportType,
+        format: reportFormat,
+        period: reportPeriod,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined
+      }
+
+      const response = await generateReportAPI(reportParams)
+      setReportData({
+        type: reportType,
+        format: reportFormat,
+        period: reportPeriod,
+        generatedAt: response.generated_at,
+        content: response.data,
+        parameters: response.parameters
+      })
+    } catch (error) {
+      console.error('Error generating report:', error)
+      // For now, show a simple error message
+      setReportData({
+        type: reportType,
+        format: reportFormat,
+        period: reportPeriod,
+        generatedAt: new Date().toLocaleString(),
+        content: 'Error generating report. Please try again.',
+        error: true
+      })
+    } finally {
+      setGeneratingReport(false)
+    }
+  }
+
+  const downloadReport = async (report) => {
+    const reportToDownload = report || reportData
+    if (!reportToDownload) return
+
+    try {
+      const reportParams = {
+        reportType: reportToDownload.type,
+        format: reportToDownload.format,
+        period: reportToDownload.period,
+        dateFrom: reportToDownload.parameters?.date_from || '',
+        dateTo: reportToDownload.parameters?.date_to || ''
+      }
+
+      const response = await generateReportAPI(reportParams)
+
+      if (reportToDownload.format === 'json') {
+        // Download as JSON file
+        const dataStr = JSON.stringify(response, null, 2)
+        const dataBlob = new Blob([dataStr], { type: 'application/json' })
+        const url = URL.createObjectURL(dataBlob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `${reportToDownload.type}_report_${new Date().toISOString().split('T')[0]}.json`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      } else if (reportToDownload.format === 'csv') {
+        // For CSV, the backend should return CSV content
+        // For now, create a simple CSV from the JSON data
+        const csvContent = convertToCSV(response.data)
+        const dataBlob = new Blob([csvContent], { type: 'text/csv' })
+        const url = URL.createObjectURL(dataBlob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `${reportToDownload.type}_report_${new Date().toISOString().split('T')[0]}.csv`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      } else if (reportToDownload.format === 'pdf') {
+        // For PDF, we'd need to implement PDF generation or use a library
+        alert('PDF download not yet implemented. Please use JSON or CSV format.')
+      }
+    } catch (error) {
+      console.error('Error downloading report:', error)
+      alert('Failed to download report. Please try again.')
+    }
+  }
+
+  const convertToCSV = (data) => {
+    // Simple CSV conversion - in a real app, you'd want more sophisticated CSV generation
+    const rows = []
+    rows.push(['Report Type', 'Generated At', 'Date From', 'Date To'])
+
+    if (data) {
+      Object.keys(data).forEach(section => {
+        rows.push([section.toUpperCase(), '', '', ''])
+        // Add section data - simplified for now
+        rows.push(['Data', JSON.stringify(data[section]).substring(0, 100) + '...'])
+      })
+    }
+
+    return rows.map(row => row.join(',')).join('\n')
+  }
+
+  const shareReport = async (report) => {
+    const reportToShare = report || reportData
+    if (!reportToShare) return
+
+    try {
+      // Create a shareable summary
+      const shareText = `Analytics Report: ${reportToShare.type.toUpperCase()} - Generated on ${reportToShare.generatedAt}
+
+Key Insights:
+${getReportSummary(reportToShare)}
+
+Generated by Admin Analytics Dashboard`
+
+      // Try to use the Web Share API if available
+      if (navigator.share) {
+        await navigator.share({
+          title: `Analytics Report: ${reportToShare.type}`,
+          text: shareText,
+          url: window.location.href
+        })
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(shareText)
+        alert('Report summary copied to clipboard!')
+      }
+    } catch (error) {
+      console.error('Error sharing report:', error)
+      alert('Failed to share report. Please try again.')
+    }
+  }
+
+  const getReportSummary = (report) => {
+    if (!report.content) return 'Report data not available'
+
+    const data = report.content
+    let summary = ''
+
+    switch (report.type) {
+      case 'summary':
+        if (data.executive_summary) {
+          const metrics = data.executive_summary.key_metrics
+          summary = `- Total Users: ${metrics.total_users.toLocaleString()}
+- Total Revenue: $${metrics.total_revenue.toLocaleString()}
+- Total Appointments: ${metrics.total_appointments.toLocaleString()}`
+        }
+        break
+      case 'users':
+        if (data.user_analytics) {
+          const roles = data.user_analytics.demographics.by_role
+          summary = `- User Roles: ${Object.entries(roles).map(([role, count]) => `${role}: ${count}`).join(', ')}`
+        }
+        break
+      case 'salons':
+        if (data.salon_performance) {
+          summary = `- Total Salons: ${data.salon_performance.overview.total_salons}
+- Published Salons: ${data.salon_performance.overview.published_salons}`
+        }
+        break
+      case 'revenue':
+        if (data.revenue_analysis) {
+          summary = `- Total Revenue: $${data.revenue_analysis.summary.total_revenue.toLocaleString()}
+- Avg Transaction: $${data.revenue_analysis.summary.avg_transaction_value.toFixed(2)}`
+        }
+        break
+      case 'retention':
+        if (data.retention_analysis) {
+          summary = `- 30-Day Retention: ${data.retention_analysis.retention_30d}%
+- Repeat Customer Rate: ${data.retention_analysis.repeat_customer_rate}%`
+        }
+        break
+      default:
+        summary = 'Comprehensive analytics data available in the full report.'
+    }
+
+    return summary
+  }
+
+  const renderReportContent = () => {
+    if (!reportData || !reportData.content) return null
+
+    const data = reportData.content
+
+    switch (reportData.type) {
+      case 'summary':
+        if (data.executive_summary) {
+          const summary = data.executive_summary
+          return (
+            <div className="report-summary">
+              <h4>Executive Summary</h4>
+              <div className="summary-grid">
+                <div className="summary-item">
+                  <h5>Key Metrics</h5>
+                  <ul>
+                    <li>Total Users: {summary.key_metrics.total_users.toLocaleString()}</li>
+                    <li>New Users (Period): {summary.key_metrics.new_users_period.toLocaleString()}</li>
+                    <li>Total Salons: {summary.key_metrics.total_salons.toLocaleString()}</li>
+                    <li>Active Salons: {summary.key_metrics.active_salons.toLocaleString()}</li>
+                    <li>Total Appointments: {summary.key_metrics.total_appointments.toLocaleString()}</li>
+                    <li>Completed Appointments: {summary.key_metrics.completed_appointments.toLocaleString()}</li>
+                    <li>Total Revenue: ${summary.key_metrics.total_revenue.toLocaleString()}</li>
+                  </ul>
+                </div>
+                <div className="summary-item">
+                  <h5>Growth Rates</h5>
+                  <ul>
+                    <li>User Growth: {summary.growth_rates.user_growth}%</li>
+                    <li>Appointment Growth: {summary.growth_rates.appointment_growth}%</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )
+        }
+        return <div>Summary report data not available</div>
+
+      case 'users':
+        if (data.user_analytics) {
+          const analytics = data.user_analytics
+          return (
+            <div className="report-users">
+              <h4>User Analytics</h4>
+              <div className="analytics-grid">
+                <div className="analytics-item">
+                  <h5>User Roles Distribution</h5>
+                  <ul>
+                    {Object.entries(analytics.demographics.by_role).map(([role, count]) => (
+                      <li key={role}>{role}: {count}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="analytics-item">
+                  <h5>Top Cities</h5>
+                  <ul>
+                    {Object.entries(analytics.geographic_distribution.top_cities).map(([city, count]) => (
+                      <li key={city}>{city}: {count}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )
+        }
+        return <div>User analytics data not available</div>
+
+      case 'salons':
+        if (data.salon_performance) {
+          const performance = data.salon_performance
+          return (
+            <div className="report-salons">
+              <h4>Salon Performance</h4>
+              <div className="performance-overview">
+                <h5>Overview</h5>
+                <ul>
+                  <li>Total Salons: {performance.overview.total_salons}</li>
+                  <li>Published Salons: {performance.overview.published_salons}</li>
+                </ul>
+              </div>
+              <div className="performance-metrics">
+                <h5>Top Performing Salons</h5>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Appointments</th>
+                      <th>Revenue</th>
+                      <th>Rating</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {performance.performance_metrics.slice(0, 10).map((salon) => (
+                      <tr key={salon.salon_id}>
+                        <td>{salon.name}</td>
+                        <td>{salon.appointments}</td>
+                        <td>${salon.revenue.toFixed(2)}</td>
+                        <td>{salon.rating.toFixed(1)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )
+        }
+        return <div>Salon performance data not available</div>
+
+      case 'revenue':
+        if (data.revenue_analysis) {
+          const revenue = data.revenue_analysis
+          return (
+            <div className="report-revenue">
+              <h4>Revenue Analysis</h4>
+              <div className="revenue-summary">
+                <h5>Summary</h5>
+                <ul>
+                  <li>Total Revenue: ${revenue.summary.total_revenue.toLocaleString()}</li>
+                  <li>Average Transaction Value: ${revenue.summary.avg_transaction_value.toFixed(2)}</li>
+                </ul>
+              </div>
+              <div className="revenue-breakdown">
+                <h5>Monthly Breakdown</h5>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Revenue</th>
+                      <th>Transactions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {revenue.monthly_breakdown.map((month) => (
+                      <tr key={month.month}>
+                        <td>{month.month}</td>
+                        <td>${month.revenue.toFixed(2)}</td>
+                        <td>{month.transactions}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )
+        }
+        return <div>Revenue analysis data not available</div>
+
+      case 'appointments':
+        if (data.appointment_analytics) {
+          const appointments = data.appointment_analytics
+          return (
+            <div className="report-appointments">
+              <h4>Appointment Analytics</h4>
+              <div className="appointment-breakdown">
+                <h5>Status Breakdown</h5>
+                <ul>
+                  {Object.entries(appointments.status_breakdown).map(([status, count]) => (
+                    <li key={status}>{status}: {count}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )
+        }
+        return <div>Appointment analytics data not available</div>
+
+      case 'retention':
+        if (data.retention_analysis) {
+          const retention = data.retention_analysis
+          return (
+            <div className="report-retention">
+              <h4>Retention Analysis</h4>
+              <div className="retention-metrics">
+                <h5>Key Metrics</h5>
+                <ul>
+                  <li>30-Day Retention: {retention.retention_30d}%</li>
+                  <li>Repeat Customer Rate: {retention.repeat_customer_rate}%</li>
+                </ul>
+              </div>
+              <div className="cohort-analysis">
+                <h5>Cohort Analysis</h5>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Cohort Month</th>
+                      <th>Cohort Size</th>
+                      <th>Retained Next Month</th>
+                      <th>Retention Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {retention.cohort_analysis.map((cohort) => (
+                      <tr key={cohort.cohort_month}>
+                        <td>{cohort.cohort_month}</td>
+                        <td>{cohort.cohort_size}</td>
+                        <td>{cohort.retained_next_month}</td>
+                        <td>{cohort.retention_rate}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )
+        }
+        return <div>Retention analysis data not available</div>
+
+      case 'full':
+        return (
+          <div className="report-full">
+            <h4>Full Report</h4>
+            <p>This is a comprehensive report containing all analytics data. Please download for complete details.</p>
+          </div>
+        )
+
+      default:
+        return <div>Unknown report type</div>
+    }
+  }
+
   return (
     <div className="page admin-analytics-page">
       <Header />
@@ -719,7 +1129,7 @@ function AdminAnalyticsPage() {
         {/* Appointment Trends & Peak Hours Analysis - UC 3.5 */}
         <section className="appointment-trends-section">
           <h2>Appointment Trends & Peak Hours Analysis</h2>
-          
+
           {/* Peak Hours Insights */}
           {analyticsData?.peak_hours?.insights && (
             <div className="insights-cards">
@@ -728,19 +1138,19 @@ function AdminAnalyticsPage() {
                 <p className="insight-value">{analyticsData.peak_hours.insights.peak_hours_range}</p>
                 <p className="insight-label">Most active booking period</p>
               </div>
-              
+
               <div className="insight-card">
                 <h3>Busiest Hour</h3>
                 <p className="insight-value">{analyticsData.peak_hours.insights.busiest_hour}</p>
                 <p className="insight-label">Highest appointment volume</p>
               </div>
-              
+
               <div className="insight-card">
                 <h3>Peak Period Coverage</h3>
                 <p className="insight-value">{analyticsData.peak_hours.insights.peak_percentage}%</p>
                 <p className="insight-label">Of total appointments in peak hours</p>
               </div>
-              
+
               <div className="insight-card">
                 <h3>Peak Appointments</h3>
                 <p className="insight-value">{analyticsData.peak_hours.insights.total_peak_appointments.toLocaleString()}</p>
@@ -802,7 +1212,7 @@ function AdminAnalyticsPage() {
         {/* Salon Revenue Tracking - UC 3.6 */}
         <section className="salon-revenue-section">
           <h2>Salon Revenue Tracking</h2>
-          
+
           {/* Revenue Insights */}
           {analyticsData?.salon_revenue?.top_salons && analyticsData.salon_revenue.top_salons.length > 0 && (
             <div className="insights-cards">
@@ -811,7 +1221,7 @@ function AdminAnalyticsPage() {
                 <p className="insight-value">{analyticsData.salon_revenue.top_salons[0].name}</p>
                 <p className="insight-label">${analyticsData.salon_revenue.top_salons[0].revenue.toLocaleString()} revenue</p>
               </div>
-              
+
               <div className="insight-card">
                 <h3>Average Revenue/Salon</h3>
                 <p className="insight-value">
@@ -819,7 +1229,7 @@ function AdminAnalyticsPage() {
                 </p>
                 <p className="insight-label">Across top performers</p>
               </div>
-              
+
               <div className="insight-card">
                 <h3>Highest Avg/Appointment</h3>
                 <p className="insight-value">
@@ -827,7 +1237,7 @@ function AdminAnalyticsPage() {
                 </p>
                 <p className="insight-label">Best revenue efficiency</p>
               </div>
-              
+
               <div className="insight-card">
                 <h3>Total Revenue</h3>
                 <p className="insight-value">
@@ -891,7 +1301,7 @@ function AdminAnalyticsPage() {
         {/* Loyalty Program Monitoring - UC 3.7 */}
         <section className="loyalty-program-section">
           <h2>Loyalty Program Monitoring</h2>
-          
+
           {/* Loyalty Insights */}
           {analyticsData?.loyalty_program?.overview && (
             <div className="insights-cards">
@@ -900,19 +1310,19 @@ function AdminAnalyticsPage() {
                 <p className="insight-value">{analyticsData.loyalty_program.overview.total_users.toLocaleString()}</p>
                 <p className="insight-label">Active program members</p>
               </div>
-              
+
               <div className="insight-card">
                 <h3>Total Points</h3>
                 <p className="insight-value">{analyticsData.loyalty_program.overview.total_points.toLocaleString()}</p>
                 <p className="insight-label">Points in circulation</p>
               </div>
-              
+
               <div className="insight-card">
                 <h3>Avg Points/User</h3>
                 <p className="insight-value">{analyticsData.loyalty_program.overview.avg_points_per_user}</p>
                 <p className="insight-label">Average balance per user</p>
               </div>
-              
+
               <div className="insight-card">
                 <h3>Engagement Rate</h3>
                 <p className="insight-value">{analyticsData.loyalty_program.user_engagement.engagement_rate}%</p>
@@ -1072,7 +1482,7 @@ function AdminAnalyticsPage() {
                 {loading ? (
                   <div className="chart-loading">Loading chart...</div>
                 ) : getCohortRetentionData() ? (
-                  <Line data={getCohortRetentionData()} options={{...chartOptions, scales: { y: { beginAtZero: true, max: 100 } }}} />
+                  <Line data={getCohortRetentionData()} options={{ ...chartOptions, scales: { y: { beginAtZero: true, max: 100 } } }} />
                 ) : (
                   <div className="chart-error">No data available</div>
                 )}
@@ -1080,6 +1490,125 @@ function AdminAnalyticsPage() {
             </div>
           </div>
         </section>
+
+        {/* Reports Generation - UC 3.10 */}
+        <section className="reports-section">
+          <h2>Reports & Export</h2>
+
+          <div className="reports-controls">
+            <div className="control-group">
+              <label>Report Type:</label>
+              <select value={reportType} onChange={(e) => setReportType(e.target.value)}>
+                <option value="summary">Executive Summary</option>
+                <option value="users">User Analytics</option>
+                <option value="salons">Salon Performance</option>
+                <option value="revenue">Revenue Analysis</option>
+                <option value="appointments">Appointment Analytics</option>
+                <option value="retention">Retention Analysis</option>
+                <option value="full">Full Report</option>
+              </select>
+            </div>
+
+            <div className="control-group">
+              <label>Format:</label>
+              <select value={reportFormat} onChange={(e) => setReportFormat(e.target.value)}>
+                <option value="json">JSON</option>
+                <option value="csv">CSV</option>
+                <option value="pdf">PDF</option>
+              </select>
+            </div>
+
+            <div className="control-group">
+              <label>Time Period:</label>
+              <select value={reportPeriod} onChange={(e) => setReportPeriod(e.target.value)}>
+                <option value="7d">Last 7 Days</option>
+                <option value="30d">Last 30 Days</option>
+                <option value="90d">Last 90 Days</option>
+                <option value="1y">Last Year</option>
+              </select>
+            </div>
+
+            <div className="control-group">
+              <label>Custom Date Range:</label>
+              <div className="date-range">
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  placeholder="From"
+                />
+                <span>to</span>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  placeholder="To"
+                />
+              </div>
+            </div>
+
+            <div className="control-group">
+              <button
+                className="generate-report-btn"
+                onClick={handleGenerateReport}
+                disabled={generatingReport}
+              >
+                {generatingReport ? 'Generating...' : 'Generate Report'}
+              </button>
+            </div>
+          </div>
+
+          {reportData && (
+            <div className="report-preview">
+              <h3>Report Preview</h3>
+              <div className="report-meta">
+                <span><strong>Type:</strong> {reportType.replace('_', ' ').toUpperCase()}</span>
+                <span><strong>Format:</strong> {reportFormat.toUpperCase()}</span>
+                <span><strong>Period:</strong> {reportPeriod}</span>
+                <span><strong>Generated:</strong> {new Date().toLocaleString()}</span>
+              </div>
+
+              <div className="report-content">
+                {renderReportContent()}
+              </div>
+
+              <div className="report-actions">
+                <button
+                  className="download-btn"
+                  onClick={downloadReport}
+                  disabled={!reportData}
+                >
+                  Download {reportFormat.toUpperCase()}
+                </button>
+                <button
+                  className="share-btn"
+                  onClick={shareReport}
+                >
+                  Share Report
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="recent-reports">
+            <h3>Recent Reports</h3>
+            <div className="reports-list">
+              {recentReports.map((report, index) => (
+                <div key={index} className="report-item">
+                  <div className="report-info">
+                    <span className="report-name">{report.type} Report</span>
+                    <span className="report-date">{report.generatedAt}</span>
+                  </div>
+                  <div className="report-actions">
+                    <button onClick={() => downloadReport(report)}>Download</button>
+                    <button onClick={() => shareReport(report)}>Share</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* System Health */}
         {realtimeData?.system_health && (
           <section className="health-section">
