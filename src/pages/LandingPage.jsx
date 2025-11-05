@@ -16,7 +16,7 @@ function LandingPage() {
             that matches who you are and who you want to be.
           </p>
           <div className="actions">
-            <Link to="#" className="button primary">
+            <Link to="/register" className="button primary">
               Sign Up
             </Link>
             <Link to="/login" className="button secondary">

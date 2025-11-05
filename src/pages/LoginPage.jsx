@@ -177,7 +177,7 @@ function LoginPage() {
 
           <p className="signup-meta">
             Don&apos;t have an account?{' '}
-            <Link to="/signup" className="signup-link-inline">
+            <Link to="/register" className="signup-link-inline">
               Create one here
             </Link>
           </p>
