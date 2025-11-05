@@ -37,6 +37,7 @@ function AppointmentDetailsPage() {
       setIsLoading(true)
       setError(null)
       const data = await getAppointment(appointmentId)
+      console.log('Appointment data:', data)
       setAppointment(data)
     } catch (err) {
       setError(err.message || 'Failed to load appointment')
@@ -257,7 +258,15 @@ function AppointmentDetailsPage() {
             <div className="detail-row staff-actions">
               <button
                 className="btn-rate-staff"
-                onClick={() => navigate(`/staff/${appointment.staff.staff_id}/rate`)}
+                onClick={() => {
+                  console.log('Staff object:', appointment.staff);
+                  const staffId = appointment.staff.staff_id || appointment.staff.id;
+                  if (!staffId) {
+                    console.error('No staff ID found');
+                    return;
+                  }
+                  navigate(`/staff/${staffId}/rate`);
+                }}
               >
                 ⭐ Rate This Staff Member
               </button>
