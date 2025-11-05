@@ -4,7 +4,7 @@ import PrivateRoute from './components/PrivateRoute'
 import SmartHome from './components/SmartHome'
 import { AuthProvider } from './context/AuthContext'
 import AddShopPage from './pages/AddShopPage'
-import AdminAnalyticsPage from './pages/AdminAnalyticsPage'
+import AdminHealthPage from './pages/AdminHealthPage'
 import AdminSalonsPage from './pages/AdminSalonsPage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import AppointmentBookingPage from './pages/AppointmentBookingPage'
@@ -287,6 +287,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <AdminAnalyticsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC 3.11: Admin - Monitor Platform Health */}
+          <Route
+            path="/admin/health"
+            element={(
+              <PrivateRoute>
+                <AdminHealthPage />
               </PrivateRoute>
             )}
           />

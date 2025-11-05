@@ -1,0 +1,764 @@
+/* Admin Health Monitor Page Styles */
+.admin-health-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.health-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.health-header {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.health-header h1 {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin: 0;
+  flex: 1;
+}
+
+.refresh-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.refresh-controls select {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+  cursor: pointer;
+}
+
+.refresh-btn {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Status Section */
+.status-section {
+  margin-bottom: 3rem;
+}
+
+.overall-status {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.status-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+  min-width: 250px;
+  transition: transform 0.2s ease;
+}
+
+.status-card:hover {
+  transform: translateY(-2px);
+}
+
+.status-card.main {
+  flex: 0 1 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+}
+
+.status-icon {
+  font-size: 3rem;
+  font-weight: bold;
+  min-width: 80px;
+  text-align: center;
+}
+
+.status-card.main .status-icon {
+  font-size: 4rem;
+}
+
+.status-content h2,
+.status-content h3 {
+  margin: 0 0 0.25rem 0;
+  color: #2c3e50;
+}
+
+.status-card.main h2 {
+  color: white;
+  font-size: 2rem;
+}
+
+.status-content p {
+  margin: 0 0 0.5rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.status-card.main p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.status-content small {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.status-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Metrics Section */
+.metrics-section {
+  margin-bottom: 3rem;
+}
+
+.metrics-section h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.metric-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card h3 {
+  color: #2c3e50;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.metric-value {
+  color: #667eea;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.metric-bar {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.metric-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.metric-card small {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+/* Data Integrity Section */
+.integrity-section {
+  margin-bottom: 3rem;
+}
+
+.integrity-section h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.integrity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.integrity-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.integrity-card h3 {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.integrity-value {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Dependencies Section */
+.dependencies-section {
+  margin-bottom: 3rem;
+}
+
+.dependencies-section h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.dependencies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.dependency-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.dependency-card:hover {
+  transform: translateY(-2px);
+}
+
+.dependency-status {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.dependency-card h3 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.dependency-card p {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+/* Uptime Section */
+.uptime-section {
+  margin-bottom: 3rem;
+}
+
+.uptime-section h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.uptime-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat .label {
+  color: #6c757d;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.stat .value {
+  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.uptime-chart {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.uptime-chart h3 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.uptime-days {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+  height: 150px;
+  margin-bottom: 1rem;
+}
+
+.uptime-day {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.uptime-bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.uptime-bar:hover {
+  opacity: 0.8;
+}
+
+.uptime-day small {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.incidents-list {
+  margin-top: 2rem;
+}
+
+.incidents-list h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.incident-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.incident-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.incident-details {
+  flex: 1;
+}
+
+.incident-details h4 {
+  color: #2c3e50;
+  margin: 0 0 0.25rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.incident-details p {
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.incident-status {
+  color: #28a745;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Alerts Section */
+.alerts-section {
+  margin-bottom: 3rem;
+}
+
+.alerts-section h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.alerts-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.alert-stat {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border-left: 4px solid;
+}
+
+.alert-stat.critical {
+  border-left-color: #dc3545;
+}
+
+.alert-stat.warning {
+  border-left-color: #ffc107;
+}
+
+.alert-stat.info {
+  border-left-color: #17a2b8;
+}
+
+.alert-stat .count {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.alert-stat .label {
+  color: #6c757d;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alerts-list {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.alert-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-left: 4px solid;
+  margin-bottom: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  align-items: flex-start;
+}
+
+.alert-item:last-child {
+  margin-bottom: 0;
+}
+
+.alert-severity {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+
+.alert-content h4 {
+  color: #2c3e50;
+  margin: 0 0 0.25rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alert-content p {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.alert-content small {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.no-alerts {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #28a745;
+  font-weight: 600;
+}
+
+/* Error Logs Section */
+.error-logs-section {
+  margin-bottom: 3rem;
+}
+
+.error-logs-section h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.error-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.error-stat {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.error-stat .label {
+  color: #6c757d;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.error-stat .value {
+  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.error-list {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.error-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.error-item:last-child {
+  border-bottom: none;
+}
+
+.error-type {
+  color: #dc3545;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.error-time {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.error-status {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .status-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .health-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .health-header h1 {
+    font-size: 2rem;
+  }
+
+  .refresh-controls {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .refresh-controls select,
+  .refresh-btn {
+    width: 100%;
+  }
+
+  .status-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .status-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .integrity-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .dependencies-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .uptime-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .alerts-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .uptime-days {
+    gap: 0.3rem;
+  }
+
+  .incident-item,
+  .alert-item,
+  .error-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .incident-details,
+  .alert-content {
+    flex: 1;
+    width: 100%;
+  }
+
+  .incident-status,
+  .error-status {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .health-container {
+    padding: 1rem;
+  }
+
+  .health-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .metrics-section h2,
+  .integrity-section h2,
+  .uptime-section h2,
+  .alerts-section h2,
+  .error-logs-section h2,
+  .dependencies-section h2 {
+    font-size: 1.4rem;
+  }
+
+  .uptime-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .status-card {
+    padding: 1rem;
+  }
+
+  .metric-card,
+  .integrity-card,
+  .dependency-card {
+    padding: 1rem;
+  }
+
+  .metric-value {
+    font-size: 2rem;
+  }
+
+  .integrity-value {
+    font-size: 1.8rem;
+  }
+}
