@@ -369,3 +369,116 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* Salon Revenue Tracking - UC 3.6 */
+.salon-revenue-section {
+  margin-bottom: 3rem;
+}
+
+.salon-revenue-section h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.revenue-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.revenue-grid .chart-card.full-width {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .revenue-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+  
+  .revenue-grid .chart-card.full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Loyalty Program Monitoring - UC 3.7 */
+.loyalty-program-section {
+  margin-bottom: 3rem;
+}
+
+.loyalty-program-section h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.loyalty-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.loyalty-grid .chart-card.full-width {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .loyalty-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+  
+  .loyalty-grid .chart-card.full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Stats Container for Redemption Statistics */
+.stats-container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.stat-label {
+  display: block;
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.stat-value {
+  display: block;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-value {
+    font-size: 1.2rem;
+  }
+}

@@ -286,17 +286,155 @@ function AdminAnalyticsPage() {
     }
   }
 
+  // UC 3.6: Salon Revenue Tracking
+  const getTopSalonsByRevenueData = () => {
+    if (!analyticsData?.salon_revenue?.top_salons) return null
+
+    return {
+      labels: analyticsData.salon_revenue.top_salons.map(salon => salon.name),
+      datasets: [{
+        label: 'Revenue ($)',
+        data: analyticsData.salon_revenue.top_salons.map(salon => salon.revenue),
+        backgroundColor: [
+          '#667eea', '#764ba2', '#f093fb', '#f5576c', '#4ecdc4',
+          '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8'
+        ],
+        borderWidth: 1,
+      }]
+    }
+  }
+
+  const getRevenueByCategoryData = () => {
+    if (!analyticsData?.revenue_by_category) return null
+
+    const categories = Object.keys(analyticsData.revenue_by_category)
+    const revenues = categories.map(cat => analyticsData.revenue_by_category[cat].revenue)
+
+    return {
+      labels: categories,
+      datasets: [{
+        label: 'Revenue ($)',
+        data: revenues,
+        backgroundColor: [
+          '#667eea', '#764ba2', '#f093fb', '#f5576c', '#4ecdc4',
+          '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8'
+        ],
+        borderWidth: 1,
+      }]
+    }
+  }
+
+  const getSalonRevenueTrendsData = () => {
+    if (!analyticsData?.salon_revenue?.monthly_trends) return null
+
+    const salonNames = Object.keys(analyticsData.salon_revenue.monthly_trends)
+    const datasets = salonNames.map((salonName, index) => ({
+      label: salonName,
+      data: analyticsData.salon_revenue.monthly_trends[salonName].map(item => item.revenue),
+      borderColor: getRevenueColor(index),
+      backgroundColor: getRevenueColor(index, 0.1),
+      tension: 0.4,
+      fill: false,
+    }))
+
+    const labels = analyticsData.salon_revenue.monthly_trends[salonNames[0]]?.map(item => {
+      const date = new Date(item.month + '-01')
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    }) || []
+
+    return {
+      labels,
+      datasets
+    }
+  }
+
+  // UC 3.7: Loyalty Program Monitoring
+  const getLoyaltyActivityTrendsData = () => {
+    if (!analyticsData?.loyalty_program?.activity_trends) return null
+
+    const labels = analyticsData.loyalty_program.activity_trends.map(item => {
+      const date = new Date(item.month + '-01')
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    })
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Points Earned',
+          data: analyticsData.loyalty_program.activity_trends.map(item => item.earned),
+          borderColor: '#28a745',
+          backgroundColor: 'rgba(40, 167, 69, 0.1)',
+          tension: 0.4,
+          fill: false,
+        },
+        {
+          label: 'Points Redeemed',
+          data: analyticsData.loyalty_program.activity_trends.map(item => item.redeemed),
+          borderColor: '#dc3545',
+          backgroundColor: 'rgba(220, 53, 69, 0.1)',
+          tension: 0.4,
+          fill: false,
+        }
+      ]
+    }
+  }
+
+  const getPopularRewardsData = () => {
+    if (!analyticsData?.loyalty_program?.redemption_stats?.popular_rewards) return null
+
+    return {
+      labels: analyticsData.loyalty_program.redemption_stats.popular_rewards.map(reward => reward.reward_type),
+      datasets: [{
+        label: 'Redemptions',
+        data: analyticsData.loyalty_program.redemption_stats.popular_rewards.map(reward => reward.count),
+        backgroundColor: [
+          '#667eea', '#764ba2', '#f093fb', '#f5576c', '#4ecdc4'
+        ],
+        borderWidth: 1,
+      }]
+    }
+  }
+
+  const getRevenueColor = (index, alpha = 1) => {
+    const colors = [
+      `rgba(102, 126, 234, ${alpha})`,
+      `rgba(118, 75, 162, ${alpha})`,
+      `rgba(240, 147, 251, ${alpha})`,
+      `rgba(245, 87, 108, ${alpha})`,
+      `rgba(78, 205, 196, ${alpha})`
+    ]
+    return colors[index % colors.length]
+  }
+
   const getDayColor = (day, alpha = 1) => {
-    const colors = {
+    const dayColors = {
       'Monday': `rgba(102, 126, 234, ${alpha})`,
       'Tuesday': `rgba(118, 75, 162, ${alpha})`,
       'Wednesday': `rgba(240, 147, 251, ${alpha})`,
       'Thursday': `rgba(245, 87, 108, ${alpha})`,
       'Friday': `rgba(78, 205, 196, ${alpha})`,
-      'Saturday': `rgba(69, 183, 209, ${alpha})`,
+      'Saturday': `rgba(69, 189, 209, ${alpha})`,
       'Sunday': `rgba(150, 206, 180, ${alpha})`
     }
-    return colors[day] || `rgba(102, 126, 234, ${alpha})`
+    return dayColors[day] || `rgba(128, 128, 128, ${alpha})`
+  }
+
+  const getPopularServicesData = () => {
+    if (!analyticsData?.popular_services) return null
+
+    return {
+      labels: analyticsData.popular_services.map(service => service.name),
+      datasets: [{
+        label: 'Bookings',
+        data: analyticsData.popular_services.map(service => service.bookings),
+        backgroundColor: [
+          '#667eea', '#764ba2', '#f093fb', '#f5576c', '#4ecdc4',
+          '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8'
+        ],
+        borderWidth: 1,
+      }]
+    }
   }
 
   const chartOptions = {
@@ -597,6 +735,183 @@ function AdminAnalyticsPage() {
                   }} />
                 ) : (
                   <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Salon Revenue Tracking - UC 3.6 */}
+        <section className="salon-revenue-section">
+          <h2>Salon Revenue Tracking</h2>
+          
+          {/* Revenue Insights */}
+          {analyticsData?.salon_revenue?.top_salons && analyticsData.salon_revenue.top_salons.length > 0 && (
+            <div className="insights-cards">
+              <div className="insight-card">
+                <h3>Top Performing Salon</h3>
+                <p className="insight-value">{analyticsData.salon_revenue.top_salons[0].name}</p>
+                <p className="insight-label">${analyticsData.salon_revenue.top_salons[0].revenue.toLocaleString()} revenue</p>
+              </div>
+              
+              <div className="insight-card">
+                <h3>Average Revenue/Salon</h3>
+                <p className="insight-value">
+                  ${(analyticsData.salon_revenue.top_salons.reduce((sum, salon) => sum + salon.revenue, 0) / analyticsData.salon_revenue.top_salons.length).toLocaleString()}
+                </p>
+                <p className="insight-label">Across top performers</p>
+              </div>
+              
+              <div className="insight-card">
+                <h3>Highest Avg/Appointment</h3>
+                <p className="insight-value">
+                  ${Math.max(...analyticsData.salon_revenue.top_salons.map(s => s.avg_revenue_per_appointment)).toFixed(2)}
+                </p>
+                <p className="insight-label">Best revenue efficiency</p>
+              </div>
+              
+              <div className="insight-card">
+                <h3>Total Revenue</h3>
+                <p className="insight-value">
+                  ${analyticsData.salon_revenue.top_salons.reduce((sum, salon) => sum + salon.revenue, 0).toLocaleString()}
+                </p>
+                <p className="insight-label">From top 10 salons</p>
+              </div>
+            </div>
+          )}
+
+          <div className="revenue-grid">
+            <div className="chart-card">
+              <h3>Top 10 Salons by Revenue</h3>
+              <div className="chart-container">
+                {loading ? (
+                  <div className="chart-loading">Loading chart...</div>
+                ) : getTopSalonsByRevenueData() ? (
+                  <Bar data={getTopSalonsByRevenueData()} options={chartOptions} />
+                ) : (
+                  <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+
+            <div className="chart-card">
+              <h3>Revenue by Category</h3>
+              <div className="chart-container">
+                {loading ? (
+                  <div className="chart-loading">Loading chart...</div>
+                ) : getRevenueByCategoryData() ? (
+                  <Bar data={getRevenueByCategoryData()} options={chartOptions} />
+                ) : (
+                  <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+
+            <div className="chart-card full-width">
+              <h3>Revenue Trends - Top 5 Salons</h3>
+              <div className="chart-container">
+                {loading ? (
+                  <div className="chart-loading">Loading chart...</div>
+                ) : getSalonRevenueTrendsData() ? (
+                  <Line data={getSalonRevenueTrendsData()} options={{
+                    ...chartOptions,
+                    plugins: {
+                      ...chartOptions.plugins,
+                      legend: {
+                        position: 'bottom',
+                      },
+                    },
+                  }} />
+                ) : (
+                  <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Loyalty Program Monitoring - UC 3.7 */}
+        <section className="loyalty-program-section">
+          <h2>Loyalty Program Monitoring</h2>
+          
+          {/* Loyalty Insights */}
+          {analyticsData?.loyalty_program?.overview && (
+            <div className="insights-cards">
+              <div className="insight-card">
+                <h3>Total Loyalty Users</h3>
+                <p className="insight-value">{analyticsData.loyalty_program.overview.total_users.toLocaleString()}</p>
+                <p className="insight-label">Active program members</p>
+              </div>
+              
+              <div className="insight-card">
+                <h3>Total Points</h3>
+                <p className="insight-value">{analyticsData.loyalty_program.overview.total_points.toLocaleString()}</p>
+                <p className="insight-label">Points in circulation</p>
+              </div>
+              
+              <div className="insight-card">
+                <h3>Avg Points/User</h3>
+                <p className="insight-value">{analyticsData.loyalty_program.overview.avg_points_per_user}</p>
+                <p className="insight-label">Average balance per user</p>
+              </div>
+              
+              <div className="insight-card">
+                <h3>Engagement Rate</h3>
+                <p className="insight-value">{analyticsData.loyalty_program.user_engagement.engagement_rate}%</p>
+                <p className="insight-label">Users with 100+ points</p>
+              </div>
+            </div>
+          )}
+
+          <div className="loyalty-grid">
+            <div className="chart-card">
+              <h3>Loyalty Points Activity</h3>
+              <div className="chart-container">
+                {loading ? (
+                  <div className="chart-loading">Loading chart...</div>
+                ) : getLoyaltyActivityTrendsData() ? (
+                  <Line data={getLoyaltyActivityTrendsData()} options={chartOptions} />
+                ) : (
+                  <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+
+            <div className="chart-card">
+              <h3>Popular Rewards</h3>
+              <div className="chart-container">
+                {loading ? (
+                  <div className="chart-loading">Loading chart...</div>
+                ) : getPopularRewardsData() ? (
+                  <Bar data={getPopularRewardsData()} options={chartOptions} />
+                ) : (
+                  <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+
+            <div className="chart-card">
+              <h3>Redemption Statistics</h3>
+              <div className="stats-container">
+                {analyticsData?.loyalty_program?.redemption_stats && (
+                  <div className="stats-grid">
+                    <div className="stat-item">
+                      <span className="stat-label">Total Redemptions</span>
+                      <span className="stat-value">{analyticsData.loyalty_program.redemption_stats.total_redemptions.toLocaleString()}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">Points Redeemed</span>
+                      <span className="stat-value">{analyticsData.loyalty_program.redemption_stats.total_points_redeemed.toLocaleString()}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">Avg Points/Redemption</span>
+                      <span className="stat-value">{analyticsData.loyalty_program.redemption_stats.avg_points_per_redemption}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">Recent Redemptions</span>
+                      <span className="stat-value">{analyticsData.loyalty_program.user_engagement.recent_redemptions}</span>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
