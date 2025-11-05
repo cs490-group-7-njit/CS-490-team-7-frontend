@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { loginVendor } from '../api/auth'
+import { loginUser, registerUser } from '../api/auth'
 const AuthContext = createContext(null)
 const STORAGE_KEY = 'salonhub.auth'
 
@@ -37,10 +37,21 @@ export function AuthProvider({ children }) {
   }, [state])
 
   const login = useCallback(async (credentials) => {
-    const result = await loginVendor(credentials)
+    const result = await loginUser(credentials)
     const newState = { 
       user: result.user, 
       token: result.token, 
+      lastActivity: Date.now() 
+    }
+    setState(newState)
+    return result
+  }, [])
+
+  const register = useCallback(async (userData) => {
+    const result = await registerUser(userData)
+    const newState = { 
+      user: result.user, 
+      token: result.token || 'dummy-token', // Some registration APIs might not return a token
       lastActivity: Date.now() 
     }
     setState(newState)
@@ -65,10 +76,11 @@ export function AuthProvider({ children }) {
       token: state.token,
       isAuthenticated: Boolean(state.user && state.token),
       login,
+      register,
       logout,
       refreshActivity,
     }),
-    [state, login, logout, refreshActivity],
+    [state, login, register, logout, refreshActivity],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
