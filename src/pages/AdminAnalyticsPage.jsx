@@ -396,6 +396,64 @@ function AdminAnalyticsPage() {
     }
   }
 
+  // UC 3.8: User Demographics Data
+  const getUserCityDistributionData = () => {
+    if (!analyticsData?.user_demographics?.by_city) return null
+
+    const labels = Object.keys(analyticsData.user_demographics.by_city)
+    const data = Object.values(analyticsData.user_demographics.by_city)
+
+    return {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: [
+          '#667eea', '#764ba2', '#f093fb', '#f5576c', '#4ecdc4',
+          '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8'
+        ],
+        borderWidth: 1,
+      }]
+    }
+  }
+
+  const getAccountAgeBucketsData = () => {
+    if (!analyticsData?.user_demographics?.account_age_buckets) return null
+
+    const buckets = analyticsData.user_demographics.account_age_buckets
+    return {
+      labels: ['<1 month', '1-3 months', '3-12 months', '>1 year'],
+      datasets: [{
+        label: 'Users',
+        data: [buckets['<1_month'], buckets['1-3_months'], buckets['3-12_months'], buckets['>1_year']],
+        backgroundColor: ['#667eea', '#764ba2', '#4ecdc4', '#f5576c'],
+        borderWidth: 1,
+      }]
+    }
+  }
+
+  // UC 3.9: Retention Metrics Data
+  const getRetentionSummary = () => {
+    if (!analyticsData?.retention_metrics) return null
+    return analyticsData.retention_metrics
+  }
+
+  const getCohortRetentionData = () => {
+    if (!analyticsData?.retention_metrics?.cohort_retention_last_6_months) return null
+
+    const data = analyticsData.retention_metrics.cohort_retention_last_6_months
+    return {
+      labels: data.map(d => d.month),
+      datasets: [{
+        label: 'Retention Next Month (%)',
+        data: data.map(d => d.retention_next_month === null ? null : d.retention_next_month),
+        borderColor: '#667eea',
+        backgroundColor: 'rgba(102,126,234,0.1)',
+        tension: 0.3,
+        fill: false,
+      }]
+    }
+  }
+
   const getRevenueColor = (index, alpha = 1) => {
     const colors = [
       `rgba(102, 126, 234, ${alpha})`,
@@ -918,6 +976,110 @@ function AdminAnalyticsPage() {
           </div>
         </section>
 
+        {/* User Demographics - UC 3.8 */}
+        <section className="user-demographics-section">
+          <h2>User Demographics</h2>
+
+          <div className="insights-cards">
+            {analyticsData?.user_demographics && (
+              <>
+                <div className="insight-card">
+                  <h3>Total Users</h3>
+                  <p className="insight-value">{realtimeData?.current_metrics?.total_users?.toLocaleString() || '—'}</p>
+                  <p className="insight-label">Platform users</p>
+                </div>
+
+                <div className="insight-card">
+                  <h3>Top City</h3>
+                  <p className="insight-value">{Object.keys(analyticsData.user_demographics.by_city || {})[0] || '—'}</p>
+                  <p className="insight-label">Largest user base by city</p>
+                </div>
+
+                <div className="insight-card">
+                  <h3>Top State</h3>
+                  <p className="insight-value">{Object.keys(analyticsData.user_demographics.by_state || {})[0] || '—'}</p>
+                  <p className="insight-label">Largest user base by state</p>
+                </div>
+
+                <div className="insight-card">
+                  <h3>New (30d)</h3>
+                  <p className="insight-value">{analyticsData.user_demographics.account_age_buckets['<1_month']?.toLocaleString() || 0}</p>
+                  <p className="insight-label">Users joined in the last 30 days</p>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="demographics-grid">
+            <div className="chart-card">
+              <h3>Users by City (Top 10)</h3>
+              <div className="chart-container">
+                {loading ? (
+                  <div className="chart-loading">Loading chart...</div>
+                ) : getUserCityDistributionData() ? (
+                  <Doughnut data={getUserCityDistributionData()} options={doughnutOptions} />
+                ) : (
+                  <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+
+            <div className="chart-card">
+              <h3>Account Age Distribution</h3>
+              <div className="chart-container">
+                {loading ? (
+                  <div className="chart-loading">Loading chart...</div>
+                ) : getAccountAgeBucketsData() ? (
+                  <Bar data={getAccountAgeBucketsData()} options={chartOptions} />
+                ) : (
+                  <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Retention Metrics - UC 3.9 */}
+        <section className="retention-metrics-section">
+          <h2>Retention Metrics</h2>
+
+          {getRetentionSummary() && (
+            <div className="insights-cards">
+              <div className="insight-card">
+                <h3>30-day Retention</h3>
+                <p className="insight-value">{getRetentionSummary().retention_30d}%</p>
+                <p className="insight-label">Active users in last 30 days</p>
+              </div>
+
+              <div className="insight-card">
+                <h3>Repeat Customer Rate</h3>
+                <p className="insight-value">{getRetentionSummary().repeat_customer_rate}%</p>
+                <p className="insight-label">Customers with &gt;1 completed appointment</p>
+              </div>
+
+              <div className="insight-card">
+                <h3>Cohort Retention (6m)</h3>
+                <p className="insight-value">{getRetentionSummary().cohort_retention_last_6_months.filter(c => c.retention_next_month !== null).length || 0}</p>
+                <p className="insight-label">Months with measurable retention</p>
+              </div>
+            </div>
+          )}
+
+          <div className="retention-grid">
+            <div className="chart-card full-width">
+              <h3>Cohort Retention - Next Month (%)</h3>
+              <div className="chart-container">
+                {loading ? (
+                  <div className="chart-loading">Loading chart...</div>
+                ) : getCohortRetentionData() ? (
+                  <Line data={getCohortRetentionData()} options={{...chartOptions, scales: { y: { beginAtZero: true, max: 100 } }}} />
+                ) : (
+                  <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
         {/* System Health */}
         {realtimeData?.system_health && (
           <section className="health-section">

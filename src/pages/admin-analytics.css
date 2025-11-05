@@ -222,6 +222,7 @@
 
 /* Responsive Design */
 @media (max-width: 1200px) {
+
   .charts-grid,
   .distribution-grid {
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -292,6 +293,54 @@
   margin-bottom: 3rem;
 }
 
+/* User Demographics - UC 3.8 */
+.user-demographics-section {
+  margin-bottom: 3rem;
+}
+
+.user-demographics-section h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.demographics-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .demographics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+}
+
+/* Retention Metrics - UC 3.9 */
+.retention-metrics-section {
+  margin-bottom: 3rem;
+}
+
+.retention-metrics-section h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.retention-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .retention-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .appointment-trends-section h2 {
   color: #2c3e50;
   font-size: 1.8rem;
@@ -358,7 +407,7 @@
   .trends-grid {
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   }
-  
+
   .trends-grid .chart-card.full-width {
     grid-column: 1 / -1;
   }
@@ -396,7 +445,7 @@
   .revenue-grid {
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   }
-  
+
   .revenue-grid .chart-card.full-width {
     grid-column: 1 / -1;
   }
@@ -428,7 +477,7 @@
   .loyalty-grid {
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   }
-  
+
   .loyalty-grid .chart-card.full-width {
     grid-column: 1 / -1;
   }
@@ -477,7 +526,7 @@
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stat-value {
     font-size: 1.2rem;
   }
