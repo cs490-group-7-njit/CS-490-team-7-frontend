@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead } from '../api/notifications'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
@@ -151,6 +152,9 @@ function NotificationsPage() {
                 Mark All as Read
               </button>
             )}
+            <Link to="/discount-alerts" className="view-alerts-link">
+              View discount alerts →
+            </Link>
           </div>
         </div>
 
