@@ -202,6 +202,167 @@
   color: #666;
 }
 
+/* Redeem Section */
+.redeem-section {
+  margin: 50px 0;
+  padding: 30px;
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  background: #fffdfa;
+}
+
+.redeem-header h2 {
+  font-size: 1.6rem;
+  margin-bottom: 5px;
+}
+
+.redeem-header p {
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.redeem-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.redeem-inputs {
+  flex: 1;
+  min-width: 220px;
+}
+
+.redeem-inputs label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.redeem-inputs input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.redeem-button {
+  background: #0f766e;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.redeem-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.redeem-button:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.redeem-error {
+  margin-top: 15px;
+  color: #c53030;
+  font-weight: 500;
+}
+
+.redemption-result {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.redemption-result .code {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+/* Redemption History */
+.redemptions-section {
+  margin-bottom: 50px;
+}
+
+.redemptions-header h2 {
+  font-size: 1.6rem;
+  margin-bottom: 5px;
+}
+
+.redemptions-header p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.redemption-list {
+  display: grid;
+  gap: 16px;
+}
+
+.redemption-card {
+  padding: 18px;
+  border-radius: 10px;
+  border: 1px solid #ececec;
+  background: white;
+  box-shadow: 0 3px 10px rgba(15, 118, 110, 0.05);
+}
+
+.redemption-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.redemption-card .code {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.redemption-card .status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.redemption-card .status.active {
+  background: #ecfdf5;
+  color: #0f766e;
+}
+
+.redemption-card .status.used {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.redemption-card .value {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.redemption-card .dates {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.no-redemptions {
+  padding: 30px;
+  text-align: center;
+  border: 1px dashed #d4a574;
+  border-radius: 10px;
+  color: #666;
+}
+
 /* Error and Loading States */
 .error-message {
   background: #fee;
