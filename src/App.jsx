@@ -32,6 +32,7 @@ import ServicesPage from './pages/ServicesPage'
 import StaffManagementPage from './pages/StaffManagementPage'
 import StaffRatingPage from './pages/StaffRatingPage'
 import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
+import VendorReviewsPage from './pages/VendorReviewsPage'
 
 function App() {
   return (
@@ -148,6 +149,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <VendorAppointmentsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-1.11: Reply to Client Reviews */}
+          <Route
+            path="/vendor/reviews"
+            element={(
+              <PrivateRoute>
+                <VendorReviewsPage />
               </PrivateRoute>
             )}
           />

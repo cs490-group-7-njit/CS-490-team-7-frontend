@@ -68,3 +68,82 @@ export const deleteReview = async (reviewId) => {
     throw error
   }
 }
+
+/**
+ * Add a vendor reply to a review (UC 1.11)
+ * @param {number} reviewId - The review ID
+ * @param {Object} replyData - Reply data
+ * @param {string} replyData.vendor_reply - Vendor's reply text
+ * @param {number} replyData.vendor_id - Vendor user ID (optional, for authorization)
+ * @returns {Promise<Object>} Updated review object with reply
+ */
+export const addVendorReply = async (reviewId, replyData) => {
+  try {
+    const response = await post(`/reviews/${reviewId}/reply`, replyData)
+    return response
+  } catch (error) {
+    console.error(`Error adding vendor reply to review ${reviewId}:`, error)
+    throw error
+  }
+}
+
+/**
+ * Update a vendor reply to a review (UC 1.11)
+ * @param {number} reviewId - The review ID
+ * @param {Object} replyData - Reply data
+ * @param {string} replyData.vendor_reply - Updated vendor reply text
+ * @param {number} replyData.vendor_id - Vendor user ID (optional, for authorization)
+ * @returns {Promise<Object>} Updated review object
+ */
+export const updateVendorReply = async (reviewId, replyData) => {
+  try {
+    const response = await put(`/reviews/${reviewId}/reply`, replyData)
+    return response
+  } catch (error) {
+    console.error(`Error updating vendor reply to review ${reviewId}:`, error)
+    throw error
+  }
+}
+
+/**
+ * Delete a vendor reply from a review (UC 1.11)
+ * @param {number} reviewId - The review ID
+ * @param {number} vendorId - Vendor user ID (optional, for authorization)
+ * @returns {Promise<Object>} Updated review object with reply removed
+ */
+export const deleteVendorReply = async (reviewId, vendorId = null) => {
+  try {
+    let url = `/reviews/${reviewId}/reply`
+    if (vendorId) {
+      url += `?vendor_id=${vendorId}`
+    }
+    const response = await del(url)
+    return response
+  } catch (error) {
+    console.error(`Error deleting vendor reply from review ${reviewId}:`, error)
+    throw error
+  }
+}
+
+/**
+ * Get reviews with vendor replies for a salon (UC 1.11)
+ * @param {number} salonId - The salon ID
+ * @param {boolean} withRepliesOnly - If true, only return reviews with vendor replies
+ * @param {number} limit - Max reviews to return (default: 50)
+ * @param {number} offset - Pagination offset (default: 0)
+ * @returns {Promise<Object>} Reviews with replies and pagination info
+ */
+export const getSalonReviewsWithReplies = async (salonId, withRepliesOnly = false, limit = 50, offset = 0) => {
+  try {
+    let url = `/salons/${salonId}/reviews-with-replies?limit=${limit}&offset=${offset}`
+    if (withRepliesOnly) {
+      url += '&with_replies_only=true'
+    }
+    const response = await get(url)
+    return response
+  } catch (error) {
+    console.error(`Error fetching reviews with replies for salon ${salonId}:`, error)
+    throw error
+  }
+}
+
