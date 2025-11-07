@@ -11,6 +11,7 @@ import AppointmentBookingPage from './pages/AppointmentBookingPage'
 import AppointmentDetailsPage from './pages/AppointmentDetailsPage'
 import AppointmentHistoryPage from './pages/AppointmentHistoryPage'
 import AppointmentMemosPage from './pages/AppointmentMemosPage'
+import BlockTimeSlotsPage from './pages/BlockTimeSlotsPage'
 import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
 import DailySchedulePage from './pages/DailySchedulePage'
@@ -181,6 +182,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <DailySchedulePage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-1.14: Block Time Slots */}
+          <Route
+            path="/vendor/block-time"
+            element={(
+              <PrivateRoute>
+                <BlockTimeSlotsPage />
               </PrivateRoute>
             )}
           />
