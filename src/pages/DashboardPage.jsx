@@ -1,7 +1,8 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
+import { getMyShops } from '../api/shops'
 import './dashboard.css'
 
 // Vendor Dashboard Data
@@ -80,11 +81,42 @@ const adminData = {
 function DashboardPage() {
   const { user, refreshActivity } = useAuth()
   const navigate = useNavigate()
+  const [vendorShops, setVendorShops] = useState([])
+  const [shopsLoading, setShopsLoading] = useState(false)
 
   // Refresh user activity when dashboard is accessed
   useEffect(() => {
     refreshActivity()
   }, [refreshActivity])
+
+  // Fetch vendor shops if user is a vendor
+  useEffect(() => {
+    if (user?.role === 'vendor') {
+      fetchVendorShops()
+    }
+  }, [user])
+
+  const fetchVendorShops = async () => {
+    try {
+      setShopsLoading(true)
+      const response = await getMyShops(user.id)
+      
+      if (response.salons && !response.error) {
+        const transformedShops = response.salons.map(salon => ({
+          id: salon.id,
+          name: salon.name,
+          status: salon.is_published ? 'published' : 'draft',
+          verification_status: salon.verification_status,
+          created_at: salon.created_at
+        }))
+        setVendorShops(transformedShops)
+      }
+    } catch (error) {
+      console.error('Error fetching vendor shops:', error)
+    } finally {
+      setShopsLoading(false)
+    }
+  }
 
   const userRole = user?.role || 'client'
 
@@ -98,6 +130,9 @@ function DashboardPage() {
     switch (item) {
       case 'Staff':
         navigate('/staff')
+        break
+      case 'My Shops':
+        navigate('/shops')
         break
       case 'Dashboard':
         // Already on dashboard
@@ -206,12 +241,49 @@ function DashboardPage() {
           {userRole === 'vendor' && (
             <section className="dashboard-summary" aria-label="Salon overview">
               <div className="summary-card">
-                <p className="summary-title">Salon Status</p>
-                <p className="summary-status">
-                  <span className="status-dot" aria-hidden="true" /> Verified
+                <p className="summary-title">My Shops</p>
+                <p className="summary-subtitle">
+                  {shopsLoading 
+                    ? 'Loading shops...' 
+                    : `You have ${vendorShops.length} ${vendorShops.length === 1 ? 'shop' : 'shops'} registered.`
+                  }
                 </p>
-                <button type="button" className="pill-button">
-                  Manage Verification
+                <button 
+                  type="button" 
+                  className="pill-button"
+                  onClick={() => navigate('/shops')}
+                >
+                  Manage Shops
+                </button>
+              </div>
+
+              <div className="summary-card">
+                <p className="summary-title">Shop Status</p>
+                <div className="summary-status">
+                  {shopsLoading ? (
+                    'Loading...'
+                  ) : vendorShops.length === 0 ? (
+                    <span>No shops yet</span>
+                  ) : (
+                    <div>
+                      {vendorShops.filter(s => s.verification_status === 'approved').length > 0 && (
+                        <p><span className="status-dot approved" /> {vendorShops.filter(s => s.verification_status === 'approved').length} Approved</p>
+                      )}
+                      {vendorShops.filter(s => s.verification_status === 'pending').length > 0 && (
+                        <p><span className="status-dot pending" /> {vendorShops.filter(s => s.verification_status === 'pending').length} Pending</p>
+                      )}
+                      {vendorShops.filter(s => s.verification_status === 'rejected').length > 0 && (
+                        <p><span className="status-dot rejected" /> {vendorShops.filter(s => s.verification_status === 'rejected').length} Need Review</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <button 
+                  type="button" 
+                  className="pill-button"
+                  onClick={() => navigate('/shops/new')}
+                >
+                  Add New Shop
                 </button>
               </div>
 

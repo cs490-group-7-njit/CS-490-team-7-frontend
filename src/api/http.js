@@ -36,3 +36,10 @@ export function get(path) {
     method: 'GET',
   })
 }
+
+export function put(path, payload) {
+  return request(path, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
