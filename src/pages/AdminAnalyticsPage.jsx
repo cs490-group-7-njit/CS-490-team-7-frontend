@@ -14,7 +14,7 @@ import {
 import { useEffect, useState } from 'react'
 import { Bar, Doughnut, Line } from 'react-chartjs-2'
 import { useNavigate } from 'react-router-dom'
-import { getAnalyticsData, getRealtimeAnalytics, generateReport as generateReportAPI } from '../api/admin'
+import { generateReport as generateReportAPI, getAnalyticsData, getRealtimeAnalytics } from '../api/admin'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import './admin-analytics.css'

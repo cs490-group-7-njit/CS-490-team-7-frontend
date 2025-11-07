@@ -13,6 +13,7 @@ import AppointmentHistoryPage from './pages/AppointmentHistoryPage'
 import AppointmentMemosPage from './pages/AppointmentMemosPage'
 import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
+import DailySchedulePage from './pages/DailySchedulePage'
 import DashboardPage from './pages/DashboardPage'
 import DiscountAlertsPage from './pages/DiscountAlertsPage'
 import EditShopPage from './pages/EditShopPage'
@@ -170,6 +171,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <AppointmentMemosPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-1.13: View Daily Schedule */}
+          <Route
+            path="/vendor/schedule"
+            element={(
+              <PrivateRoute>
+                <DailySchedulePage />
               </PrivateRoute>
             )}
           />

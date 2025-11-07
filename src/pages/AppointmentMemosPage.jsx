@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getVendorAppointments } from '../api/appointments'
 import {
   createAppointmentMemo,
   deleteAppointmentMemo,
   getAppointmentMemos,
   updateAppointmentMemo,
 } from '../api/memos'
-import { getVendorAppointments } from '../api/appointments'
 import './appointment-memos.css'
 
 export default function AppointmentMemosPage() {
@@ -155,9 +155,8 @@ export default function AppointmentMemosPage() {
                 {appointments.map((apt) => (
                   <div
                     key={apt.id}
-                    className={`appointment-item ${
-                      selectedAppointment?.id === apt.id ? 'selected' : ''
-                    }`}
+                    className={`appointment-item ${selectedAppointment?.id === apt.id ? 'selected' : ''
+                      }`}
                     onClick={() => handleAppointmentSelect(apt)}
                   >
                     <div className="appointment-header">

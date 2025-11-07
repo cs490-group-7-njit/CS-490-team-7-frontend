@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getSalonReviewsWithReplies, addVendorReply, updateVendorReply, deleteVendorReply } from '../api/reviews'
+import { addVendorReply, deleteVendorReply, getSalonReviewsWithReplies, updateVendorReply } from '../api/reviews'
 import { getMyShops } from '../api/shops'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
