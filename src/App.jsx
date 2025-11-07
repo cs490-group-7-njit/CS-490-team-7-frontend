@@ -10,6 +10,7 @@ import AdminUsersPage from './pages/AdminUsersPage'
 import AppointmentBookingPage from './pages/AppointmentBookingPage'
 import AppointmentDetailsPage from './pages/AppointmentDetailsPage'
 import AppointmentHistoryPage from './pages/AppointmentHistoryPage'
+import AppointmentMemosPage from './pages/AppointmentMemosPage'
 import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
 import DashboardPage from './pages/DashboardPage'
@@ -159,6 +160,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <VendorReviewsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-1.12: Send Appointment Memos */}
+          <Route
+            path="/vendor/appointment-memos"
+            element={(
+              <PrivateRoute>
+                <AppointmentMemosPage />
               </PrivateRoute>
             )}
           />
