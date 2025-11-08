@@ -10,31 +10,38 @@ import StaffManagementPage from './pages/StaffManagementPage'
 import MyShopsPage from './pages/MyShopsPage'
 import AddShopPage from './pages/AddShopPage'
 import EditShopPage from './pages/EditShopPage'
+import ClientsPage from "./pages/ClientsPage";
+import ClientFormPage from "./pages/ClientFormPage";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* public routes */}
           <Route path="/" element={<SmartHome />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+
+          {/* protected routes */}
           <Route
             path="/dashboard"
-            element={(
+            element={
               <PrivateRoute>
                 <DashboardPage />
               </PrivateRoute>
-            )}
+            }
           />
+
           <Route
             path="/staff"
-            element={(
+            element={
               <PrivateRoute>
                 <StaffManagementPage />
               </PrivateRoute>
-            )}
+            }
           />
+
+          {/* UC-1: Shop Management */}
           <Route
             path="/shops"
             element={(
@@ -59,11 +66,30 @@ function App() {
               </PrivateRoute>
             )}
           />
+
+          {/* UC-2: Client Management */}
+          <Route
+            path="/clients"
+            element={(
+              <PrivateRoute>
+                <ClientsPage />
+              </PrivateRoute>
+            )}
+          />
+          <Route
+            path="/clients/new"
+            element={(
+              <PrivateRoute>
+                <ClientFormPage />
+              </PrivateRoute>
+            )}
+          />
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;
