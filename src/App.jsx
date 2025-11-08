@@ -6,10 +6,8 @@ import { AuthProvider } from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import StaffManagementPage from "./pages/StaffManagementPage";
-import VendorsPage from "./pages/VendorsPage.jsx";
-import VendorFormPage from "./pages/VendorFormPage.jsx";
-import ClientsPage from "./pages/ClientsPage.jsx";
-import ClientFormPage from "./pages/ClientFormPage.jsx";
+import ClientsPage from "./pages/ClientsPage";
+import ClientFormPage from "./pages/ClientFormPage";
 
 function App() {
   return (
@@ -35,24 +33,6 @@ function App() {
             element={
               <PrivateRoute>
                 <StaffManagementPage />
-              </PrivateRoute>
-            }
-          />
-
-          {/* UC-1: Vendor Management */}
-          <Route
-            path="/vendors"
-            element={
-              <PrivateRoute>
-                <VendorsPage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/vendors/new"
-            element={
-              <PrivateRoute>
-                <VendorFormPage />
               </PrivateRoute>
             }
           />
