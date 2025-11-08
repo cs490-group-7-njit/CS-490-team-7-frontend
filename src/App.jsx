@@ -12,6 +12,7 @@ import AppointmentDetailsPage from './pages/AppointmentDetailsPage'
 import AppointmentHistoryPage from './pages/AppointmentHistoryPage'
 import AppointmentMemosPage from './pages/AppointmentMemosPage'
 import BlockTimeSlotsPage from './pages/BlockTimeSlotsPage'
+import CustomerHistoryPage from './pages/CustomerHistoryPage'
 import PaymentTrackingPage from './pages/PaymentTrackingPage'
 import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
@@ -203,6 +204,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <PaymentTrackingPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-1.16: View Customer History */}
+          <Route
+            path="/vendor/customers"
+            element={(
+              <PrivateRoute>
+                <CustomerHistoryPage />
               </PrivateRoute>
             )}
           />
