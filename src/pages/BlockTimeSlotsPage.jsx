@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getStaffBySalon } from '../api/staff'
 import { getMyShops } from '../api/salons'
+import { getStaffBySalon } from '../api/staff'
 import {
   createTimeBlock,
   deleteTimeBlock,
-  getStaffTimeBlocks,
   getTimeBlocksForDate,
-  updateTimeBlock,
+  updateTimeBlock
 } from '../api/timeblocks'
 import './block-time-slots.css'
 

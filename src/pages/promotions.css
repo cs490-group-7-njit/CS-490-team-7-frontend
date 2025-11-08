@@ -1,4 +1,4 @@
-.payment-tracking-container {
+.promotions-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -6,7 +6,7 @@
   min-height: 100vh;
 }
 
-.payment-tracking-container h1 {
+.promotions-container h1 {
   color: #333;
   font-size: 28px;
   margin-bottom: 30px;
@@ -95,12 +95,12 @@
   border-color: #0066cc;
 }
 
-/* Overview Section */
-.overview-section {
+/* Statistics Section */
+.stats-section {
   animation: fadeIn 0.3s ease-in;
 }
 
-.overview-section h2 {
+.stats-section h2 {
   color: #333;
   font-size: 22px;
   margin-bottom: 20px;
@@ -108,7 +108,7 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
   margin-bottom: 40px;
 }
@@ -141,29 +141,28 @@
   margin: 0;
 }
 
-/* Revenue by Service */
-.revenue-by-service {
+/* Segment Stats */
+.segment-stats {
   background-color: white;
   padding: 25px;
   border-radius: 8px;
-  margin-bottom: 30px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.revenue-by-service h3 {
+.segment-stats h3 {
   color: #333;
   margin-top: 0;
   margin-bottom: 20px;
   font-size: 18px;
 }
 
-.service-list {
+.segment-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.service-item {
+.segment-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -171,201 +170,255 @@
   background-color: #f9f9f9;
   border-radius: 6px;
   border-left: 4px solid #667eea;
-  transition: background-color 0.3s ease;
 }
 
-.service-item:hover {
-  background-color: #f0f0f0;
-}
-
-.service-name {
+.segment-name {
   font-weight: 500;
   color: #333;
 }
 
-.service-revenue {
+.segment-count {
   font-weight: bold;
   color: #667eea;
-  font-size: 16px;
-}
-
-/* Revenue by Day */
-.revenue-by-day {
-  background-color: white;
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.revenue-by-day h3 {
-  color: #333;
-  margin-top: 0;
-  margin-bottom: 20px;
   font-size: 18px;
 }
 
-.day-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.day-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  border-left: 4px solid #764ba2;
-  transition: background-color 0.3s ease;
-}
-
-.day-item:hover {
-  background-color: #f0f0f0;
-}
-
-.day-date {
-  font-weight: 500;
-  color: #333;
-}
-
-.day-revenue {
-  font-weight: bold;
-  color: #764ba2;
-  font-size: 16px;
-}
-
-/* Details Section */
-.details-section {
+/* List Section */
+.list-section {
   animation: fadeIn 0.3s ease-in;
 }
 
-.details-section h2 {
+.list-section h2 {
   color: #333;
   font-size: 22px;
   margin-bottom: 20px;
 }
 
-.payments-table-wrapper {
+.promotions-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.promotion-card {
   background-color: white;
   border-radius: 8px;
-  overflow-x: auto;
+  padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.promotion-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.promo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  gap: 10px;
+}
+
+.promo-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+  flex: 1;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.status-badge.active {
+  background-color: #e8f8e8;
+  color: #0a8860;
+}
+
+.status-badge.inactive {
+  background-color: #fee;
+  color: #c33;
+}
+
+.promo-description {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 15px 0;
+}
+
+.promo-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
   margin-bottom: 15px;
 }
 
-.payments-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
 }
 
-.payments-table thead {
-  background-color: #f5f5f5;
-  border-bottom: 2px solid #ddd;
-}
-
-.payments-table th {
-  padding: 15px;
-  text-align: left;
+.detail-item .label {
   font-weight: 600;
-  color: #333;
-  text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-}
-
-.payments-table td {
-  padding: 15px;
-  border-bottom: 1px solid #eee;
   color: #666;
 }
 
-.payments-table tbody tr:hover {
-  background-color: #f9f9f9;
-  transition: background-color 0.2s ease;
+.detail-item .value {
+  color: #333;
 }
 
-.payments-table td.amount {
+.detail-item .discount {
+  color: #0a8860;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.detail-item .code {
+  font-family: monospace;
+  background-color: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 3px;
   font-weight: 600;
   color: #667eea;
 }
 
-.total-revenue {
-  text-align: right;
-  padding: 15px 20px;
-  background-color: #f0f4ff;
-  border-radius: 0 0 8px 8px;
-  color: #667eea;
-  font-size: 16px;
+.promo-actions {
+  display: flex;
+  gap: 10px;
 }
 
-/* Date Section */
-.date-section {
+.send-btn {
+  flex: 1;
+  padding: 10px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.send-btn:hover:not(:disabled) {
+  background-color: #764ba2;
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.delete-btn {
+  padding: 10px 15px;
+  background-color: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background-color: #fdd;
+  border-color: #c33;
+}
+
+.delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Create Section */
+.create-section {
   animation: fadeIn 0.3s ease-in;
 }
 
-.date-selector {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 30px;
-  background-color: white;
-  padding: 15px 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.create-section h2 {
+  color: #333;
+  font-size: 22px;
+  margin-bottom: 20px;
 }
 
-.date-selector label {
+.promotion-form {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.form-group label {
   font-weight: 600;
   color: #333;
-  min-width: 100px;
+  font-size: 14px;
 }
 
-.date-selector input[type='date'] {
-  padding: 10px 15px;
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
-  cursor: pointer;
+  font-family: inherit;
   transition: border-color 0.3s ease;
 }
 
-.date-selector input[type='date']:hover {
-  border-color: #999;
-}
-
-.date-selector input[type='date']:focus {
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: #0066cc;
   box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
 }
 
-.date-payments {
-  background-color: white;
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
-.date-payments h3 {
-  color: #333;
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 18px;
-}
-
-.date-total {
-  text-align: right;
-  padding: 15px 20px;
-  background-color: #f0f4ff;
-  border-radius: 0 0 8px 8px;
-  color: #667eea;
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
   font-size: 16px;
-  margin-top: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* No Data Message */
@@ -392,7 +445,7 @@
 }
 
 /* Loading State */
-.payment-tracking-container p {
+.promotions-container p {
   text-align: center;
   color: #666;
   font-size: 16px;
@@ -400,11 +453,11 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .payment-tracking-container {
+  .promotions-container {
     padding: 15px;
   }
 
-  .payment-tracking-container h1 {
+  .promotions-container h1 {
     font-size: 22px;
     margin-bottom: 20px;
   }
@@ -422,14 +475,12 @@
     font-size: 24px;
   }
 
-  .salon-selector,
-  .date-selector {
+  .salon-selector {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .salon-selector select,
-  .date-selector input[type='date'] {
+  .salon-selector select {
     width: 100%;
   }
 
@@ -445,50 +496,28 @@
     font-size: 12px;
   }
 
-  .payments-table {
-    font-size: 12px;
+  .promotions-list {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
 
-  .payments-table th,
-  .payments-table td {
-    padding: 10px 5px;
+  .form-row {
+    grid-template-columns: 1fr;
   }
 
-  .service-list,
-  .day-list {
-    max-height: none;
-  }
-
-  .service-item,
-  .day-item {
-    padding: 12px;
-    font-size: 14px;
-  }
-
-  .revenue-by-service,
-  .revenue-by-day {
-    padding: 15px;
-  }
-
-  .revenue-by-service h3,
-  .revenue-by-day h3 {
-    font-size: 16px;
-    margin-bottom: 15px;
+  .promotion-form {
+    padding: 20px;
   }
 }
 
 @media (max-width: 480px) {
-  .payment-tracking-container {
+  .promotions-container {
     padding: 10px;
   }
 
-  .payment-tracking-container h1 {
+  .promotions-container h1 {
     font-size: 18px;
     margin-bottom: 15px;
-  }
-
-  .stats-grid {
-    gap: 10px;
   }
 
   .stat-card {
@@ -508,28 +537,32 @@
     font-size: 11px;
   }
 
-  .payments-table th {
-    font-size: 10px;
-    padding: 8px 3px;
+  .promo-header {
+    flex-direction: column;
   }
 
-  .payments-table td {
-    padding: 8px 3px;
-    font-size: 11px;
+  .promo-header h3 {
+    margin-bottom: 8px;
   }
 
-  .service-item,
-  .day-item {
+  .promotion-form {
+    padding: 15px;
+  }
+
+  .submit-btn {
     padding: 10px;
+    font-size: 14px;
   }
 
-  .service-name,
-  .day-date {
+  .detail-item {
     font-size: 12px;
   }
 
-  .service-revenue,
-  .day-revenue {
-    font-size: 14px;
+  .promo-actions {
+    flex-direction: column;
+  }
+
+  .delete-btn {
+    width: 100%;
   }
 }

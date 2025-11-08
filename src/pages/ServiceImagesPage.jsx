@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { getSalons } from '../api/staff';
+import { useEffect, useState } from 'react';
 import {
-  uploadAppointmentImage,
-  getAppointmentImages,
   deleteAppointmentImage,
-  updateAppointmentImageMetadata,
+  getAppointmentImages,
   getServiceImages,
+  uploadAppointmentImage
 } from '../api/images';
+import { getSalons } from '../api/staff';
+import { useAuth } from '../context/AuthContext';
 import '../pages/service-images.css';
 
 export default function ServiceImagesPage() {
@@ -71,7 +70,7 @@ export default function ServiceImagesPage() {
         uploadType,
         uploadDescription
       );
-      
+
       // Refresh images
       if (appointmentId) {
         loadAppointmentImages();
@@ -210,7 +209,7 @@ export default function ServiceImagesPage() {
           {viewMode === 'upload' && (
             <div className="upload-section">
               <h2>Upload Service Images</h2>
-              
+
               <div className="upload-form">
                 <div className="form-group">
                   <label htmlFor="appointment-id">Appointment ID:</label>
@@ -277,7 +276,7 @@ export default function ServiceImagesPage() {
           {viewMode === 'gallery' && (
             <div className="gallery-section">
               <h2>Appointment Gallery</h2>
-              
+
               <div className="gallery-controls">
                 <div className="appointment-search">
                   <label htmlFor="apt-id">Appointment ID:</label>
@@ -409,7 +408,7 @@ export default function ServiceImagesPage() {
           {viewMode === 'service' && (
             <div className="service-gallery-section">
               <h2>Service Portfolio</h2>
-              
+
               <div className="service-controls">
                 <div className="service-search">
                   <label htmlFor="svc-id">Service ID:</label>

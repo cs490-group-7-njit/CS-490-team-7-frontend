@@ -1,5 +1,4 @@
-import { apiBaseURL } from './http';
-import { get } from './http'
+import { apiBaseURL, get } from './http';
 
 /**
  * Get all payment methods for a user

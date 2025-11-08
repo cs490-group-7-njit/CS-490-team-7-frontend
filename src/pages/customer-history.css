@@ -535,6 +535,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -618,13 +619,13 @@
     gap: 8px;
   }
 
-  .history-item > * {
+  .history-item>* {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  .history-item > *::before {
+  .history-item>*::before {
     content: attr(data-label);
     font-weight: 600;
     color: #333;

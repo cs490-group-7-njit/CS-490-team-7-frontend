@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { getSalons } from '../api/staff';
+import { useEffect, useState } from 'react';
 import {
-  getSalonCustomers,
-  getCustomerVisitHistory,
   getCustomerStatistics,
+  getCustomerVisitHistory,
+  getSalonCustomers,
 } from '../api/customers';
+import { getSalons } from '../api/staff';
+import { useAuth } from '../context/AuthContext';
 import '../pages/customer-history.css';
 
 export default function CustomerHistoryPage() {
@@ -210,11 +210,10 @@ export default function CustomerHistoryPage() {
                       <div
                         className="segment-fill"
                         style={{
-                          width: `${
-                            ((customerStats.repeat_customers - customerStats.loyal_customers) /
+                          width: `${((customerStats.repeat_customers - customerStats.loyal_customers) /
                               customerStats.total_unique_customers) *
                             100
-                          }%`,
+                            }%`,
                         }}
                       />
                     </div>
@@ -243,7 +242,7 @@ export default function CustomerHistoryPage() {
           {viewMode === 'customers' && customers && (
             <div className="customers-section">
               <h2>All Customers</h2>
-              
+
               <div className="search-bar">
                 <input
                   type="text"

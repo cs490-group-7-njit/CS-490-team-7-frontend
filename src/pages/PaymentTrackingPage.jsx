@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { getSalons } from '../api/staff';
+import { useEffect, useState } from 'react';
 import {
   getSalonPayments,
-  getSalonPaymentStats,
   getSalonPaymentsByDate,
+  getSalonPaymentStats,
 } from '../api/payments';
+import { getSalons } from '../api/staff';
+import { useAuth } from '../context/AuthContext';
 import '../pages/payment-tracking.css';
 
 export default function PaymentTrackingPage() {

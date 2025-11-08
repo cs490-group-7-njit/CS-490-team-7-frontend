@@ -12,11 +12,9 @@ import AppointmentDetailsPage from './pages/AppointmentDetailsPage'
 import AppointmentHistoryPage from './pages/AppointmentHistoryPage'
 import AppointmentMemosPage from './pages/AppointmentMemosPage'
 import BlockTimeSlotsPage from './pages/BlockTimeSlotsPage'
-import CustomerHistoryPage from './pages/CustomerHistoryPage'
-import PaymentTrackingPage from './pages/PaymentTrackingPage'
-import ServiceImagesPage from './pages/ServiceImagesPage'
 import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
+import CustomerHistoryPage from './pages/CustomerHistoryPage'
 import DailySchedulePage from './pages/DailySchedulePage'
 import DashboardPage from './pages/DashboardPage'
 import DiscountAlertsPage from './pages/DiscountAlertsPage'
@@ -29,11 +27,14 @@ import MyShopsPage from './pages/MyShopsPage'
 import NotificationsPage from './pages/NotificationsPage'
 import PaymentHistoryPage from './pages/PaymentHistoryPage'
 import PaymentMethodsPage from './pages/PaymentMethodsPage'
+import PaymentTrackingPage from './pages/PaymentTrackingPage'
 import ProfileEditPage from './pages/ProfileEditPage'
+import PromotionsPage from './pages/PromotionsPage'
 import RegisterPage from './pages/RegisterPage'
 import SalonAnalyticsPage from './pages/SalonAnalyticsPage'
 import SalonDetailsPage from './pages/SalonDetailsPage'
 import SalonsSearchPage from './pages/SalonsSearchPage'
+import ServiceImagesPage from './pages/ServiceImagesPage'
 import ServicesPage from './pages/ServicesPage'
 import StaffManagementPage from './pages/StaffManagementPage'
 import StaffRatingPage from './pages/StaffRatingPage'
@@ -225,6 +226,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <ServiceImagesPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-1.18: Send Promotions */}
+          <Route
+            path="/vendor/promotions"
+            element={(
+              <PrivateRoute>
+                <PromotionsPage />
               </PrivateRoute>
             )}
           />
