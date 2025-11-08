@@ -15,6 +15,8 @@ import FavoriteSalonsPage from './pages/FavoriteSalonsPage'
 import LoginPage from './pages/LoginPage'
 import LoyaltyPointsPage from './pages/LoyaltyPointsPage'
 import MyShopsPage from './pages/MyShopsPage'
+import PaymentHistoryPage from './pages/PaymentHistoryPage'
+import PaymentMethodsPage from './pages/PaymentMethodsPage'
 import ProfileEditPage from './pages/ProfileEditPage'
 import RegisterPage from './pages/RegisterPage'
 import SalonAnalyticsPage from './pages/SalonAnalyticsPage'
@@ -200,6 +202,26 @@ function App() {
             element={(
               <PrivateRoute>
                 <StaffRatingPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.18: Add Payment Method */}
+          <Route
+            path="/payment-methods"
+            element={(
+              <PrivateRoute>
+                <PaymentMethodsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.19: View Payment History */}
+          <Route
+            path="/payment-history"
+            element={(
+              <PrivateRoute>
+                <PaymentHistoryPage />
               </PrivateRoute>
             )}
           />
