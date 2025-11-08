@@ -1,4 +1,4 @@
-import http from "./http";
+import { get, post, put, del } from "./http";
 
 /**
  * Get all services for a salon.
@@ -6,8 +6,8 @@ import http from "./http";
  * @returns {Promise<Array>} Array of services
  */
 export const getServicesBySalon = async (salonId) => {
-  const response = await http.get(`/salons/${salonId}/services`);
-  return response.data.services || [];
+  const response = await get(`/salons/${salonId}/services`);
+  return response.services || [];
 };
 
 /**
@@ -17,8 +17,8 @@ export const getServicesBySalon = async (salonId) => {
  * @returns {Promise<Object>} Created service
  */
 export const createService = async (salonId, serviceData) => {
-  const response = await http.post(`/salons/${salonId}/services`, serviceData);
-  return response.data.service;
+  const response = await post(`/salons/${salonId}/services`, serviceData);
+  return response.service;
 };
 
 /**
@@ -29,11 +29,11 @@ export const createService = async (salonId, serviceData) => {
  * @returns {Promise<Object>} Updated service
  */
 export const updateService = async (salonId, serviceId, serviceData) => {
-  const response = await http.put(
+  const response = await put(
     `/salons/${salonId}/services/${serviceId}`,
     serviceData
   );
-  return response.data.service;
+  return response.service;
 };
 
 /**
@@ -43,6 +43,6 @@ export const updateService = async (salonId, serviceId, serviceData) => {
  * @returns {Promise<Object>} Success message
  */
 export const deleteService = async (salonId, serviceId) => {
-  const response = await http.delete(`/salons/${salonId}/services/${serviceId}`);
-  return response.data;
+  const response = await del(`/salons/${salonId}/services/${serviceId}`);
+  return response;
 };
