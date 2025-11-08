@@ -14,6 +14,7 @@ import AppointmentMemosPage from './pages/AppointmentMemosPage'
 import BlockTimeSlotsPage from './pages/BlockTimeSlotsPage'
 import CustomerHistoryPage from './pages/CustomerHistoryPage'
 import PaymentTrackingPage from './pages/PaymentTrackingPage'
+import ServiceImagesPage from './pages/ServiceImagesPage'
 import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
 import DailySchedulePage from './pages/DailySchedulePage'
@@ -214,6 +215,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <CustomerHistoryPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-1.17: Manage Service Images */}
+          <Route
+            path="/vendor/images"
+            element={(
+              <PrivateRoute>
+                <ServiceImagesPage />
               </PrivateRoute>
             )}
           />
