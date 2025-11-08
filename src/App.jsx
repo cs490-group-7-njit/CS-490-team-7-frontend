@@ -12,6 +12,7 @@ import AppointmentDetailsPage from './pages/AppointmentDetailsPage'
 import AppointmentHistoryPage from './pages/AppointmentHistoryPage'
 import AppointmentMemosPage from './pages/AppointmentMemosPage'
 import BlockTimeSlotsPage from './pages/BlockTimeSlotsPage'
+import PaymentTrackingPage from './pages/PaymentTrackingPage'
 import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
 import DailySchedulePage from './pages/DailySchedulePage'
@@ -192,6 +193,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <BlockTimeSlotsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-1.15: Track Payments */}
+          <Route
+            path="/vendor/payments"
+            element={(
+              <PrivateRoute>
+                <PaymentTrackingPage />
               </PrivateRoute>
             )}
           />
