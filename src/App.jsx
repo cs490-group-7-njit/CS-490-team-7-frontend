@@ -17,6 +17,7 @@ import ClientsPage from "./pages/ClientsPage"
 import CustomerHistoryPage from './pages/CustomerHistoryPage'
 import DailySchedulePage from './pages/DailySchedulePage'
 import DashboardPage from './pages/DashboardPage'
+import DelayNotificationPage from './pages/DelayNotificationPage'
 import DiscountAlertsPage from './pages/DiscountAlertsPage'
 import EditShopPage from './pages/EditShopPage'
 import FavoriteSalonsPage from './pages/FavoriteSalonsPage'
@@ -236,6 +237,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <PromotionsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-1.19: Notify Clients of Delays */}
+          <Route
+            path="/vendor/delays"
+            element={(
+              <PrivateRoute>
+                <DelayNotificationPage />
               </PrivateRoute>
             )}
           />
