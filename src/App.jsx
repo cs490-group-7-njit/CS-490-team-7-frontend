@@ -37,6 +37,7 @@ import SalonDetailsPage from './pages/SalonDetailsPage'
 import SalonsSearchPage from './pages/SalonsSearchPage'
 import ServiceImagesPage from './pages/ServiceImagesPage'
 import ServicesPage from './pages/ServicesPage'
+import SocialMediaPage from './pages/SocialMediaPage'
 import StaffManagementPage from './pages/StaffManagementPage'
 import StaffRatingPage from './pages/StaffRatingPage'
 import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
@@ -247,6 +248,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <DelayNotificationPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-1.22: Manage Barbers Social Media Links */}
+          <Route
+            path="/vendor/social-media"
+            element={(
+              <PrivateRoute>
+                <SocialMediaPage />
               </PrivateRoute>
             )}
           />

@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { getSalons } from '../api/staff';
+import { useEffect, useState } from 'react';
 import {
-  notifyAppointmentDelay,
-  getSalonDelays,
-  resolveDelay,
   getDelayAnalytics,
+  getSalonDelays,
+  notifyAppointmentDelay,
+  resolveDelay,
 } from '../api/delays';
+import { getSalons } from '../api/staff';
+import { useAuth } from '../context/AuthContext';
 import '../pages/delay-notifications.css';
 
 export default function DelayNotificationPage() {
@@ -433,8 +433,8 @@ export default function DelayNotificationPage() {
                       <div className="card-value">
                         {analytics.total_delays_sent > 0
                           ? Math.round(
-                              (analytics.resolved_delays / analytics.total_delays_sent) * 100
-                            )
+                            (analytics.resolved_delays / analytics.total_delays_sent) * 100
+                          )
                           : 0}
                         %
                       </div>
