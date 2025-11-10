@@ -1,4 +1,4 @@
-import { apiRequest } from './http'
+import { get, post, put } from './http'
 
 export const getMessages = async (userId, options = {}) => {
   const { page = 1, limit = 20 } = options
@@ -7,18 +7,13 @@ export const getMessages = async (userId, options = {}) => {
     limit: limit.toString(),
   })
 
-  return apiRequest(`/users/${userId}/messages?${params}`)
+  return get(`/users/${userId}/messages?${params}`)
 }
 
 export const sendMessage = async (messageData) => {
-  return apiRequest('/messages', {
-    method: 'POST',
-    body: JSON.stringify(messageData),
-  })
+  return post('/messages', messageData)
 }
 
 export const markMessageAsRead = async (messageId) => {
-  return apiRequest(`/messages/${messageId}/read`, {
-    method: 'PUT',
-  })
+  return put(`/messages/${messageId}/read`)
 }
