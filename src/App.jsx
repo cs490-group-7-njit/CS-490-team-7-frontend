@@ -14,6 +14,7 @@ import EditShopPage from './pages/EditShopPage'
 import FavoriteSalonsPage from './pages/FavoriteSalonsPage'
 import LoginPage from './pages/LoginPage'
 import LoyaltyPointsPage from './pages/LoyaltyPointsPage'
+import DiscountAlertsPage from './pages/DiscountAlertsPage'
 import MessagesPage from './pages/MessagesPage'
 import MyShopsPage from './pages/MyShopsPage'
 import NotificationsPage from './pages/NotificationsPage'
@@ -28,6 +29,7 @@ import ServicesPage from './pages/ServicesPage'
 import StaffManagementPage from './pages/StaffManagementPage'
 import StaffRatingPage from './pages/StaffRatingPage'
 import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
+import AdminUsersPage from './pages/AdminUsersPage'
 
 function App() {
   return (
@@ -168,6 +170,15 @@ function App() {
             )}
           />
 
+          <Route
+            path="/discount-alerts"
+            element={(
+              <PrivateRoute>
+                <DiscountAlertsPage />
+              </PrivateRoute>
+            )}
+          />
+
           {/* UC-2.7: Contact Vendor */}
           <Route
             path="/messages"
@@ -244,6 +255,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <PaymentHistoryPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC 3.1: Admin - View User Data */}
+          <Route
+            path="/admin/users"
+            element={(
+              <PrivateRoute>
+                <AdminUsersPage />
               </PrivateRoute>
             )}
           />

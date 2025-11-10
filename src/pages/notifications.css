@@ -30,6 +30,17 @@
   flex-wrap: wrap;
 }
 
+.view-alerts-link {
+  margin-left: auto;
+  font-weight: 600;
+  color: #0f766e;
+  text-decoration: none;
+}
+
+.view-alerts-link:hover {
+  text-decoration: underline;
+}
+
 .filter-buttons {
   display: flex;
   gap: 0.5rem;
