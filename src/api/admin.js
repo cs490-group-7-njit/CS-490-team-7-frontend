@@ -68,10 +68,32 @@ export async function getAllSalons(options = {}) {
 }
 
 // Get salon summary statistics
-export async function getSalonSummary() {
+export const getSalonSummary = async () => {
   const response = await fetch('/admin/salons/summary')
   if (!response.ok) {
     throw new Error('Failed to fetch salon summary')
+  }
+  return response.json()
+}
+
+/**
+ * UC 3.3: Admin Data Analytics API functions
+ */
+
+// Get comprehensive analytics data for visualizations
+export async function getAnalyticsData() {
+  const response = await fetch('/admin/analytics')
+  if (!response.ok) {
+    throw new Error('Failed to fetch analytics data')
+  }
+  return response.json()
+}
+
+// Get real-time analytics data for dashboard widgets
+export async function getRealtimeAnalytics() {
+  const response = await fetch('/admin/analytics/realtime')
+  if (!response.ok) {
+    throw new Error('Failed to fetch realtime analytics')
   }
   return response.json()
 }

@@ -4,6 +4,7 @@ import PrivateRoute from './components/PrivateRoute'
 import SmartHome from './components/SmartHome'
 import { AuthProvider } from './context/AuthContext'
 import AddShopPage from './pages/AddShopPage'
+import AdminAnalyticsPage from './pages/AdminAnalyticsPage'
 import AdminSalonsPage from './pages/AdminSalonsPage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import AppointmentBookingPage from './pages/AppointmentBookingPage'
@@ -276,6 +277,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <AdminSalonsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC 3.3: Admin - View Data Visualizations */}
+          <Route
+            path="/admin/analytics"
+            element={(
+              <PrivateRoute>
+                <AdminAnalyticsPage />
               </PrivateRoute>
             )}
           />

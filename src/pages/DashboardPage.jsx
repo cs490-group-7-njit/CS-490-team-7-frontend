@@ -182,6 +182,9 @@ function DashboardPage() {
       case 'Salon Management':
         navigate('/admin/salons')
         break
+      case 'Data Analytics':
+        navigate('/admin/analytics')
+        break
       case 'Dashboard':
         // Already on dashboard
         break
@@ -195,7 +198,7 @@ function DashboardPage() {
       case 'client':
         return ['Dashboard', 'My Bookings', 'Messages', 'Notifications', 'Favorite Salons', 'Rewards', 'Profile']
       case 'admin':
-        return ['Dashboard', 'User Management', 'Salon Management', 'Salon Verification', 'Analytics', 'Reports', 'System Health', 'Settings']
+        return ['Dashboard', 'User Management', 'Salon Management', 'Data Analytics', 'Salon Verification', 'Analytics', 'Reports', 'System Health', 'Settings']
       default: // vendor
         return ['Dashboard', 'Appointments', 'My Shops', 'Services', 'Staff', 'Reviews', 'Revenue', 'Marketing', 'Shop']
     }
