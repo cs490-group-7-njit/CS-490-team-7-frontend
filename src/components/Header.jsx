@@ -58,15 +58,14 @@ function Header({ showSearch = true, showSignupLink = false }) {
         {!isAuthenticated ? (
           <>
             <Link to="/salons/search" className="nav-link">Salons</Link>
-            <a href="#">Shops</a>
+            <Link to="/login" className="signin-link">
+              Sign In
+            </Link>
             {showSignupLink && (
               <Link to="/signup" className="signup-link">
                 Signup
               </Link>
             )}
-            <a href="#" className="support-link">
-              Support
-            </a>
           </>
         ) : (
           <>
@@ -77,7 +76,7 @@ function Header({ showSearch = true, showSignupLink = false }) {
               Staff
             </Link>
             <div className="user-menu">
-              <button 
+              <button
                 onClick={handleLogout}
                 className="logout-btn"
                 title="Logout"

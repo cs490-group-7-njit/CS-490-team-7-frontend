@@ -83,6 +83,8 @@ function DashboardPage() {
   const navigate = useNavigate()
   const [vendorShops, setVendorShops] = useState([])
   const [shopsLoading, setShopsLoading] = useState(false)
+  const [loyaltyData, setLoyaltyData] = useState(null)
+  const [loyaltyLoading, setLoyaltyLoading] = useState(false)
 
   // Refresh user activity when dashboard is accessed
   useEffect(() => {
@@ -93,6 +95,13 @@ function DashboardPage() {
   useEffect(() => {
     if (user?.role === 'vendor') {
       fetchVendorShops()
+    }
+  }, [user])
+
+  // Fetch loyalty points if user is a client
+  useEffect(() => {
+    if (user?.role === 'client' && user?.id) {
+      fetchLoyaltyPoints()
     }
   }, [user])
 
@@ -118,6 +127,21 @@ function DashboardPage() {
     }
   }
 
+  const fetchLoyaltyPoints = async () => {
+    try {
+      setLoyaltyLoading(true)
+      const response = await fetch(`/users/${user.id}/loyalty`)
+      if (response.ok) {
+        const data = await response.json()
+        setLoyaltyData(data)
+      }
+    } catch (error) {
+      console.error('Error fetching loyalty points:', error)
+    } finally {
+      setLoyaltyLoading(false)
+    }
+  }
+
   const userRole = user?.role || 'client'
 
   const greeting = useMemo(() => {
@@ -134,8 +158,17 @@ function DashboardPage() {
       case 'My Shops':
         navigate('/shops')
         break
+      case 'My Bookings':
+        navigate('/appointments/history')
+        break
+      case 'Rewards':
+        navigate('/loyalty-points')
+        break
       case 'Favorite Salons':
         navigate('/favorites')
+        break
+      case 'Profile':
+        navigate('/profile/edit')
         break
       case 'Dashboard':
         // Already on dashboard
@@ -148,7 +181,7 @@ function DashboardPage() {
   const getSidebarItems = () => {
     switch (userRole) {
       case 'client':
-        return ['Dashboard', 'My Bookings', 'Favorite Salons', 'Rewards', 'Profile', 'Settings']
+        return ['Dashboard', 'My Bookings', 'Favorite Salons', 'Rewards', 'Profile']
       case 'admin':
         return ['Dashboard', 'User Management', 'Salon Verification', 'Analytics', 'Reports', 'System Health', 'Settings']
       default: // vendor
@@ -184,7 +217,7 @@ function DashboardPage() {
                 <div className="summary-card">
                   <p className="summary-title">Reward Points</p>
                   <p className="summary-status">
-                    <span className="points-value">{clientData.rewardPoints.toLocaleString()}</span> points
+                    <span className="points-value">{loyaltyLoading ? 'Loading...' : (loyaltyData?.total_points || 0).toLocaleString()}</span> points
                   </p>
                   <button type="button" className="pill-button">
                     Redeem Points
