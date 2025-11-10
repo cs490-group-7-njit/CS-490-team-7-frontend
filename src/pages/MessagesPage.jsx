@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
+import { getMessages, markMessageAsRead, sendMessage } from '../api/messages'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
-import { getMessages, sendMessage, markMessageAsRead } from '../api/messages'
 import './messages.css'
 
 function MessagesPage() {

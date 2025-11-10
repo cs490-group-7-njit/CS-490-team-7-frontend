@@ -243,7 +243,8 @@
   font-size: 1.1rem;
 }
 
-.loading, .error {
+.loading,
+.error {
   text-align: center;
   padding: 3rem;
   font-size: 1.1rem;
