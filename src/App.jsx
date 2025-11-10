@@ -4,17 +4,19 @@ import PrivateRoute from './components/PrivateRoute'
 import SmartHome from './components/SmartHome'
 import { AuthProvider } from './context/AuthContext'
 import AddShopPage from './pages/AddShopPage'
+import AdminSalonsPage from './pages/AdminSalonsPage'
+import AdminUsersPage from './pages/AdminUsersPage'
 import AppointmentBookingPage from './pages/AppointmentBookingPage'
 import AppointmentDetailsPage from './pages/AppointmentDetailsPage'
 import AppointmentHistoryPage from './pages/AppointmentHistoryPage'
 import ClientFormPage from "./pages/ClientFormPage"
 import ClientsPage from "./pages/ClientsPage"
 import DashboardPage from './pages/DashboardPage'
+import DiscountAlertsPage from './pages/DiscountAlertsPage'
 import EditShopPage from './pages/EditShopPage'
 import FavoriteSalonsPage from './pages/FavoriteSalonsPage'
 import LoginPage from './pages/LoginPage'
 import LoyaltyPointsPage from './pages/LoyaltyPointsPage'
-import DiscountAlertsPage from './pages/DiscountAlertsPage'
 import MessagesPage from './pages/MessagesPage'
 import MyShopsPage from './pages/MyShopsPage'
 import NotificationsPage from './pages/NotificationsPage'
@@ -29,7 +31,6 @@ import ServicesPage from './pages/ServicesPage'
 import StaffManagementPage from './pages/StaffManagementPage'
 import StaffRatingPage from './pages/StaffRatingPage'
 import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
-import AdminUsersPage from './pages/AdminUsersPage'
 
 function App() {
   return (
@@ -265,6 +266,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <AdminUsersPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC 3.2: Admin - View Salon Data */}
+          <Route
+            path="/admin/salons"
+            element={(
+              <PrivateRoute>
+                <AdminSalonsPage />
               </PrivateRoute>
             )}
           />
