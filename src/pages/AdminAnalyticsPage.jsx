@@ -193,14 +193,14 @@ function AdminAnalyticsPage() {
   }
 
   const getPeakHoursData = () => {
-    if (!analyticsData?.peak_hours) return null
+    if (!analyticsData?.peak_hours?.hourly) return null
 
     const hours = []
     const counts = []
 
     for (let i = 0; i < 24; i++) {
       hours.push(`${i}:00`)
-      counts.push(analyticsData.peak_hours[i] || 0)
+      counts.push(analyticsData.peak_hours.hourly[i] || 0)
     }
 
     return {
@@ -215,21 +215,88 @@ function AdminAnalyticsPage() {
     }
   }
 
-  const getPopularServicesData = () => {
-    if (!analyticsData?.popular_services) return null
+  const getPeakHoursByDayData = () => {
+    if (!analyticsData?.peak_hours?.by_day) return null
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    const datasets = []
+
+    days.forEach(day => {
+      const dayData = analyticsData.peak_hours.by_day[day] || {}
+      const data = []
+      
+      for (let hour = 0; hour < 24; hour++) {
+        data.push(dayData[hour] || 0)
+      }
+      
+      datasets.push({
+        label: day,
+        data: data,
+        borderColor: getDayColor(day),
+        backgroundColor: getDayColor(day, 0.1),
+        tension: 0.4,
+        fill: false,
+      })
+    })
+
+    const labels = []
+    for (let i = 0; i < 24; i++) {
+      labels.push(`${i}:00`)
+    }
 
     return {
-      labels: analyticsData.popular_services.map(item => item.service),
+      labels,
+      datasets
+    }
+  }
+
+  const getAppointmentTrendsByDayData = () => {
+    if (!analyticsData?.appointment_trends_by_day) return null
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    const data = days.map(day => analyticsData.appointment_trends_by_day[day] || 0)
+
+    return {
+      labels: days,
       datasets: [{
-        label: 'Bookings',
-        data: analyticsData.popular_services.map(item => item.bookings),
+        label: 'Appointments',
+        data: data,
         backgroundColor: [
           '#667eea', '#764ba2', '#f093fb', '#f5576c', '#4ecdc4',
-          '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8'
+          '#45b7d1', '#96ceb4'
         ],
         borderWidth: 1,
       }]
     }
+  }
+
+  const getPeakPeriodsData = () => {
+    if (!analyticsData?.peak_hours?.by_period) return null
+
+    const periods = Object.keys(analyticsData.peak_hours.by_period)
+    const data = Object.values(analyticsData.peak_hours.by_period)
+
+    return {
+      labels: periods.map(p => p.charAt(0).toUpperCase() + p.slice(1)),
+      datasets: [{
+        data: data,
+        backgroundColor: ['#ffc107', '#28a745', '#dc3545'],
+        borderWidth: 2,
+      }]
+    }
+  }
+
+  const getDayColor = (day, alpha = 1) => {
+    const colors = {
+      'Monday': `rgba(102, 126, 234, ${alpha})`,
+      'Tuesday': `rgba(118, 75, 162, ${alpha})`,
+      'Wednesday': `rgba(240, 147, 251, ${alpha})`,
+      'Thursday': `rgba(245, 87, 108, ${alpha})`,
+      'Friday': `rgba(78, 205, 196, ${alpha})`,
+      'Saturday': `rgba(69, 183, 209, ${alpha})`,
+      'Sunday': `rgba(150, 206, 180, ${alpha})`
+    }
+    return colors[day] || `rgba(102, 126, 234, ${alpha})`
   }
 
   const chartOptions = {
@@ -445,6 +512,89 @@ function AdminAnalyticsPage() {
                   <div className="chart-loading">Loading chart...</div>
                 ) : getPeakHoursData() ? (
                   <Bar data={getPeakHoursData()} options={chartOptions} />
+                ) : (
+                  <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Appointment Trends & Peak Hours Analysis - UC 3.5 */}
+        <section className="appointment-trends-section">
+          <h2>Appointment Trends & Peak Hours Analysis</h2>
+          
+          {/* Peak Hours Insights */}
+          {analyticsData?.peak_hours?.insights && (
+            <div className="insights-cards">
+              <div className="insight-card">
+                <h3>Peak Hours Range</h3>
+                <p className="insight-value">{analyticsData.peak_hours.insights.peak_hours_range}</p>
+                <p className="insight-label">Most active booking period</p>
+              </div>
+              
+              <div className="insight-card">
+                <h3>Busiest Hour</h3>
+                <p className="insight-value">{analyticsData.peak_hours.insights.busiest_hour}</p>
+                <p className="insight-label">Highest appointment volume</p>
+              </div>
+              
+              <div className="insight-card">
+                <h3>Peak Period Coverage</h3>
+                <p className="insight-value">{analyticsData.peak_hours.insights.peak_percentage}%</p>
+                <p className="insight-label">Of total appointments in peak hours</p>
+              </div>
+              
+              <div className="insight-card">
+                <h3>Peak Appointments</h3>
+                <p className="insight-value">{analyticsData.peak_hours.insights.total_peak_appointments.toLocaleString()}</p>
+                <p className="insight-label">Total bookings during peak hours</p>
+              </div>
+            </div>
+          )}
+
+          <div className="trends-grid">
+            <div className="chart-card full-width">
+              <h3>Appointments by Day of Week</h3>
+              <div className="chart-container">
+                {loading ? (
+                  <div className="chart-loading">Loading chart...</div>
+                ) : getAppointmentTrendsByDayData() ? (
+                  <Bar data={getAppointmentTrendsByDayData()} options={chartOptions} />
+                ) : (
+                  <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+
+            <div className="chart-card">
+              <h3>Peak Hours by Time Period</h3>
+              <div className="chart-container">
+                {loading ? (
+                  <div className="chart-loading">Loading chart...</div>
+                ) : getPeakPeriodsData() ? (
+                  <Doughnut data={getPeakPeriodsData()} options={doughnutOptions} />
+                ) : (
+                  <div className="chart-error">No data available</div>
+                )}
+              </div>
+            </div>
+
+            <div className="chart-card full-width">
+              <h3>Peak Hours by Day of Week</h3>
+              <div className="chart-container">
+                {loading ? (
+                  <div className="chart-loading">Loading chart...</div>
+                ) : getPeakHoursByDayData() ? (
+                  <Line data={getPeakHoursByDayData()} options={{
+                    ...chartOptions,
+                    plugins: {
+                      ...chartOptions.plugins,
+                      legend: {
+                        position: 'bottom',
+                      },
+                    },
+                  }} />
                 ) : (
                   <div className="chart-error">No data available</div>
                 )}
