@@ -76,6 +76,27 @@ export const getSalonSummary = async () => {
   return response.json()
 }
 
+// Verify salon (approve or reject)
+export async function verifySalon(salonId, action, adminNotes = null) {
+  const payload = {
+    action: action, // 'approve' or 'reject'
+    admin_notes: adminNotes
+  }
+
+  const response = await fetch(`/admin/salons/${salonId}/verify`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to verify salon')
+  }
+  return response.json()
+}
+
 /**
  * UC 3.3: Admin Data Analytics API functions
  */

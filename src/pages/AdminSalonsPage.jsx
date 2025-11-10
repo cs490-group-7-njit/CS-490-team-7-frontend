@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getAllSalons, getSalonSummary } from '../api/admin'
+import { getAllSalons, getSalonSummary, verifySalon } from '../api/admin'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import './admin-salons.css'
@@ -19,6 +19,10 @@ function AdminSalonsPage() {
   const [selectedBusinessType, setSelectedBusinessType] = useState('')
   const [sortBy, setSortBy] = useState('created_at')
   const [sortOrder, setSortOrder] = useState('desc')
+
+  // Verification states
+  const [verifyingSalonId, setVerifyingSalonId] = useState(null)
+  const [verificationError, setVerificationError] = useState(null)
 
   // Redirect if not admin
   useEffect(() => {
@@ -98,6 +102,30 @@ function AdminSalonsPage() {
     } else {
       setSortBy(field)
       setSortOrder('desc')
+    }
+  }
+
+  // Handle salon verification
+  const handleVerifySalon = async (salonId, action) => {
+    if (!window.confirm(`Are you sure you want to ${action} this salon?`)) {
+      return
+    }
+
+    try {
+      setVerifyingSalonId(salonId)
+      setVerificationError(null)
+
+      await verifySalon(salonId, action)
+
+      // Refresh the salons list to show updated status
+      await fetchSalons()
+      await fetchSummary()
+
+    } catch (error) {
+      console.error('Error verifying salon:', error)
+      setVerificationError(`Failed to ${action} salon. Please try again.`)
+    } finally {
+      setVerifyingSalonId(null)
     }
   }
 
@@ -218,6 +246,12 @@ function AdminSalonsPage() {
 
         {/* Filters */}
         <section className="filters-section">
+          {verificationError && (
+            <div className="error-message">
+              {verificationError}
+            </div>
+          )}
+
           <div className="filter-group">
             <label htmlFor="status-filter">Filter by Status:</label>
             <select
@@ -296,6 +330,7 @@ function AdminSalonsPage() {
                       <th>Appointments</th>
                       <th>Reviews</th>
                       <th>Recent Activity</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -326,6 +361,26 @@ function AdminSalonsPage() {
                               {salon.recent_appointments} recent
                             </span>
                           </div>
+                        </td>
+                        <td>
+                          {salon.verification_status === 'pending' && (
+                            <div className="action-buttons">
+                              <button
+                                className="action-btn approve-btn"
+                                onClick={() => handleVerifySalon(salon.salon_id, 'approve')}
+                                disabled={verifyingSalonId === salon.salon_id}
+                              >
+                                {verifyingSalonId === salon.salon_id ? 'Processing...' : 'Approve'}
+                              </button>
+                              <button
+                                className="action-btn reject-btn"
+                                onClick={() => handleVerifySalon(salon.salon_id, 'reject')}
+                                disabled={verifyingSalonId === salon.salon_id}
+                              >
+                                {verifyingSalonId === salon.salon_id ? 'Processing...' : 'Reject'}
+                              </button>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}
