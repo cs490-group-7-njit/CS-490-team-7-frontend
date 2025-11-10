@@ -15,6 +15,7 @@ import FavoriteSalonsPage from './pages/FavoriteSalonsPage'
 import LoginPage from './pages/LoginPage'
 import LoyaltyPointsPage from './pages/LoyaltyPointsPage'
 import MyShopsPage from './pages/MyShopsPage'
+import NotificationsPage from './pages/NotificationsPage'
 import PaymentHistoryPage from './pages/PaymentHistoryPage'
 import PaymentMethodsPage from './pages/PaymentMethodsPage'
 import ProfileEditPage from './pages/ProfileEditPage'
@@ -152,6 +153,16 @@ function App() {
             element={(
               <PrivateRoute>
                 <LoyaltyPointsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.5: View Notifications */}
+          <Route
+            path="/notifications"
+            element={(
+              <PrivateRoute>
+                <NotificationsPage />
               </PrivateRoute>
             )}
           />

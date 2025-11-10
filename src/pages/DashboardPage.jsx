@@ -161,6 +161,9 @@ function DashboardPage() {
       case 'My Bookings':
         navigate('/appointments/history')
         break
+      case 'Notifications':
+        navigate('/notifications')
+        break
       case 'Rewards':
         navigate('/loyalty-points')
         break
@@ -181,7 +184,7 @@ function DashboardPage() {
   const getSidebarItems = () => {
     switch (userRole) {
       case 'client':
-        return ['Dashboard', 'My Bookings', 'Favorite Salons', 'Rewards', 'Profile']
+        return ['Dashboard', 'My Bookings', 'Notifications', 'Favorite Salons', 'Rewards', 'Profile']
       case 'admin':
         return ['Dashboard', 'User Management', 'Salon Verification', 'Analytics', 'Reports', 'System Health', 'Settings']
       default: // vendor
