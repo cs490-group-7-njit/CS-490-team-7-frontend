@@ -70,6 +70,14 @@ export function AuthProvider({ children }) {
     }
   }, [state.user, state.token])
 
+  const setUser = useCallback((updatedUser) => {
+    setState(prev => ({
+      ...prev,
+      user: updatedUser,
+      lastActivity: Date.now()
+    }))
+  }, [])
+
   const value = useMemo(
     () => ({
       user: state.user,
@@ -79,8 +87,9 @@ export function AuthProvider({ children }) {
       register,
       logout,
       refreshActivity,
+      setUser,
     }),
-    [state, login, register, logout, refreshActivity],
+    [state, login, register, logout, refreshActivity, setUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
