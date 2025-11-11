@@ -40,11 +40,6 @@ const clientData = {
     { name: 'Trendy Cuts', bookings: 1250, rating: 4.9 },
     { name: 'Elite Salon', bookings: 980, rating: 4.8 },
     { name: 'Beauty Hub', bookings: 875, rating: 4.7 }
-  ],
-  recentVisits: [
-    { salon: 'Beauty Paradise', service: 'Haircut & Color', date: '2024-10-20', rating: 5 },
-    { salon: 'Style Studio', service: 'Manicure', date: '2024-10-15', rating: 4 },
-    { salon: 'Glamour Lounge', service: 'Facial Treatment', date: '2024-10-10', rating: 5 }
   ]
 }
 
@@ -87,6 +82,8 @@ function DashboardPage() {
   const [loyaltyLoading, setLoyaltyLoading] = useState(false)
   const [nextAppointment, setNextAppointment] = useState(null)
   const [appointmentsLoading, setAppointmentsLoading] = useState(false)
+  const [recentVisits, setRecentVisits] = useState([])
+  const [recentVisitsLoading, setRecentVisitsLoading] = useState(false)
 
   // Refresh user activity when dashboard is accessed
   useEffect(() => {
@@ -111,6 +108,13 @@ function DashboardPage() {
   useEffect(() => {
     if (user?.role === 'client' && user?.id) {
       fetchNextAppointment()
+    }
+  }, [user])
+
+  // Fetch recent visits if user is a client
+  useEffect(() => {
+    if (user?.role === 'client' && user?.id) {
+      fetchRecentVisits()
     }
   }, [user])
 
@@ -169,6 +173,37 @@ function DashboardPage() {
       console.error('Error fetching appointments:', error)
     } finally {
       setAppointmentsLoading(false)
+    }
+  }
+
+  const fetchRecentVisits = async () => {
+    try {
+      setRecentVisitsLoading(true)
+      const appointments = await listAppointments()
+
+      // Filter for completed appointments, sorted by most recent
+      const completedAppointments = appointments
+        .filter(apt => apt.status === 'completed')
+        .sort((a, b) => new Date(b.starts_at) - new Date(a.starts_at))
+        .slice(0, 3) // Get only the 3 most recent
+
+      const visits = completedAppointments.map(apt => ({
+        salon: apt.salon_name,
+        service: apt.service_name,
+        date: new Date(apt.starts_at).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }),
+        rating: 0 // Default rating, could be enhanced later with review data
+      }))
+
+      setRecentVisits(visits)
+    } catch (error) {
+      console.error('Error fetching recent visits:', error)
+      setRecentVisits([])
+    } finally {
+      setRecentVisitsLoading(false)
     }
   }
 
@@ -559,21 +594,27 @@ function DashboardPage() {
                     <h2>Your Recent Visits</h2>
                   </header>
                   <div className="visits-list">
-                    {clientData.recentVisits.map((visit, index) => (
-                      <div key={index} className="visit-item">
-                        <div className="visit-details">
-                          <p className="visit-salon">{visit.salon}</p>
-                          <p className="visit-service">{visit.service}</p>
-                          <p className="visit-date">{visit.date}</p>
+                    {recentVisitsLoading ? (
+                      <p>Loading recent visits...</p>
+                    ) : recentVisits.length > 0 ? (
+                      recentVisits.map((visit, index) => (
+                        <div key={index} className="visit-item">
+                          <div className="visit-details">
+                            <p className="visit-salon">{visit.salon}</p>
+                            <p className="visit-service">{visit.service}</p>
+                            <p className="visit-date">{visit.date}</p>
+                          </div>
+                          <div className="visit-rating">
+                            <span className="rating">★ {visit.rating || 'No rating'}</span>
+                            <button type="button" className="pill-button">
+                              Book Again
+                            </button>
+                          </div>
                         </div>
-                        <div className="visit-rating">
-                          <span className="rating">★ {visit.rating}</span>
-                          <button type="button" className="pill-button">
-                            Book Again
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p>No completed appointments yet. Book an appointment to see your visit history.</p>
+                    )}
                   </div>
                 </article>
 
