@@ -1,4 +1,4 @@
-import { get, post, put, del } from './http';
+import { del, get, post, put } from './http';
 
 /**
  * Add a social media link to salon

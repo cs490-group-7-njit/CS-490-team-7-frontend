@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { getSalons } from '../api/staff';
+import { useEffect, useState } from 'react';
 import {
   addSocialMediaLink,
+  deleteSocialMediaLink,
   getAllSalonSocialMedia,
   updateSocialMediaLink,
-  deleteSocialMediaLink,
 } from '../api/social-media';
+import { getSalons } from '../api/staff';
+import { useAuth } from '../context/AuthContext';
 import '../pages/social-media.css';
 
 export default function SocialMediaPage() {
