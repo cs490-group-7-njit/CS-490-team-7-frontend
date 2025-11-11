@@ -237,7 +237,7 @@ function DashboardPage() {
         navigate('/shops')
         break
       case 'Appointments':
-        navigate('/appointments')
+        navigate(userRole === 'vendor' ? '/vendor/appointments' : '/appointments')
         break
       case 'My Bookings':
         navigate('/appointments/history')
