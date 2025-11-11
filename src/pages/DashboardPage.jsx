@@ -261,7 +261,7 @@ function DashboardPage() {
         navigate('/services')
         break
       case 'Reviews':
-        navigate('/reviews')
+        navigate(userRole === 'vendor' ? '/vendor/reviews' : '/reviews')
         break
       case 'Revenue':
         navigate('/revenue')
