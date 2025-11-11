@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getMyShops } from '../api/shops'
 import { listAppointments } from '../api/appointments'
+import { getMyShops } from '../api/shops'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import './dashboard.css'
@@ -156,13 +156,13 @@ function DashboardPage() {
     try {
       setAppointmentsLoading(true)
       const appointments = await listAppointments()
-      
+
       // Filter for upcoming booked appointments
       const now = new Date()
       const upcomingAppointments = appointments
         .filter(apt => apt.status === 'booked' && new Date(apt.starts_at) > now)
         .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at))
-      
+
       if (upcomingAppointments.length > 0) {
         setNextAppointment(upcomingAppointments[0])
       }
@@ -183,14 +183,14 @@ function DashboardPage() {
 
   const formatAppointmentTime = (dateString) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
       day: 'numeric',
       year: 'numeric'
-    }) + ' ' + date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
+    }) + ' ' + date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     })
   }
 
@@ -286,9 +286,9 @@ function DashboardPage() {
                 <div className="summary-card">
                   <p className="summary-title">Next Appointment</p>
                   <p className="summary-subtitle">
-                    {appointmentsLoading 
-                      ? 'Loading...' 
-                      : nextAppointment 
+                    {appointmentsLoading
+                      ? 'Loading...'
+                      : nextAppointment
                         ? `${nextAppointment.salon_name} - ${formatAppointmentTime(nextAppointment.starts_at)}`
                         : 'No upcoming appointments'
                     }

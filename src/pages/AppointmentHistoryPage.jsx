@@ -22,13 +22,17 @@ function AppointmentHistoryPage() {
       setLoading(true)
       setError(null)
       try {
-        const query = statusFilter ? `?status=${statusFilter}` : ''
-        const response = await fetch(`/users/${user.id}/appointments/history${query}`)
+        const response = await fetch(`/appointments`)
         if (!response.ok) {
           throw new Error('Failed to fetch appointment history')
         }
         const data = await response.json()
-        setAppointments(data.appointments || [])
+        // Filter by status if needed
+        let filteredAppointments = data.appointments || []
+        if (statusFilter) {
+          filteredAppointments = filteredAppointments.filter(apt => apt.status === statusFilter)
+        }
+        setAppointments(filteredAppointments)
       } catch (err) {
         console.error('Error fetching appointments:', err)
         setError('Failed to load appointment history. Please try again.')
