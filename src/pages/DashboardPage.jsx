@@ -236,6 +236,9 @@ function DashboardPage() {
       case 'My Shops':
         navigate('/shops')
         break
+      case 'Appointments':
+        navigate('/appointments')
+        break
       case 'My Bookings':
         navigate('/appointments/history')
         break
@@ -253,6 +256,21 @@ function DashboardPage() {
         break
       case 'Profile':
         navigate('/profile/edit')
+        break
+      case 'Services':
+        navigate('/services')
+        break
+      case 'Reviews':
+        navigate('/reviews')
+        break
+      case 'Revenue':
+        navigate('/revenue')
+        break
+      case 'Marketing':
+        navigate('/marketing')
+        break
+      case 'Shop':
+        navigate('/shop')
         break
       case 'User Management':
         navigate('/admin/users')
