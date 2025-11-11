@@ -59,13 +59,19 @@ function StaffManagementPage() {
     try {
       setIsLoading(true)
       setError(null)
-      const response = await getStaffBySalon(salonId)
-      if (response.staff) {
-        setStaff(response.staff)
+      console.log('🔍 Loading staff for salon:', salonId)
+      const staffArray = await getStaffBySalon(salonId)
+      console.log('📋 Staff array:', staffArray)
+      if (Array.isArray(staffArray)) {
+        console.log(`✅ Loaded ${staffArray.length} staff members`)
+        setStaff(staffArray)
+      } else {
+        console.warn('⚠️ Staff response is not an array')
+        setStaff([])
       }
     } catch (err) {
+      console.error('❌ Error loading staff:', err)
       setError('Failed to load staff')
-      console.error(err)
     } finally {
       setIsLoading(false)
     }
