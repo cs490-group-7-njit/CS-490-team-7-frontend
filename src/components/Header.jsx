@@ -72,9 +72,11 @@ function Header({ showSearch = true, showSignupLink = false }) {
             <Link to="/dashboard" className="nav-link">
               Dashboard
             </Link>
-            <Link to="/staff" className="nav-link">
-              Staff
-            </Link>
+            {(user?.role === 'vendor' || user?.role === 'admin') && (
+              <Link to="/staff" className="nav-link">
+                Staff
+              </Link>
+            )}
             <div className="user-menu">
               <button
                 onClick={handleLogout}
