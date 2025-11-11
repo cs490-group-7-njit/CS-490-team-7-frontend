@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMyShops } from '../api/shops'
+import { listAppointments } from '../api/appointments'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import './dashboard.css'
@@ -85,6 +86,8 @@ function DashboardPage() {
   const [shopsLoading, setShopsLoading] = useState(false)
   const [loyaltyData, setLoyaltyData] = useState(null)
   const [loyaltyLoading, setLoyaltyLoading] = useState(false)
+  const [nextAppointment, setNextAppointment] = useState(null)
+  const [appointmentsLoading, setAppointmentsLoading] = useState(false)
 
   // Refresh user activity when dashboard is accessed
   useEffect(() => {
@@ -102,6 +105,13 @@ function DashboardPage() {
   useEffect(() => {
     if (user?.role === 'client' && user?.id) {
       fetchLoyaltyPoints()
+    }
+  }, [user])
+
+  // Fetch next appointment if user is a client
+  useEffect(() => {
+    if (user?.role === 'client' && user?.id) {
+      fetchNextAppointment()
     }
   }, [user])
 
@@ -142,6 +152,27 @@ function DashboardPage() {
     }
   }
 
+  const fetchNextAppointment = async () => {
+    try {
+      setAppointmentsLoading(true)
+      const appointments = await listAppointments()
+      
+      // Filter for upcoming booked appointments
+      const now = new Date()
+      const upcomingAppointments = appointments
+        .filter(apt => apt.status === 'booked' && new Date(apt.starts_at) > now)
+        .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at))
+      
+      if (upcomingAppointments.length > 0) {
+        setNextAppointment(upcomingAppointments[0])
+      }
+    } catch (error) {
+      console.error('Error fetching appointments:', error)
+    } finally {
+      setAppointmentsLoading(false)
+    }
+  }
+
   const userRole = user?.role || 'client'
 
   const greeting = useMemo(() => {
@@ -149,6 +180,19 @@ function DashboardPage() {
     const firstName = name.split(' ')[0]
     return `Welcome to your Dashboard, ${firstName}`
   }, [user, userRole])
+
+  const formatAppointmentTime = (dateString) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    }) + ' ' + date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    })
+  }
 
   const handleNavigation = (item) => {
     switch (item) {
@@ -242,7 +286,12 @@ function DashboardPage() {
                 <div className="summary-card">
                   <p className="summary-title">Next Appointment</p>
                   <p className="summary-subtitle">
-                    Beauty Paradise - Tomorrow 2:00 PM
+                    {appointmentsLoading 
+                      ? 'Loading...' 
+                      : nextAppointment 
+                        ? `${nextAppointment.salon_name} - ${formatAppointmentTime(nextAppointment.starts_at)}`
+                        : 'No upcoming appointments'
+                    }
                   </p>
                   <button
                     type="button"
