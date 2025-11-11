@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getMyShops } from '../api/shops'
 import {
   getStaffDailySchedule,
   getStaffWeeklySchedule,
 } from '../api/schedule'
+import { getMyShops } from '../api/shops'
 import { getStaffBySalon } from '../api/staff'
 import './daily-schedule.css'
 
