@@ -31,7 +31,6 @@ const demoStats = {
 
 // Client Dashboard Data
 const clientData = {
-  rewardPoints: 2450,
   nearbyShops: [
     { name: 'Beauty Paradise', distance: '0.3 miles', rating: 4.8, nextAvailable: 'Today 2:00 PM' },
     { name: 'Style Studio', distance: '0.5 miles', rating: 4.6, nextAvailable: 'Tomorrow 10:00 AM' },
@@ -585,7 +584,7 @@ function DashboardPage() {
                   <div className="rewards-stats">
                     <div className="reward-item">
                       <h4>Current Points</h4>
-                      <p className="reward-value">{clientData.rewardPoints.toLocaleString()}</p>
+                      <p className="reward-value">{loyaltyLoading ? 'Loading...' : (loyaltyData?.total_points || 0).toLocaleString()}</p>
                     </div>
                     <div className="reward-item">
                       <h4>Points to Next Reward</h4>
