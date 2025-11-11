@@ -1,3 +1,5 @@
+import { get, put } from './http'
+
 /**
  * UC 3.1: Admin User Analytics API functions
  */
@@ -21,20 +23,12 @@ export async function getAllUsers(options = {}) {
   params.append('limit', limit)
   params.append('offset', offset)
 
-  const response = await fetch(`/admin/users?${params}`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch users')
-  }
-  return response.json()
+  return get(`/admin/users?${params}`)
 }
 
 // Get user summary statistics
 export async function getUserSummary() {
-  const response = await fetch('/admin/users/summary')
-  if (!response.ok) {
-    throw new Error('Failed to fetch user summary')
-  }
-  return response.json()
+  return get('/admin/users/summary')
 }
 
 /**
@@ -60,20 +54,12 @@ export async function getAllSalons(options = {}) {
   params.append('limit', limit)
   params.append('offset', offset)
 
-  const response = await fetch(`/admin/salons?${params}`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch salons')
-  }
-  return response.json()
+  return get(`/admin/salons?${params}`)
 }
 
 // Get salon summary statistics
 export const getSalonSummary = async () => {
-  const response = await fetch('/admin/salons/summary')
-  if (!response.ok) {
-    throw new Error('Failed to fetch salon summary')
-  }
-  return response.json()
+  return get('/admin/salons/summary')
 }
 
 // Verify salon (approve or reject)
@@ -83,18 +69,7 @@ export async function verifySalon(salonId, action, adminNotes = null) {
     admin_notes: adminNotes
   }
 
-  const response = await fetch(`/admin/salons/${salonId}/verify`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to verify salon')
-  }
-  return response.json()
+  return put(`/admin/salons/${salonId}/verify`, payload)
 }
 
 /**
@@ -103,20 +78,12 @@ export async function verifySalon(salonId, action, adminNotes = null) {
 
 // Get comprehensive analytics data for visualizations
 export async function getAnalyticsData() {
-  const response = await fetch('/admin/analytics')
-  if (!response.ok) {
-    throw new Error('Failed to fetch analytics data')
-  }
-  return response.json()
+  return get('/admin/analytics')
 }
 
 // Get real-time analytics data for dashboard widgets
 export async function getRealtimeAnalytics() {
-  const response = await fetch('/admin/analytics/realtime')
-  if (!response.ok) {
-    throw new Error('Failed to fetch realtime analytics')
-  }
-  return response.json()
+  return get('/admin/analytics/realtime')
 }
 
 /**
@@ -140,9 +107,5 @@ export async function generateReport(options = {}) {
   if (dateFrom) params.append('date_from', dateFrom)
   if (dateTo) params.append('date_to', dateTo)
 
-  const response = await fetch(`/admin/reports?${params}`)
-  if (!response.ok) {
-    throw new Error('Failed to generate report')
-  }
-  return response.json()
+  return get(`/admin/reports?${params}`)
 }
