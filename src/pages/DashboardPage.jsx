@@ -264,13 +264,13 @@ function DashboardPage() {
         navigate(userRole === 'vendor' ? '/vendor/reviews' : '/reviews')
         break
       case 'Revenue':
-        navigate('/revenue')
+        navigate(userRole === 'vendor' ? '/salons/1/analytics' : '/revenue')
         break
       case 'Marketing':
         navigate('/marketing')
         break
       case 'Shop':
-        navigate('/shop')
+        navigate('/shops')
         break
       case 'User Management':
         navigate('/admin/users')
