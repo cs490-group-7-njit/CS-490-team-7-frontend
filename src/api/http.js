@@ -1,11 +1,29 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
 
+function getAuthToken() {
+  try {
+    const stored = localStorage.getItem('salonhub.auth')
+    if (!stored) return null
+    const parsed = JSON.parse(stored)
+    return parsed.token || null
+  } catch {
+    return null
+  }
+}
+
 async function request(path, options = {}) {
+  const token = getAuthToken()
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {}),
+  }
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    },
+    headers,
     ...options,
   })
 

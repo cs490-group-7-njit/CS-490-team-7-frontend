@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
+import { listAppointments } from '../api/appointments'
 import '../styles/appointment-history.css'
 
 function AppointmentHistoryPage() {
@@ -22,13 +23,9 @@ function AppointmentHistoryPage() {
       setLoading(true)
       setError(null)
       try {
-        const response = await fetch(`/appointments`)
-        if (!response.ok) {
-          throw new Error('Failed to fetch appointment history')
-        }
-        const data = await response.json()
+        const data = await listAppointments()
         // Filter by status if needed
-        let filteredAppointments = data.appointments || []
+        let filteredAppointments = data || []
         if (statusFilter) {
           filteredAppointments = filteredAppointments.filter(apt => apt.status === statusFilter)
         }
