@@ -594,7 +594,11 @@ function DashboardPage() {
                       <h4>Available Rewards</h4>
                       <p className="reward-value">12</p>
                     </div>
-                    <button type="button" className="primary-button">
+                    <button
+                      type="button"
+                      className="primary-button"
+                      onClick={() => navigate('/loyalty-points')}
+                    >
                       View All Rewards
                     </button>
                   </div>
