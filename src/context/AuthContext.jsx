@@ -10,17 +10,17 @@ export function AuthProvider({ children }) {
 
     try {
       const parsed = JSON.parse(stored)
-      
+
       // Check if the session is older than 24 hours (86400000 ms)
       const sessionTimeout = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
       const now = Date.now()
-      
+
       if (parsed.lastActivity && (now - parsed.lastActivity) > sessionTimeout) {
         console.log('Session expired, clearing stored auth')
         localStorage.removeItem(STORAGE_KEY)
         return { user: null, token: null, lastActivity: null }
       }
-      
+
       // Update last activity to current time
       const refreshedState = { ...parsed, lastActivity: now }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(refreshedState))
@@ -38,10 +38,10 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (credentials) => {
     const result = await loginUser(credentials)
-    const newState = { 
-      user: result.user, 
-      token: result.token, 
-      lastActivity: Date.now() 
+    const newState = {
+      user: result.user,
+      token: result.token,
+      lastActivity: Date.now()
     }
     setState(newState)
     return result
@@ -49,10 +49,10 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(async (userData) => {
     const result = await registerUser(userData)
-    const newState = { 
-      user: result.user, 
+    const newState = {
+      user: result.user,
       token: result.token || 'dummy-token', // Some registration APIs might not return a token
-      lastActivity: Date.now() 
+      lastActivity: Date.now()
     }
     setState(newState)
     return result
