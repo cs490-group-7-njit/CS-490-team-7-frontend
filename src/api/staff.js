@@ -4,6 +4,17 @@ import { del, get, post, put } from './http'
  * UC 1.6: Staff Management API functions
  */
 
+// Get all salons owned by the current vendor
+export async function getSalons() {
+  try {
+    const response = await get('/vendors/me/salons')
+    return response.salons || []
+  } catch (error) {
+    console.error('Error fetching vendor salons:', error)
+    throw error
+  }
+}
+
 // Get all staff members for a salon
 export async function getStaffBySalon(salonId) {
   try {

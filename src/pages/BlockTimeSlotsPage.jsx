@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getMyShops } from '../api/salons'
+import { getMyShops } from '../api/shops'
 import { getStaffBySalon } from '../api/staff'
 import {
   createTimeBlock,

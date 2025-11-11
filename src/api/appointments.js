@@ -10,6 +10,15 @@ export const listAppointments = async () => {
 };
 
 /**
+ * Get all appointments for the vendor.
+ * @returns {Promise<Array>} Array of vendor appointments
+ */
+export const getVendorAppointments = async () => {
+  const response = await get("/vendors/me/appointments");
+  return response.appointments || [];
+};
+
+/**
  * Check available time slots for a staff member on a given date.
  * @param {number} staffId - The staff ID
  * @param {string} date - Date in YYYY-MM-DD format
