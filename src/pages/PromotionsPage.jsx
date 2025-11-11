@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   createPromotion,
   deletePromotion,
+  getPromotionAnalytics,
   getPromotionStats,
   getSalonPromotions,
   sendPromotion
@@ -81,6 +82,17 @@ export default function PromotionsPage() {
     try {
       const response = await getPromotionStats(selectedSalonId);
       setPromotionStats(response);
+
+      // Also load analytics (UC 1.18)
+      try {
+        const analytics = await getPromotionAnalytics(selectedSalonId);
+        setPromotionStats((prev) => ({
+          ...prev,
+          ...analytics
+        }));
+      } catch (err) {
+        console.error('Error loading analytics:', err);
+      }
     } catch (err) {
       console.error('Error loading stats:', err);
     }
@@ -270,6 +282,27 @@ export default function PromotionsPage() {
                   <p className="stat-value">{promotionStats.average_recipients_per_campaign}</p>
                 </div>
               </div>
+
+              {/* UC 1.18 Analytics */}
+              {promotionStats.open_rate !== undefined && (
+                <div className="analytics-section">
+                  <h3>Engagement Analytics</h3>
+                  <div className="stats-grid">
+                    <div className="stat-card">
+                      <p className="stat-label">Open Rate</p>
+                      <p className="stat-value">{(promotionStats.open_rate * 100).toFixed(1)}%</p>
+                    </div>
+                    <div className="stat-card">
+                      <p className="stat-label">Dismiss Rate</p>
+                      <p className="stat-value">{(promotionStats.dismiss_rate * 100).toFixed(1)}%</p>
+                    </div>
+                    <div className="stat-card">
+                      <p className="stat-label">Total Sent</p>
+                      <p className="stat-value">{promotionStats.total_sent || 0}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {promotionStats.promotions_by_segment && Object.keys(promotionStats.promotions_by_segment).length > 0 && (
                 <div className="segment-stats">

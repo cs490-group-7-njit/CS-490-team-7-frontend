@@ -105,3 +105,18 @@ export async function getPromotionStats(salonId) {
     throw error
   }
 }
+
+/**
+ * Get analytics for a salon's promotions (UC 1.18)
+ * @param {number} salonId - The salon ID
+ * @returns {Promise<Object>}
+ */
+export async function getPromotionAnalytics(salonId) {
+  try {
+    const response = await get(`/salons/${salonId}/promotions/analytics`)
+    return response
+  } catch (error) {
+    console.error('Error fetching promotion analytics:', error)
+    throw error
+  }
+}
