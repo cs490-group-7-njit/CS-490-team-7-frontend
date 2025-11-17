@@ -43,6 +43,8 @@ import StaffManagementPage from './pages/StaffManagementPage'
 import StaffRatingPage from './pages/StaffRatingPage'
 import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
 import VendorReviewsPage from './pages/VendorReviewsPage'
+import SettingsPage from './pages/SettingsPage';
+
 
 function App() {
   return (
@@ -398,6 +400,15 @@ function App() {
             element={(
               <PrivateRoute>
                 <AdminAnalyticsPage />
+              </PrivateRoute>
+            )}
+          />
+          {/* Admin - Settings */}
+          <Route
+            path="/admin/settings"
+            element={(
+              <PrivateRoute>
+                <SettingsPage />
               </PrivateRoute>
             )}
           />
