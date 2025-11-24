@@ -13,6 +13,7 @@
   color: #333;
   font-size: 2rem;
   margin-bottom: 2rem;
+  text-align: center;
 }
 
 .no-salons,
@@ -75,7 +76,7 @@
 
 .appointments-header {
   display: grid;
-  grid-template-columns: 150px 140px 140px 140px 100px 120px;
+  grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) minmax(120px, 1.2fr) minmax(100px, 1fr) minmax(80px, 0.8fr) minmax(100px, 1fr);
   gap: 1rem;
   padding: 1rem;
   background-color: #f8f9fa;
@@ -83,11 +84,12 @@
   color: #333;
   border-bottom: 2px solid #e9ecef;
   font-size: 0.9rem;
+  align-items: center;
 }
 
 .appointment-row {
   display: grid;
-  grid-template-columns: 150px 140px 140px 140px 100px 120px;
+  grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) minmax(120px, 1.2fr) minmax(100px, 1fr) minmax(80px, 0.8fr) minmax(100px, 1fr);
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #e9ecef;
@@ -106,16 +108,23 @@
 .col-time {
   font-size: 0.9rem;
   color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .col-client {
   color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .col-service {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  overflow: hidden;
 }
 
 .col-service .duration {
@@ -126,14 +135,23 @@
 
 .col-staff {
   color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .col-status {
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .col-actions {
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .status-badge {
@@ -352,5 +370,13 @@
 
   .appointments-list {
     border-radius: 0;
+  }
+}
+
+/* Large screen optimization */
+@media (min-width: 1200px) {
+  .appointments-header,
+  .appointment-row {
+    grid-template-columns: 180px 160px 200px 140px 120px 140px;
   }
 }

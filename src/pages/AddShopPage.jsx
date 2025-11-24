@@ -295,11 +295,9 @@ function AddShopPage() {
       
       <main className="main-content">
         <div className="container">
-          <div className="page-header">
-            <div className="page-header-content">
-              <h1>Register Your Salon</h1>
-              <p>Fill out the information below to list your salon on our platform</p>
-            </div>
+          <div className="add-shop-header">
+            <h1>Register Your Salon</h1>
+            <p>Fill out the information below to list your salon on our platform</p>
           </div>
 
           <form className="shop-form" onSubmit={handleSubmit}>

@@ -134,22 +134,79 @@
 
 /* Page Header */
 .page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0;
+  margin-bottom: 32px;
   padding-bottom: 24px;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.page-header-content h1 {
-  margin: 0 0 8px 0;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
+.page-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.page-header-top .page-header-content {
+  margin-right: auto;
+}
+
+.page-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .page-header-content p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.page-header-content h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: left;
+}
+
+.add-shop-header {
+  margin-bottom: 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.add-shop-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.add-shop-header p {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+.page-header .button {
+  white-space: nowrap;
+  margin-left: 20px;
+}
+
+.page-subtitle {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.page-subtitle p {
   margin: 0;
   color: #6b7280;
   font-size: 1rem;

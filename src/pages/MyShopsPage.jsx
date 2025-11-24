@@ -219,16 +219,21 @@ function MyShopsPage() {
           )}
 
           <div className="page-header">
-            <div className="page-header-content">
-              <h1>My Shops</h1>
-              <p>Manage your salon listings and information</p>
+            <div className="page-header-top">
+              <div className="page-header-content">
+                <h1>My Shops</h1>
+              </div>
+              <button
+                className="button button-primary"
+                onClick={handleAddNewShop}
+              >
+                + Add New Shop
+              </button>
             </div>
-            <button
-              className="button button-primary"
-              onClick={handleAddNewShop}
-            >
-              + Add New Shop
-            </button>
+          </div>
+          
+          <div className="page-subtitle">
+            <p>Manage your salon listings and information</p>
           </div>
 
           <div className="shops-grid">
