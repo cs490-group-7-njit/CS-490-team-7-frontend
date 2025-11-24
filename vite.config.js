@@ -7,14 +7,14 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/auth': 'http://localhost:5000',
-      '/users': 'http://localhost:5000',
-      '/services': 'http://localhost:5000',
-      '/staff': 'http://localhost:5000',
-      '/reviews': 'http://localhost:5000',
-      '/appointments': 'http://localhost:5000',
+      '/auth': 'http://3.129.138.4',
+      '/users': 'http://3.129.138.4',
+      '/services': 'http://3.129.138.4',
+      '/staff': 'http://3.129.138.4',
+      '/reviews': 'http://3.129.138.4',
+      '/appointments': 'http://3.129.138.4',
       '/salons': {
-        target: 'http://localhost:5000',
+        target: 'http://3.129.138.4',
         bypass(req) {
           // Let React Router handle the /salons/search frontend route only
           if (req.url.startsWith('/salons/search')) {
