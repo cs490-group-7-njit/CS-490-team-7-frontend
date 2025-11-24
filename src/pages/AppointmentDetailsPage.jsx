@@ -26,11 +26,12 @@ function AppointmentDetailsPage() {
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [isRescheduling, setIsRescheduling] = useState(false)
 
-  // Load appointment on mount
+  // Load appointment on mount / when id changes
   useEffect(() => {
     loadAppointment()
     refreshActivity()
-  }, [appointmentId])
+    // include refreshActivity to avoid React warnings
+  }, [appointmentId, refreshActivity])
 
   const loadAppointment = async () => {
     try {
@@ -73,7 +74,7 @@ function AppointmentDetailsPage() {
       setSuccessMessage('Appointment cancelled successfully!')
 
       setTimeout(() => {
-        navigate('/appointments')
+        navigate('/appointments/history')
       }, 2000)
     } catch (err) {
       setError(err.message || 'Failed to cancel appointment')
@@ -155,7 +156,10 @@ function AppointmentDetailsPage() {
         <Header />
         <div className="details-container">
           <div className="error-message">{error}</div>
-          <button className="btn btn-primary" onClick={() => navigate('/appointments')}>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate('/appointments/history')}
+          >
             Back to Appointments
           </button>
         </div>
@@ -169,7 +173,10 @@ function AppointmentDetailsPage() {
         <Header />
         <div className="details-container">
           <p>Appointment not found</p>
-          <button className="btn btn-primary" onClick={() => navigate('/appointments')}>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate('/appointments/history')}
+          >
             Back to Appointments
           </button>
         </div>
@@ -183,7 +190,10 @@ function AppointmentDetailsPage() {
       <div className="details-container">
         <div className="details-header">
           <h1>Appointment Details</h1>
-          <button className="btn btn-secondary" onClick={() => navigate('/appointments')}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => navigate('/appointments/history')}
+          >
             ← Back
           </button>
         </div>
@@ -219,7 +229,9 @@ function AppointmentDetailsPage() {
             </div>
             <div className="detail-row">
               <span className="label">Price:</span>
-              <span className="value price">${appointment.service.price_dollars.toFixed(2)}</span>
+              <span className="value price">
+                ${appointment.service.price_dollars.toFixed(2)}
+              </span>
             </div>
           </section>
 
@@ -259,13 +271,13 @@ function AppointmentDetailsPage() {
               <button
                 className="btn-rate-staff"
                 onClick={() => {
-                  console.log('Staff object:', appointment.staff);
-                  const staffId = appointment.staff.staff_id || appointment.staff.id;
+                  console.log('Staff object:', appointment.staff)
+                  const staffId = appointment.staff.staff_id || appointment.staff.id
                   if (!staffId) {
-                    console.error('No staff ID found');
-                    return;
+                    console.error('No staff ID found')
+                    return
                   }
-                  navigate(`/staff/${staffId}/rate`);
+                  navigate(`/staff/${staffId}/rate`)
                 }}
               >
                 ⭐ Rate This Staff Member
