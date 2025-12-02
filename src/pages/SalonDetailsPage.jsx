@@ -308,12 +308,25 @@ function SalonDetailsPage() {
         <section className="cta-section">
           <h2>Ready to book?</h2>
           <p>Schedule your appointment today</p>
-          <button
-            onClick={() => navigate('/appointments')}
-            className="cta-button"
-          >
-            Book an Appointment
-          </button>
+          <div className="cta-actions">
+            <button
+              onClick={() => navigate('/appointments')}
+              className="cta-button"
+            >
+              Book an Appointment
+            </button>
+            {salon && (
+              (() => {
+                const firstPrice = salon.services && salon.services.length > 0 && salon.services[0].price ? Math.round(salon.services[0].price * 100) : 2500
+                const salonIdParam = salon.id || salon.salon_id || salon.user_id || salon.salonId || ''
+                return (
+                  <Link key="pay" to={`/payments/checkout?salonId=${salonIdParam}&amountCents=${firstPrice}`}>
+                    <button className="btn-secondary">Pay Online</button>
+                  </Link>
+                )
+              })()
+            )}
+          </div>
         </section>
       </main>
     </div>

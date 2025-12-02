@@ -26,6 +26,7 @@ import LoginPage from './pages/LoginPage'
 import LoyaltyPointsPage from './pages/LoyaltyPointsPage'
 import MessagesPage from './pages/MessagesPage'
 import ComposeMessage from './pages/ComposeMessage'
+import PaymentCheckout from './components/PaymentCheckout'
 import MyShopsPage from './pages/MyShopsPage'
 import NotificationsPage from './pages/NotificationsPage'
 import PaymentHistoryPage from './pages/PaymentHistoryPage'
@@ -310,6 +311,15 @@ function App() {
             element={(
               <PrivateRoute>
                 <ComposeMessage />
+              </PrivateRoute>
+            )}
+          />
+
+          <Route
+            path="/payments/checkout"
+            element={(
+              <PrivateRoute>
+                <PaymentCheckout />
               </PrivateRoute>
             )}
           />

@@ -148,3 +148,41 @@ export async function getSalonPaymentsByDate(salonId, date) {
     throw error
   }
 }
+
+/**
+ * Create a Stripe PaymentIntent via backend
+ * Expects backend route POST /payments/create-intent
+ * body: { amount_cents, currency, salon_id, appointment_id }
+ * returns { client_secret, payment_intent_id, amount, currency }
+ */
+export async function createPaymentIntent({ amount_cents, currency = 'usd', salon_id = null, appointment_id = null }) {
+  const response = await fetch(`${apiBaseURL}/payments/create-intent`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ amount_cents, currency, salon_id, appointment_id }),
+  })
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(text || 'Failed to create payment intent')
+  }
+  return response.json()
+}
+
+/**
+ * Confirm payment (optional - backend may use webhooks instead)
+ * Expects backend route POST /payments/confirm { payment_intent_id }
+ */
+export async function confirmPayment(paymentIntentId) {
+  const response = await fetch(`${apiBaseURL}/payments/confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ payment_intent_id: paymentIntentId }),
+  })
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(text || 'Failed to confirm payment')
+  }
+  return response.json()
+}
