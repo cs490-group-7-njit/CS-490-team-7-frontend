@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import { getSalonReviews } from '../api/reviews'
 import { getSalonDetails } from '../api/salons'
 import Header from '../components/Header'
@@ -283,6 +283,11 @@ function SalonDetailsPage() {
                 {salon.vendor.email && (
                   <p className="vendor-email">📧 {salon.vendor.email}</p>
                 )}
+                <div className="vendor-actions">
+                  <Link to={`/messages/compose?vendorId=${salon.vendor.user_id || salon.vendor.id}`}>
+                    <button className="btn-primary">Contact Vendor</button>
+                  </Link>
+                </div>
               </div>
             </section>
           )}

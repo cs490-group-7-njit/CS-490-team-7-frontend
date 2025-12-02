@@ -25,6 +25,7 @@ import FavoriteSalonsPage from './pages/FavoriteSalonsPage'
 import LoginPage from './pages/LoginPage'
 import LoyaltyPointsPage from './pages/LoyaltyPointsPage'
 import MessagesPage from './pages/MessagesPage'
+import ComposeMessage from './pages/ComposeMessage'
 import MyShopsPage from './pages/MyShopsPage'
 import NotificationsPage from './pages/NotificationsPage'
 import PaymentHistoryPage from './pages/PaymentHistoryPage'
@@ -300,6 +301,15 @@ function App() {
             element={(
               <PrivateRoute>
                 <MessagesPage />
+              </PrivateRoute>
+            )}
+          />
+
+          <Route
+            path="/messages/compose"
+            element={(
+              <PrivateRoute>
+                <ComposeMessage />
               </PrivateRoute>
             )}
           />
