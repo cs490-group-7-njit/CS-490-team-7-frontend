@@ -202,8 +202,8 @@ function ServicesPage() {
   }
 
   return (
-    <div className="services-page">
-      <Header />
+    <div className="page services-page">
+      <Header showSearch={false} />
       <div className="services-container">
         <h1>Services</h1>
 

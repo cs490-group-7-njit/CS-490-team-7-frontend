@@ -108,8 +108,12 @@ function SalonAnalyticsPage() {
             <div className="stat-card">
               <div className="stat-label">Average Rating</div>
               <div className="stat-value">
-                <span className="rating">
-                  {analytics.reviews.avg_rating} ⭐
+                <span
+                  className={`rating${analytics.reviews.avg_rating > 0 ? '' : ' rating-muted'}`}
+                >
+                  {analytics.reviews.avg_rating > 0
+                    ? `${analytics.reviews.avg_rating} ⭐`
+                    : 'No ratings'}
                 </span>
               </div>
             </div>
@@ -138,7 +142,7 @@ function SalonAnalyticsPage() {
                   <div key={service.service_id} className="service-item">
                     <div className="service-name">{service.name}</div>
                     <div className="service-stats">
-                      <span className="rating">
+                      <span className={`rating${service.avg_rating > 0 ? '' : ' rating-muted'}`}>
                         {service.avg_rating > 0 ? `${service.avg_rating} ⭐` : 'No ratings'}
                       </span>
                       <span className="review-count">

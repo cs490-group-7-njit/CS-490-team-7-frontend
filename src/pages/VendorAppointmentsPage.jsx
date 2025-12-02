@@ -133,8 +133,8 @@ function VendorAppointmentsPage() {
 
   if (isLoading && appointments.length === 0) {
     return (
-      <div className="vendor-appointments-page">
-        <Header />
+      <div className="page vendor-appointments-page">
+        <Header showSearch={false} />
         <div className="appointments-container">
           <div className="loading-spinner"></div>
           <p>Loading appointments...</p>
@@ -144,8 +144,8 @@ function VendorAppointmentsPage() {
   }
 
   return (
-    <div className="vendor-appointments-page">
-      <Header />
+    <div className="page vendor-appointments-page">
+      <Header showSearch={false} />
       <div className="appointments-container">
         <h1>Manage Appointments</h1>
 

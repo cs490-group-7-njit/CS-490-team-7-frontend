@@ -1,52 +1,59 @@
 import { get, post, put } from './http'
 
 // Shop/Salon management API functions using existing backend endpoints
+function mergeLocalSalonData(salons = []) {
+  return salons.map((salon) => {
+    const storageKey = `salon_${salon.id}_data`
+    const storedData = localStorage.getItem(storageKey)
+
+    if (!storedData) {
+      return salon
+    }
+
+    const parsedData = JSON.parse(storedData)
+    return {
+      ...salon,
+      address: {
+        ...salon.address,
+        line1: parsedData.address?.street || salon.address?.line1,
+        line2: parsedData.address?.suite || salon.address?.line2,
+        city: parsedData.address?.city || salon.address?.city,
+        state: parsedData.address?.state || salon.address?.state,
+        postal_code: parsedData.address?.zipCode || salon.address?.postal_code,
+      },
+      phone: parsedData.phone || salon.phone,
+    }
+  })
+}
+
 export async function getMyShops(vendorId) {
   // Use the new vendor-specific endpoint that returns both published and unpublished salons
   if (!vendorId) {
     return { salons: [] }
   }
-  
+
   try {
     const response = await get(`/salons/my?vendor_id=${vendorId}`)
-    
-    // Merge with localStorage data for each salon
     if (response.salons) {
-      response.salons = response.salons.map(salon => {
-        const storageKey = `salon_${salon.id}_data`
-        const storedData = localStorage.getItem(storageKey)
-        
-        if (storedData) {
-          const parsedData = JSON.parse(storedData)
-          return {
-            ...salon,
-            address: {
-              ...salon.address,
-              line1: parsedData.address?.street || salon.address?.line1,
-              line2: parsedData.address?.suite || salon.address?.line2,
-              city: parsedData.address?.city || salon.address?.city,
-              state: parsedData.address?.state || salon.address?.state,
-              postal_code: parsedData.address?.zipCode || salon.address?.postal_code
-            },
-            phone: parsedData.phone || salon.phone
-          }
-        }
-        return salon
-      })
+      response.salons = mergeLocalSalonData(response.salons)
     }
-    
     return response
   } catch (error) {
     console.error('Error fetching vendor salons:', error)
     // Fallback to the old method if the new endpoint isn't available
     const response = await get('/salons')
-    if (response.salons && vendorId) {
-      return {
-        ...response,
-        salons: response.salons.filter(salon => salon.vendor?.id === vendorId)
-      }
+    let salons = response.salons || []
+
+    if (vendorId) {
+      salons = salons.filter((salon) => (
+        salon.vendor?.id === vendorId || salon.vendor_id === vendorId
+      ))
     }
-    return response
+
+    return {
+      ...response,
+      salons: mergeLocalSalonData(salons),
+    }
   }
 }
 
