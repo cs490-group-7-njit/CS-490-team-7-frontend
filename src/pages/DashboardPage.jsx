@@ -284,6 +284,7 @@ function DashboardPage() {
         navigate('/admin/analytics')
         break
       case 'Salon Verification':
+        // TODO: Implement a dedicated salon verification page.
         // For now, route to admin salons where verification happens
         navigate('/admin/salons')
         break
