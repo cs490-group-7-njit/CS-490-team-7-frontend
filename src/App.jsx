@@ -45,7 +45,7 @@ import StaffManagementPage from './pages/StaffManagementPage'
 import StaffRatingPage from './pages/StaffRatingPage'
 import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
 import VendorReviewsPage from './pages/VendorReviewsPage'
-import SettingsPage from './pages/SettingsPage';
+import SettingsPage from './pages/SettingsPage'
 
 
 function App() {

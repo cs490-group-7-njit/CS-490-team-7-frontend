@@ -1,32 +1,43 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { createPaymentIntent, confirmPayment } from '../api/payments'
 import '../pages/payment-tracking.css'
 
-const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY
-const stripePromise = loadStripe(publishableKey)
+const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+if (!publishableKey) {
+  console.error('VITE_STRIPE_PUBLISHABLE_KEY environment variable is not set')
+}
+const stripePromise = publishableKey ? loadStripe(publishableKey) : null
 
-function CheckoutForm({ amountCents, salonId, appointmentId, onSuccess }) {
+function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
   const stripe = useStripe()
   const elements = useElements()
   const [clientSecret, setClientSecret] = useState(null)
+  const [amountCents, setAmountCents] = useState(0)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const init = async () => {
       try {
-        if (!amountCents || amountCents <= 0) return
-        const res = await createPaymentIntent({ amount_cents: amountCents, salon_id: salonId, appointment_id: appointmentId })
+        if (!appointmentId && !serviceId) {
+          setError('An appointment or service is required to process payment')
+          return
+        }
+        const res = await createPaymentIntent({ appointment_id: appointmentId, service_id: serviceId })
         setClientSecret(res.client_secret)
+        // Backend may return amount info - if not, we show "amount pending"
+        if (res.amount_cents) {
+          setAmountCents(res.amount_cents)
+        }
       } catch (err) {
         setError(err.message || 'Failed to prepare payment')
       }
     }
     init()
-  }, [amountCents, salonId, appointmentId])
+  }, [appointmentId, serviceId])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -41,12 +52,14 @@ function CheckoutForm({ amountCents, salonId, appointmentId, onSuccess }) {
       if (result.error) {
         setError(result.error.message)
       } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-        // Notify backend (optional if using webhooks)
-        try {
-          await confirmPayment(result.paymentIntent.id)
-        } catch (err) {
-          // swallow - webhook should be source of truth
-          console.warn('confirmPayment failed:', err.message)
+        // Notify backend to record the transaction (only if we have an appointment)
+        if (appointmentId) {
+          try {
+            await confirmPayment(result.paymentIntent.id, appointmentId)
+          } catch (err) {
+            // swallow - webhook should be source of truth
+            console.warn('confirmPayment failed:', err.message)
+          }
         }
         onSuccess && onSuccess(result.paymentIntent)
       } else {
@@ -59,16 +72,18 @@ function CheckoutForm({ amountCents, salonId, appointmentId, onSuccess }) {
     }
   }
 
-  if (!amountCents || amountCents <= 0) {
-    return <div className="error">Invalid amount. Please provide a positive amount to pay.</div>
+  if (!clientSecret && !error) {
+    return <div className="loading">Preparing payment...</div>
   }
 
   return (
     <form onSubmit={handleSubmit} className="payment-form">
-      <div className="form-group">
-        <label>Amount</label>
-        <div className="amount">${(amountCents / 100).toFixed(2)}</div>
-      </div>
+      {amountCents > 0 && (
+        <div className="form-group">
+          <label>Amount</label>
+          <div className="amount">${(amountCents / 100).toFixed(2)}</div>
+        </div>
+      )}
 
       <div className="form-group">
         <label>Card details</label>
@@ -80,7 +95,7 @@ function CheckoutForm({ amountCents, salonId, appointmentId, onSuccess }) {
       {error && <div className="error">{error}</div>}
 
       <div className="form-actions">
-        <button type="submit" disabled={!stripe || loading}>{loading ? 'Processing...' : 'Pay Online'}</button>
+        <button type="submit" disabled={!stripe || loading || !clientSecret}>{loading ? 'Processing...' : 'Pay Online'}</button>
       </div>
     </form>
   )
@@ -89,21 +104,56 @@ function CheckoutForm({ amountCents, salonId, appointmentId, onSuccess }) {
 export default function PaymentCheckoutWrapper() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const salonId = searchParams.get('salonId')
-  const appointmentId = searchParams.get('appointmentId')
-  const amountParam = searchParams.get('amountCents')
-  const [amountCents, setAmountCents] = useState(amountParam ? parseInt(amountParam, 10) : 0)
-  const [manualAmount, setManualAmount] = useState('')
+  const appointmentIdParam = searchParams.get('appointmentId')
+  const serviceIdParam = searchParams.get('serviceId')
 
-  const handleSuccess = (paymentIntent) => {
-    // navigate to messages or payment history
+  // Parse and validate IDs
+  const appointmentId = appointmentIdParam ? parseInt(appointmentIdParam, 10) : null
+  const serviceId = serviceIdParam ? parseInt(serviceIdParam, 10) : null
+
+  const handleSuccess = () => {
+    // navigate to payment history after successful payment
     navigate('/payment-history')
   }
 
-  const startWithManual = () => {
-    const dollars = parseFloat(manualAmount)
-    if (isNaN(dollars) || dollars <= 0) return alert('Enter a valid amount')
-    setAmountCents(Math.round(dollars * 100))
+  // Check if Stripe is configured
+  if (!stripePromise) {
+    return (
+      <div className="page payment-page">
+        <div className="page-content">
+          <h1>Pay Online</h1>
+          <div className="error">Payment system is not configured. Please contact support.</div>
+          <button onClick={() => navigate(-1)} style={{ marginTop: 16 }}>Go Back</button>
+        </div>
+      </div>
+    )
+  }
+
+  // Validate that IDs are valid numbers
+  if ((appointmentIdParam && isNaN(appointmentId)) || (serviceIdParam && isNaN(serviceId))) {
+    return (
+      <div className="page payment-page">
+        <div className="page-content">
+          <h1>Pay Online</h1>
+          <div className="error">Invalid appointment or service ID provided.</div>
+          <button onClick={() => navigate(-1)} style={{ marginTop: 16 }}>Go Back</button>
+        </div>
+      </div>
+    )
+  }
+
+  // Require appointment or service to process payment
+  if (!appointmentId && !serviceId) {
+    return (
+      <div className="page payment-page">
+        <div className="page-content">
+          <h1>Pay Online</h1>
+          <div className="error">An appointment or service is required to process payment. Please book an appointment first.</div>
+          <button onClick={() => navigate('/appointments')} style={{ marginTop: 16 }}>Book Appointment</button>
+          <button onClick={() => navigate(-1)} style={{ marginLeft: 8, marginTop: 16 }}>Go Back</button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -111,20 +161,13 @@ export default function PaymentCheckoutWrapper() {
       <div className="page-content">
         <h1>Pay Online</h1>
 
-        {amountCents > 0 ? (
-          <Elements stripe={stripePromise}>
-            <CheckoutForm amountCents={amountCents} salonId={salonId} appointmentId={appointmentId} onSuccess={handleSuccess} />
-          </Elements>
-        ) : (
-          <div className="manual-amount">
-            <p>No amount specified. Enter amount to pay (USD):</p>
-            <input type="number" step="0.01" value={manualAmount} onChange={(e) => setManualAmount(e.target.value)} placeholder="25.00" />
-            <div style={{ marginTop: 8 }}>
-              <button onClick={startWithManual}>Start Payment</button>
-              <button onClick={() => navigate(-1)} style={{ marginLeft: 8 }}>Cancel</button>
-            </div>
-          </div>
-        )}
+        <Elements stripe={stripePromise}>
+          <CheckoutForm 
+            appointmentId={appointmentId} 
+            serviceId={serviceId} 
+            onSuccess={handleSuccess} 
+          />
+        </Elements>
       </div>
     </div>
   )

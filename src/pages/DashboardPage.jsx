@@ -281,14 +281,12 @@ function DashboardPage() {
         navigate('/admin/salons')
         break
       case 'Data Analytics':
+      case 'Analytics':
         navigate('/admin/analytics')
         break
       case 'Salon Verification':
         // For now, route to admin salons where verification happens
         navigate('/admin/salons')
-        break
-      case 'Analytics':
-        navigate('/admin/analytics')
         break
       case 'Reports':
         // No dedicated reports page yet – use analytics for now
