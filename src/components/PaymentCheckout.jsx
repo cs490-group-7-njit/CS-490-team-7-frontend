@@ -57,8 +57,14 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
           try {
             await confirmPayment(result.paymentIntent.id, appointmentId)
           } catch (err) {
-            // swallow - webhook should be source of truth
+            // Show a non-blocking warning to user and store paymentIntentId for potential retry
             console.warn('confirmPayment failed:', err.message)
+            setError('Payment succeeded but could not be fully recorded. Please contact support and provide this code: ' + result.paymentIntent.id)
+            try {
+              window.localStorage.setItem('pendingPaymentIntentId', result.paymentIntent.id)
+            } catch (storageErr) {
+              console.warn('Failed to store paymentIntentId in localStorage:', storageErr)
+            }
           }
         }
         onSuccess && onSuccess(result.paymentIntent)
