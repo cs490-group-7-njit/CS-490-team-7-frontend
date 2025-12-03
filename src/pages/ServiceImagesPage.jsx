@@ -68,8 +68,9 @@ export default function ServiceImagesPage() {
       setLoading(true)
       const response = await getAppointmentImages(effectiveAppointmentId)
       setImages(enhanceGalleryResponse(response))
-    } catch {
+    } catch (err) {
       setError('Failed to load images')
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -84,8 +85,9 @@ export default function ServiceImagesPage() {
       setLoading(true)
       const response = await getServiceImages(effectiveServiceId)
       setServiceImages(enhanceGalleryResponse(response))
-    } catch {
+    } catch (err) {
       setError('Failed to load service images')
+      console.error(err)
     } finally {
       setLoading(false)
     }
