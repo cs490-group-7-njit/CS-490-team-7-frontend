@@ -1,4 +1,4 @@
-import { apiBaseURL, get } from './http';
+import { apiBaseURL, get, post } from './http'
 
 /**
  * Get all payment methods for a user
@@ -153,41 +153,29 @@ export async function getSalonPaymentsByDate(salonId, date) {
  * Create a Stripe PaymentIntent via backend
  * Backend route: POST /create-payment-intent
  * body: { appointment_id } OR { service_id }
- * returns { client_secret, payment_intent_id }
+ * @param {Object} params - Parameters object
+ * @param {number|null} params.appointmentId - The appointment ID
+ * @param {number|null} params.serviceId - The service ID
+ * @returns {Promise<{client_secret: string, payment_intent_id: string, amount_cents?: number}>} Resolves with Stripe PaymentIntent details
  */
-export async function createPaymentIntent({ appointment_id = null, service_id = null }) {
+export async function createPaymentIntent({ appointmentId = null, serviceId = null }) {
   const payload = {}
-  if (appointment_id) payload.appointment_id = appointment_id
-  if (service_id) payload.service_id = service_id
-
-  const response = await fetch(`${apiBaseURL}/create-payment-intent`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  })
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(text || 'Failed to create payment intent')
-  }
-  return response.json()
+  if (appointmentId) payload.appointment_id = appointmentId
+  if (serviceId) payload.service_id = serviceId
+  return post('/create-payment-intent', payload)
 }
 
 /**
  * Confirm payment and record transaction
  * Backend route: POST /confirm-payment
  * body: { payment_intent_id, appointment_id }
+ * @param {string} paymentIntentId - The Stripe payment intent ID
+ * @param {number} appointmentId - The appointment ID
+ * @returns {Promise<Object>} Resolves with confirmation result
  */
 export async function confirmPayment(paymentIntentId, appointmentId) {
-  const response = await fetch(`${apiBaseURL}/confirm-payment`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ payment_intent_id: paymentIntentId, appointment_id: appointmentId }),
+  return post('/confirm-payment', {
+    payment_intent_id: paymentIntentId,
+    appointment_id: appointmentId
   })
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(text || 'Failed to confirm payment')
-  }
-  return response.json()
 }

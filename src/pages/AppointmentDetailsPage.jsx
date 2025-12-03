@@ -284,7 +284,7 @@ function AppointmentDetailsPage() {
                     console.error('No staff ID found')
                     return
                   }
-                  navigate(`/staff/${staffId}/rate`)
+                  navigate(`/staff/${staffId}/rate`);
                 }}
               >
                 ⭐ Rate This Staff Member

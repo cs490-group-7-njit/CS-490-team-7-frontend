@@ -114,10 +114,10 @@ function SalonDetailsPage() {
 
   // Extract payment link logic for better readability
   const firstService = salon?.services?.[0]
-  const firstServiceId = firstService?.service_id || firstService?.id || null
+  const firstServiceId = firstService?.service_id ?? firstService?.id
   const showPayOnlineButton = salon?.pay_online && salon?.services?.length > 0 && firstServiceId
   const renderContactVendorButton = () => {
-    const vendorId = salon.vendor.user_id || salon.vendor.id
+    const vendorId = salon.vendor?.user_id || salon.vendor?.id
     if (!vendorId) {
       return <span className="vendor-unavailable">Vendor contact unavailable</span>
     }
@@ -299,9 +299,7 @@ function SalonDetailsPage() {
                 {salon.vendor.email && (
                   <p className="vendor-email">📧 {salon.vendor.email}</p>
                 )}
-                <div className="vendor-actions">
-                  {renderContactVendorButton()}
-                </div>
+                {renderContactVendorButton()}
               </div>
             </section>
           )}
@@ -322,19 +320,17 @@ function SalonDetailsPage() {
         <section className="cta-section">
           <h2>Ready to book?</h2>
           <p>Schedule your appointment today</p>
-          <div className="cta-actions">
-            <button
-              onClick={() => navigate('/appointments')}
-              className="cta-button"
-            >
-              Book an Appointment
-            </button>
-            {showPayOnlineButton && (
-              <Link key="pay" to={`/payments/checkout?serviceId=${firstServiceId}`}>
-                <button className="btn-secondary">Pay Online</button>
-              </Link>
-            )}
-          </div>
+          <button
+            onClick={() => navigate('/appointments')}
+            className="cta-button"
+          >
+            Book an Appointment
+          </button>
+          {showPayOnlineButton && (
+            <Link to={`/payments/checkout?serviceId=${firstServiceId}`}>
+              <button className="btn-secondary">Pay Online</button>
+            </Link>
+          )}
         </section>
       </main>
     </div>
