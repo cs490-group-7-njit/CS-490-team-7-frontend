@@ -110,7 +110,7 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
       <div className="form-actions">
         <button
           type="submit"
-          disabled={!stripe || loading || !clientSecret}
+          disabled={!stripe || loading}
         >
           {loading ? 'Processing...' : 'Pay Online'}
         </button>
