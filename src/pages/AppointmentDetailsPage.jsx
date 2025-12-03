@@ -30,8 +30,8 @@ function AppointmentDetailsPage() {
   useEffect(() => {
     loadAppointment()
     refreshActivity()
-    // include refreshActivity to avoid React warnings
-  }, [appointmentId, refreshActivity])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appointmentId])
 
   const loadAppointment = async () => {
     try {

@@ -284,9 +284,19 @@ function SalonDetailsPage() {
                   <p className="vendor-email">📧 {salon.vendor.email}</p>
                 )}
                 <div className="vendor-actions">
-                  <Link to={`/messages/compose?vendorId=${salon.vendor.user_id || salon.vendor.id}`}>
-                    <button className="btn-primary">Contact Vendor</button>
-                  </Link>
+                  {(() => {
+                    const vendorId = salon.vendor.user_id || salon.vendor.id
+                    if (vendorId) {
+                      return (
+                        <Link to={`/messages/compose?vendorId=${vendorId}`}>
+                          <button className="btn-primary">Contact Vendor</button>
+                        </Link>
+                      )
+                    }
+                    return (
+                      <span className="vendor-unavailable">Vendor contact unavailable</span>
+                    )
+                  })()}
                 </div>
               </div>
             </section>
@@ -315,17 +325,16 @@ function SalonDetailsPage() {
             >
               Book an Appointment
             </button>
-            {salon && (
-              (() => {
-                const firstPrice = salon.services && salon.services.length > 0 && salon.services[0].price ? Math.round(salon.services[0].price * 100) : 2500
-                const salonIdParam = salon.id || salon.salon_id || salon.user_id || salon.salonId || ''
-                return (
-                  <Link key="pay" to={`/payments/checkout?salonId=${salonIdParam}&amountCents=${firstPrice}`}>
-                    <button className="btn-secondary">Pay Online</button>
-                  </Link>
-                )
-              })()
-            )}
+            {salon && salon.pay_online && salon.services && salon.services.length > 0 && (() => {
+              // Get the first service ID for payment
+              const firstServiceId = salon.services[0].service_id || salon.services[0].id
+              if (!firstServiceId) return null
+              return (
+                <Link key="pay" to={`/payments/checkout?serviceId=${firstServiceId}`}>
+                  <button className="btn-secondary">Pay Online</button>
+                </Link>
+              )
+            })()}
           </div>
         </section>
       </main>

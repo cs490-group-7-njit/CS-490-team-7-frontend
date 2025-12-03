@@ -151,16 +151,20 @@ export async function getSalonPaymentsByDate(salonId, date) {
 
 /**
  * Create a Stripe PaymentIntent via backend
- * Expects backend route POST /payments/create-intent
- * body: { amount_cents, currency, salon_id, appointment_id }
- * returns { client_secret, payment_intent_id, amount, currency }
+ * Backend route: POST /create-payment-intent
+ * body: { appointment_id } OR { service_id }
+ * returns { client_secret, payment_intent_id }
  */
-export async function createPaymentIntent({ amount_cents, currency = 'usd', salon_id = null, appointment_id = null }) {
-  const response = await fetch(`${apiBaseURL}/payments/create-intent`, {
+export async function createPaymentIntent({ appointment_id = null, service_id = null }) {
+  const payload = {}
+  if (appointment_id) payload.appointment_id = appointment_id
+  if (service_id) payload.service_id = service_id
+
+  const response = await fetch(`${apiBaseURL}/create-payment-intent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ amount_cents, currency, salon_id, appointment_id }),
+    body: JSON.stringify(payload),
   })
   if (!response.ok) {
     const text = await response.text()
@@ -170,15 +174,16 @@ export async function createPaymentIntent({ amount_cents, currency = 'usd', salo
 }
 
 /**
- * Confirm payment (optional - backend may use webhooks instead)
- * Expects backend route POST /payments/confirm { payment_intent_id }
+ * Confirm payment and record transaction
+ * Backend route: POST /confirm-payment
+ * body: { payment_intent_id, appointment_id }
  */
-export async function confirmPayment(paymentIntentId) {
-  const response = await fetch(`${apiBaseURL}/payments/confirm`, {
+export async function confirmPayment(paymentIntentId, appointmentId) {
+  const response = await fetch(`${apiBaseURL}/confirm-payment`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ payment_intent_id: paymentIntentId }),
+    body: JSON.stringify({ payment_intent_id: paymentIntentId, appointment_id: appointmentId }),
   })
   if (!response.ok) {
     const text = await response.text()
