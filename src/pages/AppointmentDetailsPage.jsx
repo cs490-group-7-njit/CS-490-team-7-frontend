@@ -29,9 +29,15 @@ function AppointmentDetailsPage() {
   // Load appointment on mount / when id changes
   useEffect(() => {
     loadAppointment()
-    refreshActivity()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appointmentId])
+
+  // Refresh activity when appointment is loaded
+  useEffect(() => {
+    if (appointment) {
+      refreshActivity()
+    }
+  }, [appointment, refreshActivity])
 
   const loadAppointment = async () => {
     try {

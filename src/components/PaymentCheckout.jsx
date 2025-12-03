@@ -52,12 +52,14 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
       if (result.error) {
         setError(result.error.message)
       } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-        // Notify backend to record the transaction
-        try {
-          await confirmPayment(result.paymentIntent.id, appointmentId)
-        } catch (err) {
-          // swallow - webhook should be source of truth
-          console.warn('confirmPayment failed:', err.message)
+        // Notify backend to record the transaction (only if we have an appointment)
+        if (appointmentId) {
+          try {
+            await confirmPayment(result.paymentIntent.id, appointmentId)
+          } catch (err) {
+            // swallow - webhook should be source of truth
+            console.warn('confirmPayment failed:', err.message)
+          }
         }
         onSuccess && onSuccess(result.paymentIntent)
       } else {
@@ -102,8 +104,12 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
 export default function PaymentCheckoutWrapper() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const appointmentId = searchParams.get('appointmentId')
-  const serviceId = searchParams.get('serviceId')
+  const appointmentIdParam = searchParams.get('appointmentId')
+  const serviceIdParam = searchParams.get('serviceId')
+
+  // Parse and validate IDs
+  const appointmentId = appointmentIdParam ? parseInt(appointmentIdParam, 10) : null
+  const serviceId = serviceIdParam ? parseInt(serviceIdParam, 10) : null
 
   const handleSuccess = () => {
     // navigate to payment history after successful payment
@@ -117,6 +123,19 @@ export default function PaymentCheckoutWrapper() {
         <div className="page-content">
           <h1>Pay Online</h1>
           <div className="error">Payment system is not configured. Please contact support.</div>
+          <button onClick={() => navigate(-1)} style={{ marginTop: 16 }}>Go Back</button>
+        </div>
+      </div>
+    )
+  }
+
+  // Validate that IDs are valid numbers
+  if ((appointmentIdParam && isNaN(appointmentId)) || (serviceIdParam && isNaN(serviceId))) {
+    return (
+      <div className="page payment-page">
+        <div className="page-content">
+          <h1>Pay Online</h1>
+          <div className="error">Invalid appointment or service ID provided.</div>
           <button onClick={() => navigate(-1)} style={{ marginTop: 16 }}>Go Back</button>
         </div>
       </div>
@@ -144,8 +163,8 @@ export default function PaymentCheckoutWrapper() {
 
         <Elements stripe={stripePromise}>
           <CheckoutForm 
-            appointmentId={appointmentId ? parseInt(appointmentId, 10) : null} 
-            serviceId={serviceId ? parseInt(serviceId, 10) : null} 
+            appointmentId={appointmentId} 
+            serviceId={serviceId} 
             onSuccess={handleSuccess} 
           />
         </Elements>
