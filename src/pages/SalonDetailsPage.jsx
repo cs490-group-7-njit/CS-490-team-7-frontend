@@ -116,6 +116,17 @@ function SalonDetailsPage() {
   const firstService = salon?.services?.[0]
   const firstServiceId = firstService?.service_id || firstService?.id || null
   const showPayOnlineButton = salon?.pay_online && salon?.services?.length > 0 && firstServiceId
+  const renderContactVendorButton = () => {
+    const vendorId = salon.vendor.user_id || salon.vendor.id
+    if (!vendorId) {
+      return <span className="vendor-unavailable">Vendor contact unavailable</span>
+    }
+    return (
+      <Link to={`/messages/compose?vendorId=${vendorId}`}>
+        <button className="btn-primary">Contact Vendor</button>
+      </Link>
+    )
+  }
 
   return (
     <div className="page salon-details-page">
@@ -289,19 +300,7 @@ function SalonDetailsPage() {
                   <p className="vendor-email">📧 {salon.vendor.email}</p>
                 )}
                 <div className="vendor-actions">
-                  {(() => {
-                    const vendorId = salon.vendor.user_id || salon.vendor.id
-                    if (vendorId) {
-                      return (
-                        <Link to={`/messages/compose?vendorId=${vendorId}`}>
-                          <button className="btn-primary">Contact Vendor</button>
-                        </Link>
-                      )
-                    }
-                    return (
-                      <span className="vendor-unavailable">Vendor contact unavailable</span>
-                    )
-                  })()}
+                  {renderContactVendorButton()}
                 </div>
               </div>
             </section>

@@ -6,7 +6,7 @@ import { createPaymentIntent, confirmPayment } from '../api/payments'
 import '../pages/payment-tracking.css'
 
 const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-if (!publishableKey) {
+if (!publishableKey && import.meta.env.DEV) {
   console.error('VITE_STRIPE_PUBLISHABLE_KEY environment variable is not set')
 }
 const stripePromise = publishableKey ? loadStripe(publishableKey) : null
@@ -57,8 +57,14 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
           try {
             await confirmPayment(result.paymentIntent.id, appointmentId)
           } catch (err) {
-            // swallow - webhook should be source of truth
+            // Show a non-blocking warning to user and store paymentIntentId for potential retry
             console.warn('confirmPayment failed:', err.message)
+            setError('Payment succeeded but could not be fully recorded. Please contact support and provide this code: ' + result.paymentIntent.id)
+            try {
+              window.localStorage.setItem('pendingPaymentIntentId', result.paymentIntent.id)
+            } catch (storageErr) {
+              console.warn('Failed to store paymentIntentId in localStorage:', storageErr)
+            }
           }
         }
         onSuccess && onSuccess(result.paymentIntent)
@@ -95,7 +101,12 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
       {error && <div className="error">{error}</div>}
 
       <div className="form-actions">
-        <button type="submit" disabled={!stripe || loading || !clientSecret}>{loading ? 'Processing...' : 'Pay Online'}</button>
+        <button 
+          type="submit" 
+          disabled={!stripe || loading || !clientSecret}
+        >
+          {loading ? 'Processing...' : 'Pay Online'}
+        </button>
       </div>
     </form>
   )
@@ -123,7 +134,7 @@ export default function PaymentCheckoutWrapper() {
         <div className="page-content">
           <h1>Pay Online</h1>
           <div className="error">Payment system is not configured. Please contact support.</div>
-          <button onClick={() => navigate(-1)} style={{ marginTop: 16 }}>Go Back</button>
+          <button onClick={() => navigate(-1)} className="btn-back">Go Back</button>
         </div>
       </div>
     )
@@ -136,7 +147,7 @@ export default function PaymentCheckoutWrapper() {
         <div className="page-content">
           <h1>Pay Online</h1>
           <div className="error">Invalid appointment or service ID provided.</div>
-          <button onClick={() => navigate(-1)} style={{ marginTop: 16 }}>Go Back</button>
+          <button onClick={() => navigate(-1)} className="btn-back">Go Back</button>
         </div>
       </div>
     )
@@ -149,8 +160,8 @@ export default function PaymentCheckoutWrapper() {
         <div className="page-content">
           <h1>Pay Online</h1>
           <div className="error">An appointment or service is required to process payment. Please book an appointment first.</div>
-          <button onClick={() => navigate('/appointments')} style={{ marginTop: 16 }}>Book Appointment</button>
-          <button onClick={() => navigate(-1)} style={{ marginLeft: 8, marginTop: 16 }}>Go Back</button>
+          <button onClick={() => navigate('/appointments')} className="btn-book">Book Appointment</button>
+          <button onClick={() => navigate(-1)} className="btn-back">Go Back</button>
         </div>
       </div>
     )
