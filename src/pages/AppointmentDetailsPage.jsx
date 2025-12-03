@@ -8,7 +8,7 @@ import './appointment-details.css'
 function AppointmentDetailsPage() {
   const { appointmentId } = useParams()
   const navigate = useNavigate()
-  const { refreshActivity } = useAuth()
+  const { refreshActivity, user } = useAuth()
 
   // Appointment data
   const [appointment, setAppointment] = useState(null)
@@ -109,6 +109,36 @@ function AppointmentDetailsPage() {
     }
   }
 
+  const navigateToServiceImages = (targetView) => {
+    if (!appointment) {
+      return
+    }
+
+    const salonIdentifier =
+      appointment.salon?.id ?? appointment.salon?.salon_id ?? appointment.salon_id ?? null
+    const serviceIdentifier =
+      appointment.service?.id ?? appointment.service?.service_id ?? appointment.service_id ?? null
+
+    if (targetView === 'service' && !serviceIdentifier) {
+      console.warn('Cannot open service portfolio without a service identifier')
+      return
+    }
+
+    const params = new URLSearchParams()
+    params.set('view', targetView)
+    params.set('appointmentId', String(appointment.id))
+
+    if (salonIdentifier != null) {
+      params.set('salonId', String(salonIdentifier))
+    }
+
+    if (serviceIdentifier != null) {
+      params.set('serviceId', String(serviceIdentifier))
+    }
+
+    navigate(`/vendor/images?${params.toString()}`)
+  }
+
   const formatDateTime = (isoString) => {
     const date = new Date(isoString)
     return date.toLocaleString([], {
@@ -133,6 +163,11 @@ function AppointmentDetailsPage() {
   const isUpcoming = appointment && new Date(appointment.starts_at) > new Date()
   const canReschedule = appointment && isUpcoming && appointment.status === 'booked'
   const canCancel = appointment && isUpcoming && appointment.status === 'booked'
+  const isVendor = user?.role === 'vendor'
+  const salonIdentifier =
+    appointment?.salon?.id ?? appointment?.salon?.salon_id ?? appointment?.salon_id ?? null
+  const serviceIdentifier =
+    appointment?.service?.id ?? appointment?.service?.service_id ?? appointment?.service_id ?? null
 
   // Get minimum date (today)
   const today = new Date().toISOString().split('T')[0]
@@ -295,6 +330,31 @@ function AppointmentDetailsPage() {
             <section className="section notes-section">
               <h2>Notes</h2>
               <div className="notes-content">{appointment.notes}</div>
+            </section>
+          )}
+
+          {isVendor && (
+            <section className="section images-section">
+              <h2>Service Images</h2>
+              <p>
+                Document before and after results or review this service's portfolio.
+              </p>
+              <div className="action-buttons">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => navigateToServiceImages('gallery')}
+                >
+                  Manage Appointment Images
+                </button>
+                {serviceIdentifier && (
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => navigateToServiceImages('service')}
+                  >
+                    View Service Portfolio
+                  </button>
+                )}
+              </div>
             </section>
           )}
 

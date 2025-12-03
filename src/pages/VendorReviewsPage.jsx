@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { addVendorReply, deleteVendorReply, getSalonReviewsWithReplies, updateVendorReply } from '../api/reviews'
 import { getMyShops } from '../api/shops'
-import Header from '../components/Header'
+import VendorPortalLayout from '../components/VendorPortalLayout'
+import VendorLoadingState from '../components/VendorLoadingState'
 import { useAuth } from '../context/AuthContext'
 import './vendor-reviews.css'
 
@@ -189,9 +190,9 @@ function VendorReviewsPage() {
   }
 
   return (
-    <div className="page vendor-reviews-page">
-      <Header />
-      <main className="vendor-reviews-container">
+    <VendorPortalLayout activeKey="reviews">
+      <div className="vendor-reviews-page">
+        <div className="vendor-reviews-container">
         <div className="reviews-header">
           <h1>Customer Reviews & Replies</h1>
           <p className="subtitle">Manage your salon's reviews and engage with customer feedback</p>
@@ -250,7 +251,7 @@ function VendorReviewsPage() {
         {/* Reviews List */}
         <section className="reviews-section">
           {isLoading ? (
-            <div className="loading">Loading reviews...</div>
+            <VendorLoadingState message="Loading reviews..." />
           ) : reviews.length === 0 ? (
             <div className="no-reviews">
               {filterReplied ? (
@@ -356,8 +357,9 @@ function VendorReviewsPage() {
             </div>
           )}
         </section>
-      </main>
-    </div>
+        </div>
+      </div>
+    </VendorPortalLayout>
   )
 }
 

@@ -1,5 +1,7 @@
 import { get, post, put } from './http'
 
+const useVendorShopsEndpoint = import.meta.env.VITE_ENABLE_VENDOR_SHOPS_ENDPOINT === 'true'
+
 // Shop/Salon management API functions using existing backend endpoints
 function mergeLocalSalonData(salons = []) {
   return salons.map((salon) => {
@@ -27,33 +29,32 @@ function mergeLocalSalonData(salons = []) {
 }
 
 export async function getMyShops(vendorId) {
-  // Use the new vendor-specific endpoint that returns both published and unpublished salons
   if (!vendorId) {
     return { salons: [] }
   }
 
-  try {
-    const response = await get(`/salons/my?vendor_id=${vendorId}`)
-    if (response.salons) {
-      response.salons = mergeLocalSalonData(response.salons)
+  if (useVendorShopsEndpoint) {
+    try {
+      const response = await get(`/salons/my?vendor_id=${vendorId}`)
+      if (response.salons) {
+        response.salons = mergeLocalSalonData(response.salons)
+      }
+      return response
+    } catch (error) {
+      console.warn('Vendor shops endpoint unavailable, falling back to /salons', error)
     }
-    return response
-  } catch (error) {
-    console.error('Error fetching vendor salons:', error)
-    // Fallback to the old method if the new endpoint isn't available
-    const response = await get('/salons')
-    let salons = response.salons || []
+  }
 
-    if (vendorId) {
-      salons = salons.filter((salon) => (
-        salon.vendor?.id === vendorId || salon.vendor_id === vendorId
-      ))
-    }
+  const response = await get('/salons')
+  let salons = response.salons || []
 
-    return {
-      ...response,
-      salons: mergeLocalSalonData(salons),
-    }
+  salons = salons.filter((salon) => (
+    salon.vendor?.id === vendorId || salon.vendor_id === vendorId
+  ))
+
+  return {
+    ...response,
+    salons: mergeLocalSalonData(salons),
   }
 }
 

@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
 import { getMyShops } from '../api/shops'
 import { createStaff, deleteStaff, getStaffBySalon, updateStaffSchedule } from '../api/staff'
-import Header from '../components/Header'
+import VendorPortalLayout from '../components/VendorPortalLayout'
+import VendorLoadingState from '../components/VendorLoadingState'
 import ScheduleModal from '../components/ScheduleModal'
 import { useAuth } from '../context/AuthContext'
 import './staff-management.css'
 
 function StaffManagementPage() {
-  const navigate = useNavigate()
-  const location = useLocation()
   const { user, refreshActivity } = useAuth()
   const [shops, setShops] = useState([])
   const [selectedShop, setSelectedShop] = useState(null)
@@ -43,8 +41,12 @@ function StaffManagementPage() {
         setShops(response.salons)
         // Auto-select first shop if available
         if (response.salons.length > 0 && !selectedShop) {
-          loadStaff(response.salons[0].id)
-          setSelectedShop(response.salons[0])
+          const firstShop = response.salons[0]
+          const firstShopId = firstShop.id ?? firstShop.salon_id
+          if (firstShopId != null) {
+            loadStaff(firstShopId)
+            setSelectedShop(firstShop)
+          }
         }
       }
     } catch (err) {
@@ -77,14 +79,16 @@ function StaffManagementPage() {
     }
   }
 
-  const handleShopChange = (shopId) => {
-    const shop = shops.find(s => s.id === shopId)
+  const handleShopChange = (shopIdentifier) => {
+    const shop = shops.find((s) => String(s.id ?? s.salon_id) === String(shopIdentifier))
+    if (!shop) {
+      return
+    }
     setSelectedShop(shop)
-    loadStaff(shopId)
-  }
-
-  const handleViewSchedule = () => {
-    navigate('/schedule')
+    const targetId = shop.id ?? shop.salon_id
+    if (targetId != null) {
+      loadStaff(targetId)
+    }
   }
 
   const handleEditSchedule = (staffMember) => {
@@ -109,11 +113,12 @@ function StaffManagementPage() {
 
     try {
       setIsLoading(true)
-      await createStaff(selectedShop.id, newStaffData)
+      const targetShopId = selectedShop.id ?? selectedShop.salon_id
+      await createStaff(targetShopId, newStaffData)
       setSaveMessage('✅ Staff member added successfully!')
       setNewStaffData({ title: '' })
       setShowAddStaffForm(false)
-      loadStaff(selectedShop.id)
+      loadStaff(targetShopId)
       setTimeout(() => setSaveMessage(''), 3000)
     } catch (err) {
       setError('Failed to add staff member')
@@ -128,9 +133,10 @@ function StaffManagementPage() {
 
     try {
       setIsLoading(true)
-      await deleteStaff(selectedShop.id, staffMember.id)
+      const targetShopId = selectedShop.id ?? selectedShop.salon_id
+      await deleteStaff(targetShopId, staffMember.id)
       setSaveMessage('✅ Staff member deleted successfully!')
-      loadStaff(selectedShop.id)
+      loadStaff(targetShopId)
       setTimeout(() => setSaveMessage(''), 3000)
     } catch (err) {
       setError('Failed to delete staff member')
@@ -147,7 +153,8 @@ function StaffManagementPage() {
     try {
       // Make API call to backend to save the schedule
       console.log('Saving schedule for:', scheduleData)
-      await updateStaffSchedule(selectedShop.id, scheduleData.staffId, scheduleData.schedule)
+  const targetShopId = selectedShop.id ?? selectedShop.salon_id
+  await updateStaffSchedule(targetShopId, scheduleData.staffId, scheduleData.schedule)
       console.log('Schedule saved successfully')
 
       // Update the staff member's schedule in local state
@@ -185,19 +192,12 @@ function StaffManagementPage() {
   }
 
   return (
-    <div className="page staff-management-page">
-      <Header />
-
-      <main className="staff-management-container">
+    <VendorPortalLayout activeKey="staff">
+      <div className="staff-management-page">
+        <main className="staff-management-container">
         <div className="staff-management-content">
           <header className="page-header">
             <h1>Staff Management</h1>
-            <button
-              className="btn btn-secondary view-schedule-btn"
-              onClick={handleViewSchedule}
-            >
-              View Schedule
-            </button>
           </header>
 
           {saveMessage && (
@@ -213,7 +213,7 @@ function StaffManagementPage() {
           )}
 
           {isLoading ? (
-            <div className="loading-spinner">Loading...</div>
+            <VendorLoadingState message="Loading staff..." />
           ) : (
             <>
               {shops.length > 0 && (
@@ -221,11 +221,11 @@ function StaffManagementPage() {
                   <label htmlFor="shop-select">Select Shop:</label>
                   <select
                     id="shop-select"
-                    value={selectedShop?.id || ''}
-                    onChange={(e) => handleShopChange(parseInt(e.target.value))}
+                    value={selectedShop ? String(selectedShop.id ?? selectedShop.salon_id) : ''}
+                    onChange={(e) => handleShopChange(e.target.value)}
                   >
                     {shops.map(shop => (
-                      <option key={shop.id} value={shop.id}>
+                      <option key={shop.id ?? shop.salon_id} value={shop.id ?? shop.salon_id}>
                         {shop.name}
                       </option>
                     ))}
@@ -332,7 +332,8 @@ function StaffManagementPage() {
           onSave={handleScheduleSave}
         />
       )}
-    </div>
+      </div>
+    </VendorPortalLayout>
   )
 }
 

@@ -43,6 +43,8 @@ import StaffManagementPage from './pages/StaffManagementPage'
 import StaffRatingPage from './pages/StaffRatingPage'
 import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
 import VendorReviewsPage from './pages/VendorReviewsPage'
+import VendorLoyaltyProgramPage from './pages/VendorLoyaltyProgramPage'
+import VendorShopPage from './pages/VendorShopPage'
 import SettingsPage from './pages/SettingsPage';
 
 
@@ -235,12 +237,30 @@ function App() {
             )}
           />
 
+          <Route
+            path="/vendor/shop"
+            element={(
+              <PrivateRoute>
+                <VendorShopPage />
+              </PrivateRoute>
+            )}
+          />
+
           {/* UC-1.18: Send Promotions */}
           <Route
             path="/vendor/promotions"
             element={(
               <PrivateRoute>
                 <PromotionsPage />
+              </PrivateRoute>
+            )}
+          />
+
+          <Route
+            path="/vendor/loyalty-program"
+            element={(
+              <PrivateRoute>
+                <VendorLoyaltyProgramPage />
               </PrivateRoute>
             )}
           />

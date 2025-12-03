@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { getMyShops } from '../api/shops'
 import { getSalonAppointments, updateAppointmentStatus } from '../api/vendorAppointments'
-import Header from '../components/Header'
+import VendorPortalLayout from '../components/VendorPortalLayout'
+import VendorLoadingState from '../components/VendorLoadingState'
 import { useAuth } from '../context/AuthContext'
 import './vendor-appointments.css'
 
@@ -67,8 +68,9 @@ function VendorAppointmentsPage() {
     try {
       setIsLoading(true)
       setError(null)
+      const salonId = selectedShop.id ?? selectedShop.salon_id
       const data = await getSalonAppointments(
-        selectedShop.id,
+        salonId,
         statusFilter || undefined,
         dateFilter || undefined
       )
@@ -131,22 +133,18 @@ function VendorAppointmentsPage() {
   const statuses = ['booked', 'completed', 'cancelled', 'no-show']
   const today = new Date().toISOString().split('T')[0]
 
-  if (isLoading && appointments.length === 0) {
+  if (isLoading && shops.length === 0) {
     return (
-      <div className="page vendor-appointments-page">
-        <Header showSearch={false} />
-        <div className="appointments-container">
-          <div className="loading-spinner"></div>
-          <p>Loading appointments...</p>
-        </div>
-      </div>
+      <VendorPortalLayout activeKey="appointments">
+        <VendorLoadingState message="Loading your appointments..." />
+      </VendorPortalLayout>
     )
   }
 
   return (
-    <div className="page vendor-appointments-page">
-      <Header showSearch={false} />
-      <div className="appointments-container">
+    <VendorPortalLayout activeKey="appointments">
+      <div className="vendor-appointments-page">
+        <div className="appointments-container">
         <h1>Manage Appointments</h1>
 
         {error && <div className="error-message">{error}</div>}
@@ -164,14 +162,14 @@ function VendorAppointmentsPage() {
                 <label htmlFor="salon-select">Select Salon:</label>
                 <select
                   id="salon-select"
-                  value={selectedShop?.id || ''}
+                  value={selectedShop ? String(selectedShop.id ?? selectedShop.salon_id) : ''}
                   onChange={(e) => {
-                    const shop = shops.find(s => s.id === parseInt(e.target.value))
-                    setSelectedShop(shop)
+                    const shop = shops.find((s) => String(s.id ?? s.salon_id) === e.target.value)
+                    setSelectedShop(shop || null)
                   }}
                 >
                   {shops.map(shop => (
-                    <option key={shop.id} value={shop.id}>
+                    <option key={shop.id ?? shop.salon_id} value={shop.id ?? shop.salon_id}>
                       {shop.name}
                     </option>
                   ))}
@@ -208,11 +206,15 @@ function VendorAppointmentsPage() {
             </div>
 
             {/* Appointments List */}
-            {appointments.length === 0 ? (
+            {isLoading && shops.length > 0 && (
+              <VendorLoadingState message="Updating appointments..." compact />
+            )}
+
+            {!isLoading && appointments.length === 0 ? (
               <div className="no-appointments">
                 <p>No appointments found with the selected filters.</p>
               </div>
-            ) : (
+            ) : (!isLoading && (
               <div className="appointments-list">
                 <div className="appointments-header">
                   <span className="col-time">Time</span>
@@ -264,11 +266,12 @@ function VendorAppointmentsPage() {
                   )
                 })}
               </div>
-            )}
+            ))}
           </>
         )}
+        </div>
       </div>
-    </div>
+    </VendorPortalLayout>
   )
 }
 

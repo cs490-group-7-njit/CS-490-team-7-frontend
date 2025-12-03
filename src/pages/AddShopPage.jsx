@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { createShop } from '../api/shops'
-import Header from '../components/Header'
+import VendorPortalLayout from '../components/VendorPortalLayout'
 import './MyShopsPage.css'
 
 function AddShopPage() {
@@ -290,10 +290,8 @@ function AddShopPage() {
   }
 
   return (
-    <div className="page">
-      <Header showSearch={false} />
-      
-      <main className="main-content">
+    <VendorPortalLayout activeKey="shopInfo">
+      <div className="main-content">
         <div className="container">
           <div className="add-shop-header">
             <h1>Register Your Salon</h1>
@@ -616,8 +614,8 @@ function AddShopPage() {
             </div>
           </form>
         </div>
-      </main>
-    </div>
+      </div>
+    </VendorPortalLayout>
   )
 }
 

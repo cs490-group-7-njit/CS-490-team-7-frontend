@@ -214,7 +214,8 @@
 }
 
 .reviews-card,
-.performance-card {
+.performance-card,
+.revenue-card {
   background: rgba(255, 255, 255, 0.85);
   border-radius: 24px;
   padding: 24px;
@@ -225,7 +226,8 @@
 }
 
 .reviews-card h2,
-.performance-card h2 {
+.performance-card h2,
+.revenue-card h2 {
   margin: 0;
   color: #0f172a;
 }
@@ -257,6 +259,112 @@
   margin: 0;
   font-size: 0.85rem;
   color: #64748b;
+}
+
+.revenue-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.loading-indicator {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.revenue-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: #1f2937;
+}
+
+.revenue-error {
+  margin: 0;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.revenue-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.revenue-metric {
+  background: rgba(37, 99, 235, 0.08);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  color: #1e3a8a;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.revenue-highlight {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.revenue-highlight h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.revenue-highlight p {
+  margin: 0;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.revenue-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.revenue-breakdown h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.revenue-breakdown ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.revenue-breakdown li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.revenue-top-service {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #1f2937;
 }
 
 .performance-stats {

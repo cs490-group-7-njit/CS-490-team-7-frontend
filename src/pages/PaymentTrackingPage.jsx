@@ -6,6 +6,7 @@ import {
 } from '../api/payments';
 import { getSalons } from '../api/staff';
 import { useAuth } from '../context/AuthContext';
+import VendorPortalLayout from '../components/VendorPortalLayout';
 import '../pages/payment-tracking.css';
 
 export default function PaymentTrackingPage() {
@@ -24,8 +25,13 @@ export default function PaymentTrackingPage() {
 
   // Load salons on mount
   useEffect(() => {
-    loadSalons();
-  }, []);
+    if (user?.role === 'vendor') {
+      loadSalons(user.id);
+    } else {
+      setSalons([]);
+      setSelectedSalonId(null);
+    }
+  }, [user]);
 
   // Load payments when salon is selected
   useEffect(() => {
@@ -35,13 +41,16 @@ export default function PaymentTrackingPage() {
     }
   }, [selectedSalonId]);
 
-  const loadSalons = async () => {
+  const loadSalons = async (vendorId) => {
     try {
       setLoading(true);
-      const response = await getSalons();
-      setSalons(response.salons || []);
-      if (response.salons && response.salons.length > 0) {
-        setSelectedSalonId(response.salons[0].id);
+      const { salons: salonList } = await getSalons(vendorId);
+      setSalons(salonList);
+      if (salonList.length > 0) {
+        const firstSalon = salonList[0];
+        setSelectedSalonId(firstSalon.id ?? firstSalon.salon_id ?? null);
+      } else {
+        setSelectedSalonId(null);
       }
     } catch (err) {
       setError('Failed to load salons');
@@ -99,12 +108,22 @@ export default function PaymentTrackingPage() {
   };
 
   if (loading && !payments) {
-    return <div className="payment-tracking-container"><p>Loading...</p></div>;
+    return (
+      <VendorPortalLayout activeKey="revenue">
+        <div className="payment-tracking-page">
+          <div className="payment-tracking-container">
+            <p>Loading...</p>
+          </div>
+        </div>
+      </VendorPortalLayout>
+    );
   }
 
   return (
-    <div className="payment-tracking-container">
-      <h1>Payment Tracking</h1>
+    <VendorPortalLayout activeKey="revenue">
+      <div className="payment-tracking-page">
+        <div className="payment-tracking-container">
+          <h1>Payment Tracking</h1>
 
       {/* Salon Selector */}
       <div className="salon-selector">
@@ -314,6 +333,8 @@ export default function PaymentTrackingPage() {
           )}
         </>
       )}
-    </div>
+        </div>
+      </div>
+    </VendorPortalLayout>
   );
 }

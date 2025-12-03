@@ -1,161 +1,236 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   deleteAppointmentImage,
   getAppointmentImages,
   getServiceImages,
-  uploadAppointmentImage
-} from '../api/images';
-import { getSalons } from '../api/staff';
-import { useAuth } from '../context/AuthContext';
-import '../pages/service-images.css';
+  uploadAppointmentImage,
+} from '../api/images'
+import { getSalons } from '../api/staff'
+import { useAuth } from '../context/AuthContext'
+import { formatImageTypeLabel, resolveAppointmentImageUrl } from '../utils/imageUrls'
+import '../pages/service-images.css'
 
 export default function ServiceImagesPage() {
-  const { user } = useAuth();
-  const [salons, setSalons] = useState([]);
-  const [selectedSalonId, setSelectedSalonId] = useState(null);
-  const [appointmentId, setAppointmentId] = useState('');
-  const [serviceId, setServiceId] = useState('');
-  const [images, setImages] = useState(null);
-  const [serviceImages, setServiceImages] = useState(null);
-  const [uploadFile, setUploadFile] = useState(null);
-  const [uploadType, setUploadType] = useState('other');
-  const [uploadDescription, setUploadDescription] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('upload'); // 'upload', 'gallery', 'service'
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
+  const initialQueryRef = useRef({
+    appointmentId: searchParams.get('appointmentId') || '',
+    serviceId: searchParams.get('serviceId') || '',
+    salonId: searchParams.get('salonId'),
+    view: searchParams.get('view'),
+  })
+  const [salons, setSalons] = useState([])
+  const [selectedSalonId, setSelectedSalonId] = useState(initialQueryRef.current.salonId)
+  const [appointmentId, setAppointmentId] = useState(initialQueryRef.current.appointmentId)
+  const [serviceId, setServiceId] = useState(initialQueryRef.current.serviceId)
+  const [images, setImages] = useState(null)
+  const [serviceImages, setServiceImages] = useState(null)
+  const [uploadFile, setUploadFile] = useState(null)
+  const [uploadType, setUploadType] = useState('before')
+  const [uploadDescription, setUploadDescription] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [viewMode, setViewMode] = useState(() => {
+    const preset = initialQueryRef.current.view
+    return preset === 'gallery' || preset === 'service' ? preset : 'upload'
+  }) // 'upload', 'gallery', 'service'
+  const hasAppliedInitialQuery = useRef(false)
 
   // Load salons on mount
   useEffect(() => {
-    loadSalons();
-  }, []);
+    if (user?.role === 'vendor') {
+      loadSalons(user.id, initialQueryRef.current.salonId)
+    } else {
+      setSalons([])
+      setSelectedSalonId(null)
+    }
+  }, [user])
 
-  const loadSalons = async () => {
+  useEffect(() => {
+    if (hasAppliedInitialQuery.current) {
+      return
+    }
+
+    hasAppliedInitialQuery.current = true
+    const { view, appointmentId: queryAppointmentId, serviceId: queryServiceId } = initialQueryRef.current
+
+    if (view === 'gallery' && queryAppointmentId) {
+      loadAppointmentImages(queryAppointmentId)
+    } else if (view === 'service' && queryServiceId) {
+      loadServiceImages(queryServiceId)
+    }
+  }, [loadAppointmentImages, loadServiceImages])
+
+  const enhanceGalleryResponse = useCallback((data) => {
+    if (!data) {
+      return null
+    }
+
+    const attachUrl = (items = []) =>
+      items.map((img) => ({
+        ...img,
+        resolvedUrl: resolveAppointmentImageUrl(img),
+      }))
+
+    return {
+      ...data,
+      images: attachUrl(data.images || []),
+      images_by_type: {
+        before: attachUrl(data.images_by_type?.before || []),
+        after: attachUrl(data.images_by_type?.after || []),
+        other: attachUrl(data.images_by_type?.other || []),
+      },
+    }
+  }, [])
+
+  const loadSalons = async (vendorId, preferredSalonId) => {
     try {
-      setLoading(true);
-      const response = await getSalons();
-      setSalons(response.salons || []);
-      if (response.salons && response.salons.length > 0) {
-        setSelectedSalonId(response.salons[0].id);
+      setLoading(true)
+      const { salons: salonList = [] } = await getSalons(vendorId)
+      setSalons(salonList)
+      if (salonList.length > 0) {
+        const normalizedPreferred = preferredSalonId != null ? String(preferredSalonId) : null
+        const matchingSalon = normalizedPreferred
+          ? salonList.find((salon) => String(salon.id ?? salon.salon_id) === normalizedPreferred)
+          : null
+
+        if (matchingSalon) {
+          const matchId = matchingSalon.id ?? matchingSalon.salon_id
+          setSelectedSalonId(matchId != null ? String(matchId) : null)
+        } else {
+          const firstSalon = salonList[0]
+          const fallbackId = firstSalon?.id ?? firstSalon?.salon_id
+          setSelectedSalonId(fallbackId != null ? String(fallbackId) : null)
+        }
+      } else {
+        setSelectedSalonId(null)
       }
     } catch (err) {
-      setError('Failed to load salons');
-      console.error(err);
+      setError('Failed to load salons')
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
-      setUploadFile(e.target.files[0]);
+      setUploadFile(e.target.files[0])
     }
-  };
+  }
 
   const handleUpload = async () => {
     if (!uploadFile) {
-      setError('Please select a file');
-      return;
+      setError('Please select a file')
+      return
     }
 
     if (!appointmentId) {
-      setError('Please enter an appointment ID');
-      return;
+      setError('Please enter an appointment ID')
+      return
     }
 
     try {
-      setLoading(true);
-      const result = await uploadAppointmentImage(
+      setLoading(true)
+      await uploadAppointmentImage(
         appointmentId,
         uploadFile,
         uploadType,
         uploadDescription
-      );
+      )
 
       // Refresh images
       if (appointmentId) {
-        loadAppointmentImages();
+        await loadAppointmentImages()
       }
 
       // Reset form
-      setUploadFile(null);
-      setUploadDescription('');
-      setUploadType('other');
-      setError(null);
+      setUploadFile(null)
+      setUploadDescription('')
+      setUploadType('before')
+      setError(null)
     } catch (err) {
-      setError('Failed to upload image');
-      console.error(err);
+      setError('Failed to upload image')
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const loadAppointmentImages = async () => {
-    if (!appointmentId) return;
-    try {
-      setLoading(true);
-      const response = await getAppointmentImages(appointmentId);
-      setImages(response);
-    } catch (err) {
-      setError('Failed to load images');
-      console.error(err);
-    } finally {
-      setLoading(false);
+  const loadAppointmentImages = useCallback(async (targetAppointmentId) => {
+    const effectiveAppointmentId = targetAppointmentId ?? appointmentId
+    if (!effectiveAppointmentId) {
+      return
     }
-  };
+    try {
+      setLoading(true)
+      const response = await getAppointmentImages(effectiveAppointmentId)
+      setImages(enhanceGalleryResponse(response))
+    } catch (err) {
+      setError('Failed to load images')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }, [appointmentId, enhanceGalleryResponse])
 
-  const loadServiceImages = async () => {
-    if (!serviceId) return;
-    try {
-      setLoading(true);
-      const response = await getServiceImages(serviceId);
-      setServiceImages(response);
-    } catch (err) {
-      setError('Failed to load service images');
-      console.error(err);
-    } finally {
-      setLoading(false);
+  const loadServiceImages = useCallback(async (targetServiceId) => {
+    const effectiveServiceId = targetServiceId ?? serviceId
+    if (!effectiveServiceId) {
+      return
     }
-  };
+    try {
+      setLoading(true)
+      const response = await getServiceImages(effectiveServiceId)
+      setServiceImages(enhanceGalleryResponse(response))
+    } catch (err) {
+      setError('Failed to load service images')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }, [enhanceGalleryResponse, serviceId])
 
   const handleDeleteImage = async (imageId) => {
-    if (!appointmentId || !imageId) return;
+    if (!appointmentId || !imageId) return
 
     if (!window.confirm('Are you sure you want to delete this image?')) {
-      return;
+      return
     }
 
     try {
-      setLoading(true);
-      await deleteAppointmentImage(appointmentId, imageId);
-      loadAppointmentImages();
+      setLoading(true)
+      await deleteAppointmentImage(appointmentId, imageId)
+      await loadAppointmentImages()
     } catch (err) {
-      setError('Failed to delete image');
-      console.error(err);
+      setError('Failed to delete image')
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleViewAppointmentGallery = async () => {
     if (!appointmentId) {
-      setError('Please enter an appointment ID');
-      return;
+      setError('Please enter an appointment ID')
+      return
     }
-    setViewMode('gallery');
-    loadAppointmentImages();
-  };
+    setViewMode('gallery')
+    await loadAppointmentImages()
+  }
 
   const handleViewServiceGallery = async () => {
     if (!serviceId) {
-      setError('Please enter a service ID');
-      return;
+      setError('Please enter a service ID')
+      return
     }
-    setViewMode('service');
-    loadServiceImages();
-  };
+    setViewMode('service')
+    await loadServiceImages()
+  }
 
   if (loading && !images && !serviceImages) {
-    return <div className="service-images-container"><p>Loading...</p></div>;
+    return <div className="service-images-container"><p>Loading...</p></div>
   }
 
   return (
@@ -168,12 +243,15 @@ export default function ServiceImagesPage() {
         <select
           id="salon-select"
           value={selectedSalonId || ''}
-          onChange={(e) => setSelectedSalonId(Number(e.target.value))}
+          onChange={(e) => {
+            const { value } = e.target
+            setSelectedSalonId(value || null)
+          }}
         >
           <option value="">-- Choose a shop --</option>
           {salons.map((salon) => (
-            <option key={salon.id} value={salon.id}>
-              {salon.name}
+            <option key={salon.id ?? salon.salon_id} value={salon.id ?? salon.salon_id}>
+              {salon.name || salon.salon_name}
             </option>
           ))}
         </select>
@@ -311,16 +389,16 @@ export default function ServiceImagesPage() {
                           <div className="gallery-grid">
                             {images.images_by_type.before.map((img) => (
                               <div key={img.id} className="gallery-item before">
-                                <div className="image-badge">Before</div>
+                                <div className="image-badge">{formatImageTypeLabel(img.type)}</div>
                                 <img
-                                  src={`data:image/jpeg;base64,${img.filename}`}
-                                  alt={`Before - ${img.description}`}
+                                  src={img.resolvedUrl}
+                                  alt={`Before - ${img.description || 'Service photo'}`}
                                 />
                                 <div className="image-info">
                                   <p className="image-description">{img.description || 'No description'}</p>
-                                  <p className="image-date">
-                                    {new Date(img.uploaded_at).toLocaleDateString()}
-                                  </p>
+                                    <p className="image-date">
+                                      {new Date(img.uploaded_at).toLocaleDateString()}
+                                    </p>
                                   <button
                                     className="delete-btn"
                                     onClick={() => handleDeleteImage(img.id)}
@@ -341,16 +419,16 @@ export default function ServiceImagesPage() {
                           <div className="gallery-grid">
                             {images.images_by_type.after.map((img) => (
                               <div key={img.id} className="gallery-item after">
-                                <div className="image-badge">After</div>
+                                <div className="image-badge">{formatImageTypeLabel(img.type)}</div>
                                 <img
-                                  src={`data:image/jpeg;base64,${img.filename}`}
-                                  alt={`After - ${img.description}`}
+                                  src={img.resolvedUrl}
+                                  alt={`After - ${img.description || 'Service photo'}`}
                                 />
                                 <div className="image-info">
                                   <p className="image-description">{img.description || 'No description'}</p>
-                                  <p className="image-date">
-                                    {new Date(img.uploaded_at).toLocaleDateString()}
-                                  </p>
+                                    <p className="image-date">
+                                      {new Date(img.uploaded_at).toLocaleDateString()}
+                                    </p>
                                   <button
                                     className="delete-btn"
                                     onClick={() => handleDeleteImage(img.id)}
@@ -371,10 +449,10 @@ export default function ServiceImagesPage() {
                           <div className="gallery-grid">
                             {images.images_by_type.other.map((img) => (
                               <div key={img.id} className="gallery-item other">
-                                <div className="image-badge">Other</div>
+                                <div className="image-badge">{formatImageTypeLabel(img.type)}</div>
                                 <img
-                                  src={`data:image/jpeg;base64,${img.filename}`}
-                                  alt={img.description}
+                                  src={img.resolvedUrl}
+                                  alt={img.description || 'Service photo'}
                                 />
                                 <div className="image-info">
                                   <p className="image-description">{img.description || 'No description'}</p>
@@ -445,7 +523,7 @@ export default function ServiceImagesPage() {
                             {serviceImages.images_by_type.before.map((img) => (
                               <div key={img.id} className="portfolio-item">
                                 <img
-                                  src={`data:image/jpeg;base64,${img.filename}`}
+                                  src={img.resolvedUrl}
                                   alt={`Before - ${img.client_name}`}
                                 />
                                 <div className="portfolio-info">
@@ -469,7 +547,7 @@ export default function ServiceImagesPage() {
                             {serviceImages.images_by_type.after.map((img) => (
                               <div key={img.id} className="portfolio-item">
                                 <img
-                                  src={`data:image/jpeg;base64,${img.filename}`}
+                                  src={img.resolvedUrl}
                                   alt={`After - ${img.client_name}`}
                                 />
                                 <div className="portfolio-info">
@@ -493,7 +571,7 @@ export default function ServiceImagesPage() {
                             {serviceImages.images_by_type.other.map((img) => (
                               <div key={img.id} className="portfolio-item">
                                 <img
-                                  src={`data:image/jpeg;base64,${img.filename}`}
+                                  src={img.resolvedUrl}
                                   alt={img.client_name}
                                 />
                                 <div className="portfolio-info">
@@ -521,5 +599,5 @@ export default function ServiceImagesPage() {
         </>
       )}
     </div>
-  );
+  )
 }
