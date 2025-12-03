@@ -37,7 +37,6 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
     setLoading(true)
     try {
       let secret = clientSecret
-      let amount = amountCents
       if (!secret) {
         // Create payment intent only if not already created
         if (!appointmentId && !serviceId) {
