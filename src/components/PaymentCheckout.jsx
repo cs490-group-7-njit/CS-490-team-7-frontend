@@ -71,7 +71,7 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
             try {
               window.sessionStorage.setItem('pendingPaymentIntentId', result.paymentIntent.id)
             } catch (storageErr) {
-              console.warn('Failed to store paymentIntentId in localStorage:', storageErr)
+              console.warn('Failed to store paymentIntentId in sessionStorage:', storageErr)
             }
           }
         }
