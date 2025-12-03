@@ -48,8 +48,7 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
         secret = res.client_secret
         setClientSecret(secret)
         if (res.amount_cents) {
-          amount = res.amount_cents
-          setAmountCents(amount)
+          setAmountCents(res.amount_cents)
         }
       }
       const card = elements.getElement(CardElement)
@@ -74,6 +73,7 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
             }
             return
           }
+        }
         onSuccess && onSuccess(result.paymentIntent)
       } else {
         setError('Payment failed or was not completed')
@@ -83,10 +83,6 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
     } finally {
       setLoading(false)
     }
-  }
-
-  if (!clientSecret && !error) {
-    return <div className="loading">Preparing payment...</div>
   }
 
   return (

@@ -159,10 +159,10 @@ export async function getSalonPaymentsByDate(salonId, date) {
  * @returns {Promise<{client_secret: string, payment_intent_id: string, amount_cents?: number}>} Resolves with Stripe PaymentIntent details
  */
 export async function createPaymentIntent({ appointmentId = null, serviceId = null }) {
-  const payload = {}
-  if (appointmentId) payload.appointment_id = appointmentId
-  if (serviceId) payload.service_id = serviceId
-  return post('/create-payment-intent', payload)
+  const payload = {};
+  if (appointmentId) payload.appointment_id = appointmentId;
+  if (serviceId) payload.service_id = serviceId;
+  return post('/create-payment-intent', payload);
 }
 
 /**
@@ -177,5 +177,5 @@ export async function confirmPayment(paymentIntentId, appointmentId) {
   return post('/confirm-payment', {
     payment_intent_id: paymentIntentId,
     appointment_id: appointmentId
-  })
+  });
 }
