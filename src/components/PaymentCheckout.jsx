@@ -19,34 +19,42 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
+  // Remove payment intent creation from useEffect. Instead, defer to handleSubmit.
   useEffect(() => {
-    const init = async () => {
-      try {
-        if (!appointmentId && !serviceId) {
-          setError('An appointment or service is required to process payment')
-          return
-        }
-        const res = await createPaymentIntent({ appointmentId, serviceId })
-        setClientSecret(res.client_secret)
-        // Backend may return amount info - if not, we show "amount pending"
-        if (res.amount_cents) {
-          setAmountCents(res.amount_cents)
-        }
-      } catch (err) {
-        setError(err.message || 'Failed to prepare payment')
-      }
-    }
-    init()
+    // Optionally, reset state when appointmentId or serviceId changes
+    setClientSecret(null)
+    setAmountCents(0)
+    setError(null)
   }, [appointmentId, serviceId])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
-    if (!stripe || !elements) return
+    if (!stripe || !elements) {
+      setError('Payment system is not ready. Please try again in a moment.')
+      return
+    }
     setLoading(true)
     try {
+      let secret = clientSecret
+      let amount = amountCents
+      if (!secret) {
+        // Create payment intent only if not already created
+        if (!appointmentId && !serviceId) {
+          setError('An appointment or service is required to process payment')
+          setLoading(false)
+          return
+        }
+        const res = await createPaymentIntent({ appointmentId, serviceId })
+        secret = res.client_secret
+        setClientSecret(secret)
+        if (res.amount_cents) {
+          amount = res.amount_cents
+          setAmountCents(amount)
+        }
+      }
       const card = elements.getElement(CardElement)
-      const result = await stripe.confirmCardPayment(clientSecret, {
+      const result = await stripe.confirmCardPayment(secret, {
         payment_method: { card },
       })
       if (result.error) {
