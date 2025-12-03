@@ -280,7 +280,6 @@ function DashboardPage() {
       case 'Salon Management':
         navigate('/admin/salons')
         break
-      case 'Data Analytics':
       case 'Analytics':
         navigate('/admin/analytics')
         break
