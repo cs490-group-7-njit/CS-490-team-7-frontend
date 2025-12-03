@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { createService, deleteService, getServicesBySalon, updateService } from '../api/services'
 import { getMyShops } from '../api/shops'
-import Header from '../components/Header'
+import VendorPortalLayout from '../components/VendorPortalLayout'
+import VendorLoadingState from '../components/VendorLoadingState'
 import { useAuth } from '../context/AuthContext'
 import './services.css'
 
@@ -201,10 +202,18 @@ function ServicesPage() {
     return (priceCents / 100).toFixed(2)
   }
 
+  if (isLoading && shops.length === 0) {
+    return (
+      <VendorPortalLayout activeKey="services">
+        <VendorLoadingState message="Loading your services..." />
+      </VendorPortalLayout>
+    )
+  }
+
   return (
-    <div className="services-page">
-      <Header />
-      <div className="services-container">
+    <VendorPortalLayout activeKey="services">
+      <div className="services-page">
+        <div className="services-container">
         <h1>Services</h1>
 
         {error && <div className="error-message">{error}</div>}
@@ -378,7 +387,9 @@ function ServicesPage() {
 
             {/* Services List */}
             <div className="services-list">
-              {isLoading && <p>Loading services...</p>}
+              {isLoading && shops.length > 0 && (
+                <VendorLoadingState message="Updating services..." compact />
+              )}
               {!isLoading && services.length === 0 && (
                 <p className="no-services">No services found. {user?.role === 'vendor' && 'Add one to get started!'}</p>
               )}
@@ -421,6 +432,7 @@ function ServicesPage() {
         )}
       </div>
     </div>
+  </VendorPortalLayout>
   )
 }
 

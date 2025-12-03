@@ -1,14 +1,20 @@
 import { del, get, post, put } from './http'
+import { getMyShops } from './shops'
 
 /**
  * UC 1.6: Staff Management API functions
  */
 
 // Get all salons owned by the current vendor
-export async function getSalons() {
+export async function getSalons(vendorId) {
   try {
-    const response = await get('/vendors/me/salons')
-    return response.salons || []
+    if (vendorId) {
+      const { salons } = await getMyShops(vendorId)
+      return { salons: salons || [] }
+    }
+
+    const response = await get('/salons')
+    return { salons: response.salons || [] }
   } catch (error) {
     console.error('Error fetching vendor salons:', error)
     throw error

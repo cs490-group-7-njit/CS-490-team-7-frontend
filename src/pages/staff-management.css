@@ -18,7 +18,7 @@
 
 .page-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-bottom: 16px;
 }
@@ -27,23 +27,6 @@
   margin: 0;
   font-size: 2rem;
   color: #0f172a;
-}
-
-.view-schedule-btn {
-  padding: 12px 24px;
-  border-radius: 12px;
-  border: 2px solid #0f766e;
-  background: transparent;
-  color: #0f766e;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.view-schedule-btn:hover {
-  background-color: #0f766e;
-  color: white;
-  transform: translateY(-1px);
 }
 
 .staff-section h2 {
@@ -247,6 +230,8 @@
   border-color: #ef4444;
   color: #dc2626;
 }
+
+
 
 @keyframes slideInDown {
   from {

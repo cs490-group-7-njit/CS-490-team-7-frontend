@@ -1,17 +1,61 @@
 import { get, post, put } from './http'
 
+const useVendorShopsEndpoint = import.meta.env.VITE_ENABLE_VENDOR_SHOPS_ENDPOINT === 'true'
+
 // Shop/Salon management API functions using existing backend endpoints
-export async function getMyShops(vendorId) {
-  // Use existing /salons endpoint and filter by vendor on frontend
-  const response = await get('/salons')
-  if (response.salons && vendorId) {
-    // Filter salons by vendor_id since backend doesn't have vendor-specific endpoint yet
+function mergeLocalSalonData(salons = []) {
+  return salons.map((salon) => {
+    const storageKey = `salon_${salon.id}_data`
+    const storedData = localStorage.getItem(storageKey)
+
+    if (!storedData) {
+      return salon
+    }
+
+    const parsedData = JSON.parse(storedData)
     return {
-      ...response,
-      salons: response.salons.filter(salon => salon.vendor?.id === vendorId)
+      ...salon,
+      address: {
+        ...salon.address,
+        line1: parsedData.address?.street || salon.address?.line1,
+        line2: parsedData.address?.suite || salon.address?.line2,
+        city: parsedData.address?.city || salon.address?.city,
+        state: parsedData.address?.state || salon.address?.state,
+        postal_code: parsedData.address?.zipCode || salon.address?.postal_code,
+      },
+      phone: parsedData.phone || salon.phone,
+    }
+  })
+}
+
+export async function getMyShops(vendorId) {
+  if (!vendorId) {
+    return { salons: [] }
+  }
+
+  if (useVendorShopsEndpoint) {
+    try {
+      const response = await get(`/salons/my?vendor_id=${vendorId}`)
+      if (response.salons) {
+        response.salons = mergeLocalSalonData(response.salons)
+      }
+      return response
+    } catch (error) {
+      console.warn('Vendor shops endpoint unavailable, falling back to /salons', error)
     }
   }
-  return response
+
+  const response = await get('/salons')
+  let salons = response.salons || []
+
+  salons = salons.filter((salon) => (
+    salon.vendor?.id === vendorId || salon.vendor_id === vendorId
+  ))
+
+  return {
+    ...response,
+    salons: mergeLocalSalonData(salons),
+  }
 }
 
 export async function createShop(shopData) {
@@ -43,13 +87,42 @@ export async function deleteShop(shopId) {
 }
 
 export async function getShopById(shopId) {
-  // Use existing /salons endpoint and filter by ID
-  const response = await get('/salons')
-  if (response.salons) {
-    const shop = response.salons.find(salon => salon.id === parseInt(shopId))
-    return shop ? { salon: shop } : { error: 'Shop not found' }
+  try {
+    console.log('🔍 Fetching shop details for ID:', shopId)
+    const response = await get(`/salons/${shopId}`)
+    
+    // Check for updated data in localStorage
+    const storageKey = `salon_${shopId}_data`
+    const storedData = localStorage.getItem(storageKey)
+    
+    if (storedData && response.salon) {
+      const parsedData = JSON.parse(storedData)
+      console.log('💾 Found localStorage data:', parsedData)
+      
+      // Merge backend data with localStorage updates
+      const mergedSalon = {
+        ...response.salon,
+        // Override with localStorage address/phone data if available
+        address: {
+          line1: parsedData.address?.street || response.salon.address?.line1 || '',
+          line2: parsedData.address?.suite || response.salon.address?.line2 || '',
+          city: parsedData.address?.city || response.salon.address?.city || '',
+          state: parsedData.address?.state || response.salon.address?.state || '',
+          postal_code: parsedData.address?.zipCode || response.salon.address?.postal_code || ''
+        },
+        phone: parsedData.phone || response.salon.phone || ''
+      }
+      
+      console.log('🔄 Merged data:', mergedSalon)
+      return { salon: mergedSalon }
+    }
+    
+    console.log('✅ Shop details fetched:', response)
+    return response
+  } catch (error) {
+    console.error('❌ Error fetching shop details:', error)
+    return { error: 'Shop not found' }
   }
-  return response
 }
 
 export async function uploadShopImages(shopId, images) {
@@ -69,20 +142,23 @@ export async function updateShop(salonId, shopData) {
   console.log('🔄 Updating shop:', salonId, shopData)
 
   try {
-    // Map frontend form data to backend salon format
+    // Store complete shop data in localStorage (including address/phone)
+    const storageKey = `salon_${salonId}_data`
+    const completeData = {
+      ...shopData,
+      lastUpdated: new Date().toISOString()
+    }
+    localStorage.setItem(storageKey, JSON.stringify(completeData))
+    console.log('💾 Stored complete data in localStorage:', completeData)
+
+    // Send only supported fields to backend
     const salonData = {
       name: shopData.name,
       description: shopData.description || '',
-      business_type: shopData.category || 'salon',
-      address_line1: shopData.address?.street || '',
-      address_line2: shopData.address?.suite || '',
-      city: shopData.address?.city || '',
-      state: shopData.address?.state || '',
-      postal_code: shopData.address?.zipCode || '',
-      phone: shopData.phone || '',
+      business_type: shopData.category || 'salon'
     }
 
-    console.log('📡 Sending update to API:', salonData)
+    console.log('📡 Sending supported fields to API:', salonData)
     const response = await put(`/salons/${salonId}`, salonData)
 
     console.log('✅ Update Response:', response)

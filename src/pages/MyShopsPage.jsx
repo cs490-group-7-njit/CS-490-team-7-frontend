@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { getMyShops, submitForVerification } from '../api/shops'
-import Header from '../components/Header'
+import VendorPortalLayout from '../components/VendorPortalLayout'
+import VendorLoadingState from '../components/VendorLoadingState'
 import VerificationModal from '../components/VerificationModal'
 import { useAuth } from '../context/AuthContext'
 import './MyShopsPage.css'
@@ -158,25 +159,16 @@ function MyShopsPage() {
 
   if (loading) {
     return (
-      <div className="page">
-        <Header showSearch={false} />
-        <main className="main-content">
-          <div className="container">
-            <div className="loading-container">
-              <div className="loading-spinner"></div>
-              <p>Loading your shops...</p>
-            </div>
-          </div>
-        </main>
-      </div>
+      <VendorPortalLayout activeKey="shops">
+        <VendorLoadingState message="Loading your shops..." />
+      </VendorPortalLayout>
     )
   }
 
   if (error) {
     return (
-      <div className="page">
-        <Header showSearch={false} />
-        <main className="main-content">
+      <VendorPortalLayout activeKey="shops">
+        <div className="main-content">
           <div className="container">
             <div className="error-container">
               <div className="error-message">
@@ -191,16 +183,14 @@ function MyShopsPage() {
               </div>
             </div>
           </div>
-        </main>
-      </div>
+        </div>
+      </VendorPortalLayout>
     )
   }
 
   return (
-    <div className="page">
-      <Header showSearch={false} />
-
-      <main className="main-content">
+    <VendorPortalLayout activeKey="shops">
+      <div className="main-content">
         <div className="container">
           {successMessage && (
             <div className="success-message">
@@ -219,16 +209,21 @@ function MyShopsPage() {
           )}
 
           <div className="page-header">
-            <div className="page-header-content">
-              <h1>My Shops</h1>
-              <p>Manage your salon listings and information</p>
+            <div className="page-header-top">
+              <div className="page-header-content">
+                <h1>My Shops</h1>
+              </div>
+              <button
+                className="button button-primary"
+                onClick={handleAddNewShop}
+              >
+                + Add New Shop
+              </button>
             </div>
-            <button
-              className="button button-primary"
-              onClick={handleAddNewShop}
-            >
-              + Add New Shop
-            </button>
+          </div>
+          
+          <div className="page-subtitle">
+            <p>Manage your salon listings and information</p>
           </div>
 
           <div className="shops-grid">
@@ -292,7 +287,10 @@ function MyShopsPage() {
                     </button>
 
                     {shop.verification_status === 'approved' && shop.status === 'published' && (
-                      <button className="button button-outline">
+                      <button
+                        className="button button-outline"
+                        onClick={() => navigate(`/salons/${shop.id}`)}
+                      >
                         View Public Page
                       </button>
                     )}
@@ -311,7 +309,7 @@ function MyShopsPage() {
             )}
           </div>
         </div>
-      </main>
+      </div>
 
       <VerificationModal
         isOpen={verificationModal.isOpen}
@@ -320,7 +318,7 @@ function MyShopsPage() {
         onSubmit={handleSubmitForVerification}
         isLoading={submittingVerification}
       />
-    </div>
+    </VendorPortalLayout>
   )
 }
 

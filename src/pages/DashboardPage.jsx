@@ -1,11 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { listAppointments } from '../api/appointments'
 import { getMyShops } from '../api/shops'
+import { getSalonAppointments } from '../api/vendorAppointments'
+import { getSalonReviews } from '../api/reviews'
+import { getSalonPaymentStats } from '../api/payments'
 import Header from '../components/Header'
+import VendorPortalLayout from '../components/VendorPortalLayout'
 import { useAuth } from '../context/AuthContext'
 import './dashboard.css'
 
+/*
 // Vendor Dashboard Data
 const demoSchedule = [
   {
@@ -28,20 +33,8 @@ const demoStats = {
   revenue: { value: '$7,120', delta: '+30%' },
   totalSales: '$187,118',
 }
-
+ */
 // Client Dashboard Data
-const clientData = {
-  nearbyShops: [
-    { name: 'Beauty Paradise', distance: '0.3 miles', rating: 4.8, nextAvailable: 'Today 2:00 PM' },
-    { name: 'Style Studio', distance: '0.5 miles', rating: 4.6, nextAvailable: 'Tomorrow 10:00 AM' },
-    { name: 'Glamour Lounge', distance: '0.7 miles', rating: 4.9, nextAvailable: 'Today 4:30 PM' }
-  ],
-  popularShops: [
-    { name: 'Trendy Cuts', bookings: 1250, rating: 4.9 },
-    { name: 'Elite Salon', bookings: 980, rating: 4.8 },
-    { name: 'Beauty Hub', bookings: 875, rating: 4.7 }
-  ]
-}
 
 // Admin Dashboard Data
 const adminData = {
@@ -73,11 +66,67 @@ const adminData = {
   ]
 }
 
+const clientData = {
+  nearbyShops: [
+    {
+      name: 'Glow Studio',
+      distance: '0.8 mi',
+      rating: '4.9',
+      nextAvailable: '2:15 PM',
+    },
+    {
+      name: 'Fresh Fade Lounge',
+      distance: '1.3 mi',
+      rating: '4.8',
+      nextAvailable: '3:00 PM',
+    },
+    {
+      name: 'Downtown Cuts',
+      distance: '2.1 mi',
+      rating: '4.7',
+      nextAvailable: '4:45 PM',
+    },
+  ],
+  popularShops: [
+    {
+      name: 'Signature Styles',
+      bookings: 128,
+      rating: '4.9',
+    },
+    {
+      name: 'Modern Mane',
+      bookings: 117,
+      rating: '4.8',
+    },
+    {
+      name: 'Crown & Glory',
+      bookings: 102,
+      rating: '4.9',
+    },
+  ],
+}
+ 
 function DashboardPage() {
   const { user, refreshActivity } = useAuth()
   const navigate = useNavigate()
   const [vendorShops, setVendorShops] = useState([])
   const [shopsLoading, setShopsLoading] = useState(false)
+  const [vendorSchedule, setVendorSchedule] = useState([])
+  const [vendorScheduleLoading, setVendorScheduleLoading] = useState(false)
+  const [vendorScheduleError, setVendorScheduleError] = useState(null)
+  const [vendorReview, setVendorReview] = useState(null)
+  const [vendorReviewLoading, setVendorReviewLoading] = useState(false)
+  const [vendorReviewError, setVendorReviewError] = useState(null)
+  const [vendorMetrics, setVendorMetrics] = useState({
+    totalAppointments: 0,
+    completedAppointments: 0,
+    upcomingAppointments: 0,
+    completionRate: 0,
+    completedLast30: 0,
+  })
+  const [vendorRevenueSummary, setVendorRevenueSummary] = useState(null)
+  const [vendorRevenueLoading, setVendorRevenueLoading] = useState(false)
+  const [vendorRevenueError, setVendorRevenueError] = useState(null)
   const [loyaltyData, setLoyaltyData] = useState(null)
   const [loyaltyLoading, setLoyaltyLoading] = useState(false)
   const [nextAppointment, setNextAppointment] = useState(null)
@@ -96,6 +145,146 @@ function DashboardPage() {
       fetchVendorShops()
     }
   }, [user])
+
+  useEffect(() => {
+    if (user?.role !== 'vendor') {
+      setVendorRevenueSummary(null)
+      setVendorRevenueLoading(false)
+      setVendorRevenueError(null)
+      return
+    }
+
+    if (!vendorShops.length) {
+      setVendorRevenueSummary(null)
+      setVendorRevenueLoading(false)
+      return
+    }
+
+    let isMounted = true
+
+    const loadRevenueSummary = async () => {
+      setVendorRevenueLoading(true)
+      setVendorRevenueError(null)
+
+      try {
+        const responses = await Promise.all(
+          vendorShops.map(async (salon) => {
+            const salonId = salon?.id ?? salon?.salon_id
+
+            if (!salonId) {
+              return null
+            }
+
+            try {
+              const stats = await getSalonPaymentStats(salonId)
+
+              return {
+                salonId,
+                salonName: salon?.name || salon?.salon_name || `Salon ${salonId}`,
+                stats,
+              }
+            } catch (error) {
+              console.error(`Error fetching payment stats for salon ${salonId}`, error)
+              return {
+                salonId,
+                salonName: salon?.name || salon?.salon_name || `Salon ${salonId}`,
+                error: true,
+              }
+            }
+          })
+        )
+
+        if (!isMounted) {
+          return
+        }
+
+        const validStats = responses.filter((entry) => entry && entry.stats)
+
+        if (!validStats.length) {
+          setVendorRevenueSummary(null)
+          if (responses.some((entry) => entry?.error)) {
+            setVendorRevenueError('We could not load revenue data right now.')
+          }
+          return
+        }
+
+        const aggregated = validStats.reduce(
+          (acc, entry) => {
+            const stats = entry.stats || {}
+            const totalRevenueCents = Number(stats.total_revenue) || 0
+            const transactionCount = Number(stats.transaction_count) || 0
+
+            acc.totalRevenueCents += totalRevenueCents
+            acc.transactionCount += transactionCount
+            acc.salonBreakdown.push({
+              salonId: entry.salonId,
+              salonName: entry.salonName,
+              totalRevenueCents,
+              transactionCount,
+            })
+
+            const serviceRevenue = stats.revenue_by_service || {}
+            Object.entries(serviceRevenue).forEach(([serviceName, amount]) => {
+              const cents = Number(amount) || 0
+              acc.serviceTotals[serviceName] = (acc.serviceTotals[serviceName] || 0) + cents
+
+              if (acc.serviceTotals[serviceName] > acc.topService.totalRevenueCents) {
+                acc.topService = {
+                  serviceName,
+                  totalRevenueCents: acc.serviceTotals[serviceName],
+                }
+              }
+            })
+
+            return acc
+          },
+          {
+            totalRevenueCents: 0,
+            transactionCount: 0,
+            salonBreakdown: [],
+            serviceTotals: {},
+            topService: { serviceName: null, totalRevenueCents: 0 },
+          }
+        )
+
+        const sortedBreakdown = [...aggregated.salonBreakdown].sort(
+          (a, b) => b.totalRevenueCents - a.totalRevenueCents,
+        )
+
+        setVendorRevenueSummary({
+          totalRevenueCents: aggregated.totalRevenueCents,
+          transactionCount: aggregated.transactionCount,
+          averageTicketCents: aggregated.transactionCount
+            ? Math.round(aggregated.totalRevenueCents / aggregated.transactionCount)
+            : 0,
+          topSalon: sortedBreakdown.length ? sortedBreakdown[0] : null,
+          topService: aggregated.topService.serviceName ? aggregated.topService : null,
+          salonBreakdown: sortedBreakdown.slice(0, 3),
+        })
+
+        if (responses.some((entry) => entry?.error)) {
+          setVendorRevenueError('Some salons did not return revenue data.')
+        }
+      } catch (error) {
+        console.error('Failed to load vendor revenue summary', error)
+        if (!isMounted) {
+          return
+        }
+        setVendorRevenueError('We could not load revenue data right now.')
+        setVendorRevenueSummary(null)
+      } finally {
+        if (isMounted) {
+          setVendorRevenueLoading(false)
+        }
+      }
+    }
+
+    loadRevenueSummary()
+
+    return () => {
+      isMounted = false
+    }
+  }, [vendorShops, user?.role])
 
   // Fetch loyalty points if user is a client
   useEffect(() => {
@@ -139,6 +328,203 @@ function DashboardPage() {
       setShopsLoading(false)
     }
   }
+
+  const resetVendorInsights = useCallback(() => {
+    setVendorSchedule([])
+    setVendorScheduleLoading(false)
+    setVendorScheduleError(null)
+    setVendorMetrics({
+      totalAppointments: 0,
+      completedAppointments: 0,
+      upcomingAppointments: 0,
+      completionRate: 0,
+      completedLast30: 0,
+    })
+    setVendorReview(null)
+    setVendorReviewLoading(false)
+    setVendorReviewError(null)
+  }, [])
+
+  const fetchVendorSchedule = useCallback(async () => {
+    if (user?.role !== 'vendor') {
+      return
+    }
+
+    if (!vendorShops.length) {
+      resetVendorInsights()
+      return
+    }
+
+    try {
+      setVendorScheduleLoading(true)
+      setVendorScheduleError(null)
+
+      const now = new Date()
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+
+      const appointmentResults = await Promise.all(
+        vendorShops.map(async (salon) => {
+          try {
+            const appointments = await getSalonAppointments(salon.id)
+            return (appointments || []).map((appointment) => ({
+              ...appointment,
+              salon_name: salon.name,
+            }))
+          } catch (fetchError) {
+            console.error(`Error fetching appointments for salon ${salon.id}`, fetchError)
+            return []
+          }
+        })
+      )
+
+      const allAppointments = appointmentResults.flat()
+
+      const upcomingAppointments = allAppointments
+        .filter((appointment) => {
+          if (!appointment.starts_at) {
+            return false
+          }
+          const startTime = new Date(appointment.starts_at)
+          return ['booked', 'in-progress'].includes(appointment.status) && startTime >= now
+        })
+        .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at))
+
+      const groupedByStaff = new Map()
+      upcomingAppointments.forEach((appointment) => {
+        const staffKey = appointment.staff_name || 'Unassigned'
+        if (!groupedByStaff.has(staffKey)) {
+          groupedByStaff.set(staffKey, {
+            staffId: appointment.staff_id,
+            staffName: staffKey,
+            appointments: [],
+          })
+        }
+
+        groupedByStaff.get(staffKey).appointments.push({
+          id: appointment.id,
+          starts_at: appointment.starts_at,
+          ends_at: appointment.ends_at,
+          client_name: appointment.client_name || 'Client',
+          service_name: appointment.service_name || 'Service',
+          status: appointment.status,
+          salon_name: appointment.salon_name,
+        })
+      })
+
+      const scheduleColumns = Array.from(groupedByStaff.values()).map((column) => ({
+        ...column,
+        appointments: column.appointments.slice(0, 5),
+      }))
+
+      setVendorSchedule(scheduleColumns)
+
+      const totalAppointments = allAppointments.length
+      const completedAppointments = allAppointments.filter((appointment) => appointment.status === 'completed').length
+      const upcomingCount = upcomingAppointments.length
+      const completedLast30 = allAppointments.filter((appointment) => {
+        if (appointment.status !== 'completed' || !appointment.starts_at) {
+          return false
+        }
+        return new Date(appointment.starts_at) >= thirtyDaysAgo
+      }).length
+
+      setVendorMetrics({
+        totalAppointments,
+        completedAppointments,
+        upcomingAppointments: upcomingCount,
+        completionRate: totalAppointments ? Math.round((completedAppointments / totalAppointments) * 100) : 0,
+        completedLast30,
+      })
+    } catch (error) {
+      console.error('Error building vendor schedule:', error)
+      setVendorScheduleError(error.message || 'Failed to load schedule')
+    } finally {
+      setVendorScheduleLoading(false)
+    }
+  }, [resetVendorInsights, user?.role, vendorShops])
+
+  const fetchVendorReview = useCallback(async () => {
+    if (user?.role !== 'vendor') {
+      return
+    }
+
+    if (!vendorShops.length) {
+      setVendorReview(null)
+      return
+    }
+
+    try {
+      setVendorReviewLoading(true)
+      setVendorReviewError(null)
+
+      const reviewResponses = await Promise.all(
+        vendorShops.map(async (salon) => {
+          try {
+            const params = new URLSearchParams({
+              limit: 1,
+              sort_by: 'date',
+              order: 'desc',
+            })
+            const data = await getSalonReviews(salon.id, params.toString())
+            const review = data.reviews?.[0]
+            if (review) {
+              return {
+                ...review,
+                salon_name: salon.name,
+              }
+            }
+            return null
+          } catch (fetchError) {
+            console.error(`Error fetching reviews for salon ${salon.id}`, fetchError)
+            return null
+          }
+        })
+      )
+
+      const availableReviews = reviewResponses.filter(Boolean)
+
+      if (!availableReviews.length) {
+        setVendorReview(null)
+        return
+      }
+
+      const latestReview = availableReviews.reduce((latest, review) => {
+        if (!latest) {
+          return review
+        }
+
+        const currentDate = review.created_at ? new Date(review.created_at) : null
+        const latestDate = latest.created_at ? new Date(latest.created_at) : null
+
+        if (currentDate && (!latestDate || currentDate > latestDate)) {
+          return review
+        }
+        return latest
+      }, null)
+
+      setVendorReview(latestReview)
+    } catch (error) {
+      console.error('Error fetching vendor review:', error)
+      setVendorReviewError(error.message || 'Failed to load reviews')
+    } finally {
+      setVendorReviewLoading(false)
+    }
+  }, [user?.role, vendorShops])
+
+  useEffect(() => {
+    if (user?.role !== 'vendor') {
+      resetVendorInsights()
+      return
+    }
+
+    if (!vendorShops.length) {
+      resetVendorInsights()
+      return
+    }
+
+    fetchVendorSchedule()
+    fetchVendorReview()
+  }, [fetchVendorReview, fetchVendorSchedule, resetVendorInsights, user?.role, vendorShops])
 
   const fetchLoyaltyPoints = async () => {
     try {
@@ -209,6 +595,15 @@ function DashboardPage() {
 
   const userRole = user?.role || 'client'
 
+  const primaryShopId = useMemo(() => {
+    if (!vendorShops.length) {
+      return null
+    }
+    const ownedShop = vendorShops.find((shop) => shop?.id || shop?.salon_id) || vendorShops[0]
+    const id = ownedShop?.id ?? ownedShop?.salon_id
+    return id ? String(id) : null
+  }, [vendorShops])
+
   const greeting = useMemo(() => {
     const name = user?.name || (userRole === 'admin' ? 'Admin' : userRole === 'client' ? 'Client' : 'Vendor')
     const firstName = name.split(' ')[0]
@@ -227,6 +622,76 @@ function DashboardPage() {
       hour12: true
     })
   }
+
+  const formatAppointmentWindow = (startIso, endIso) => {
+    if (!startIso) {
+      return 'TBD'
+    }
+
+    const start = new Date(startIso)
+    const startLabel = start.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+
+    if (!endIso) {
+      return startLabel
+    }
+
+    const end = new Date(endIso)
+    const endLabel = end.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+
+    return `${startLabel} – ${endLabel}`
+  }
+
+  const formatDashboardDate = (dateIso) => {
+    if (!dateIso) {
+      return ''
+    }
+
+    return new Date(dateIso).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }
+
+  const formatStatusLabel = (status) => {
+    if (!status) {
+      return ''
+    }
+    return status
+      .split('-')
+      .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+      .join(' ')
+  }
+
+  const formatCurrency = (cents) => {
+    const amount = Number(cents) || 0
+
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 2,
+    }).format(amount / 100)
+  }
+
+  const renderRatingStars = (rating) => {
+    if (!rating) {
+      return '☆☆☆☆☆'
+    }
+    const capped = Math.max(0, Math.min(5, Math.round(rating)))
+    return `${'★'.repeat(capped)}${'☆'.repeat(5 - capped)}`
+  }
+
+  const todayLabel = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric'
+  })
 
   const handleNavigation = (item) => {
     switch (item) {
@@ -269,8 +734,15 @@ function DashboardPage() {
       case 'Marketing':
         navigate('/marketing')
         break
-      case 'Shop':
-        navigate(userRole === 'vendor' ? '/salons/1' : '/shops')
+      case 'Products':
+        navigate('/vendor/shop')
+        break
+      case 'Shop Info':
+        if (userRole === 'vendor' && primaryShopId) {
+          navigate(`/shops/${primaryShopId}/edit`)
+        } else {
+          navigate('/shops')
+        }
         break
 
       // Admin sidebar items
@@ -313,8 +785,271 @@ function DashboardPage() {
       case 'admin':
         return ['Dashboard', 'User Management', 'Salon Management', 'Analytics', 'Salon Verification', 'Reports', 'System Health', 'Settings']
       default: // vendor
-        return ['Dashboard', 'Appointments', 'My Shops', 'Services', 'Staff', 'Reviews', 'Revenue', 'Marketing', 'Shop']
+        return ['Dashboard', 'Appointments', 'My Shops', 'Services', 'Staff', 'Reviews', 'Revenue', 'Marketing', 'Products', 'Shop Info']
     }
+  }
+
+  if (userRole === 'vendor') {
+    return (
+      <VendorPortalLayout activeKey="dashboard">
+        <div className="dashboard-main">
+          <h1>{greeting}</h1>
+
+          <section className="dashboard-summary" aria-label="Salon overview">
+            <div className="summary-card">
+              <p className="summary-title">My Shops</p>
+              <p className="summary-subtitle">
+                {shopsLoading
+                  ? 'Loading shops...'
+                  : `You have ${vendorShops.length} ${vendorShops.length === 1 ? 'shop' : 'shops'} registered.`}
+              </p>
+              <button
+                type="button"
+                className="pill-button"
+                onClick={() => navigate('/shops')}
+              >
+                Manage Shops
+              </button>
+            </div>
+
+            <div className="summary-card">
+              <p className="summary-title">Shop Status</p>
+              <div className="summary-status">
+                {shopsLoading ? (
+                  'Loading...'
+                ) : vendorShops.length === 0 ? (
+                  <span>No shops yet</span>
+                ) : (
+                  <div>
+                    {vendorShops.filter((s) => s.verification_status === 'approved').length > 0 && (
+                      <p><span className="status-dot approved" /> {vendorShops.filter((s) => s.verification_status === 'approved').length} Approved</p>
+                    )}
+                    {vendorShops.filter((s) => s.verification_status === 'pending').length > 0 && (
+                      <p><span className="status-dot pending" /> {vendorShops.filter((s) => s.verification_status === 'pending').length} Pending</p>
+                    )}
+                    {vendorShops.filter((s) => s.verification_status === 'rejected').length > 0 && (
+                      <p><span className="status-dot rejected" /> {vendorShops.filter((s) => s.verification_status === 'rejected').length} Need Review</p>
+                    )}
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                className="pill-button"
+                onClick={() => navigate('/shops/new')}
+              >
+                Add New Shop
+              </button>
+            </div>
+
+            <div className="summary-card">
+              <p className="summary-title">Loyalty Program</p>
+              <p className="summary-subtitle">Loyalty program has been activated in your salon.</p>
+              <button
+                type="button"
+                className="pill-button"
+                onClick={() => navigate('/vendor/loyalty-program')}
+              >
+                Manage Loyalty Program
+              </button>
+            </div>
+          </section>
+
+          <section className="schedule-section" aria-label="Upcoming schedule">
+            <header className="section-header">
+              <div>
+                <p className="section-date">Today, {todayLabel}</p>
+                <h2>Schedule</h2>
+              </div>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => navigate('/vendor/appointments')}
+              >
+                View Full Schedule
+              </button>
+            </header>
+            <div className="schedule-grid">
+              {vendorScheduleLoading ? (
+                <article className="schedule-card">
+                  <p>Loading schedule...</p>
+                </article>
+              ) : vendorScheduleError ? (
+                <article className="schedule-card">
+                  <p>{vendorScheduleError}</p>
+                </article>
+              ) : vendorSchedule.length ? (
+                vendorSchedule.map((column) => (
+                  <article key={column.staffId || column.staffName} className="schedule-card">
+                    <h3>{column.staffName}</h3>
+                    <ul>
+                      {column.appointments.map((appointment) => (
+                        <li key={appointment.id}>
+                          <p className="time">{formatAppointmentWindow(appointment.starts_at, appointment.ends_at)}</p>
+                          {appointment.salon_name && <p className="salon">Salon: {appointment.salon_name}</p>}
+                          <p className="client">Client: {appointment.client_name}</p>
+                          <p className="service">Service: {appointment.service_name}</p>
+                          <p className="status">Status: {formatStatusLabel(appointment.status)}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                ))
+              ) : (
+                <article className="schedule-card">
+                  <p>No upcoming appointments yet.</p>
+                </article>
+              )}
+            </div>
+          </section>
+
+          <section className="dashboard-bottom">
+            <article className="revenue-card" aria-label="Revenue overview">
+              <header>
+                <h2>Revenue Overview</h2>
+                {vendorRevenueLoading && <span className="loading-indicator">Loading…</span>}
+              </header>
+              <div className="revenue-body">
+                {vendorRevenueError && <p className="revenue-error">{vendorRevenueError}</p>}
+
+                {vendorRevenueSummary ? (
+                  <>
+                    <div className="revenue-metrics">
+                      <div className="revenue-metric">
+                        <span className="metric-label">Total Revenue (30 days)</span>
+                        <span className="metric-value">{formatCurrency(vendorRevenueSummary.totalRevenueCents)}</span>
+                      </div>
+                      <div className="revenue-metric">
+                        <span className="metric-label">Transactions</span>
+                        <span className="metric-value">{vendorRevenueSummary.transactionCount.toLocaleString()}</span>
+                      </div>
+                      <div className="revenue-metric">
+                        <span className="metric-label">Average Ticket</span>
+                        <span className="metric-value">{formatCurrency(vendorRevenueSummary.averageTicketCents)}</span>
+                      </div>
+                    </div>
+
+                    {vendorRevenueSummary.topSalon && (
+                      <div className="revenue-highlight">
+                        <h3>Top-Performing Salon</h3>
+                        <p>
+                          {vendorRevenueSummary.topSalon.salonName}
+                          {' '}
+                          ·
+                          {' '}
+                          {formatCurrency(vendorRevenueSummary.topSalon.totalRevenueCents)}
+                        </p>
+                      </div>
+                    )}
+
+                    {vendorRevenueSummary.salonBreakdown.length > 1 && (
+                      <div className="revenue-breakdown">
+                        <h3>Revenue by Salon</h3>
+                        <ul>
+                          {vendorRevenueSummary.salonBreakdown.map((salon) => (
+                            <li key={salon.salonId}>
+                              <span>{salon.salonName}</span>
+                              <span>{formatCurrency(salon.totalRevenueCents)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {vendorRevenueSummary.topService && (
+                      <p className="revenue-top-service">
+                        Top service:
+                        {' '}
+                        <strong>{vendorRevenueSummary.topService.serviceName}</strong>
+                        {' '}
+                        ({formatCurrency(vendorRevenueSummary.topService.totalRevenueCents)})
+                      </p>
+                    )}
+
+                    <button
+                      type="button"
+                      className="pill-button"
+                      onClick={() => navigate('/vendor/payments')}
+                    >
+                      View Payment Tracking
+                    </button>
+                  </>
+                ) : (
+                  !vendorRevenueLoading && !vendorRevenueError && (
+                    <p>No payment activity yet. Payments will appear here once clients are charged.</p>
+                  )
+                )}
+              </div>
+            </article>
+
+            <article className="reviews-card" aria-label="Recent review">
+              <header>
+                <h2>Recent Reviews</h2>
+              </header>
+              <div className="review-body">
+                {vendorReviewLoading ? (
+                  <p>Loading review...</p>
+                ) : vendorReviewError ? (
+                  <p>{vendorReviewError}</p>
+                ) : vendorReview ? (
+                  <>
+                    <p className="review-rating" aria-label={`Rating: ${vendorReview.rating || 0} out of 5`}>
+                      {vendorReview.rating ? renderRatingStars(vendorReview.rating) : 'No rating yet'}
+                    </p>
+                    <p className="review-title">{vendorReview.salon_name}</p>
+                    <p className="review-text">{vendorReview.comment || 'No comment provided.'}</p>
+                    <p className="review-meta">
+                      {vendorReview.client_name || 'Anonymous'}
+                      {vendorReview.created_at ? ` • ${formatDashboardDate(vendorReview.created_at)}` : ''}
+                    </p>
+                    <button
+                      type="button"
+                      className="pill-button"
+                      onClick={() => navigate('/vendor/reviews')}
+                    >
+                      Reply
+                    </button>
+                  </>
+                ) : (
+                  <p>No reviews yet. Invite clients to share their experience.</p>
+                )}
+              </div>
+            </article>
+
+            <article className="performance-card" aria-label="Performance snapshot">
+              <header>
+                <h2>Performance Snapshot</h2>
+              </header>
+              <div className="performance-stats">
+                <dl>
+                  <div>
+                    <dt>Total Appointments</dt>
+                    <dd>{vendorMetrics.totalAppointments}</dd>
+                    <span className="delta">Across all salons</span>
+                  </div>
+                  <div>
+                    <dt>Upcoming Appointments</dt>
+                    <dd>{vendorMetrics.upcomingAppointments}</dd>
+                    <span className="delta">Next confirmed visits</span>
+                  </div>
+                  <div>
+                    <dt>Completion Rate</dt>
+                    <dd>{vendorMetrics.completionRate}%</dd>
+                    <span className="delta positive">{vendorMetrics.completedAppointments} completed overall</span>
+                  </div>
+                </dl>
+                <div className="performance-chart" aria-hidden="true">
+                  <div className="chart-circle">
+                    <span className="chart-value">{vendorMetrics.completedLast30}</span>
+                    <span className="chart-label">Completed last 30 days</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </section>
+        </div>
+      </VendorPortalLayout>
+    )
   }
 
   return (
@@ -480,10 +1215,15 @@ function DashboardPage() {
                 <p className="summary-subtitle">
                   Loyalty program has been activated in your salon.
                 </p>
-                <button type="button" className="pill-button">
+                <button
+                  type="button"
+                  className="pill-button"
+                  onClick={() => navigate('/vendor/loyalty-program')}
+                >
                   Manage Loyalty Program
                 </button>
               </div>
+
             </section>
           )}
 
@@ -619,31 +1359,53 @@ function DashboardPage() {
           )}
 
           {userRole === 'vendor' && (
-            <section className="schedule-section" aria-label="Today schedule">
+            <section className="schedule-section" aria-label="Upcoming schedule">
               <header className="section-header">
                 <div>
-                  <p className="section-date">Today, Friday, Oct. 10</p>
+                  <p className="section-date">Today, {todayLabel}</p>
                   <h2>Schedule</h2>
                 </div>
-                <button type="button" className="primary-button">
+                <button
+                  type="button"
+                  className="primary-button"
+                  onClick={() => navigate('/vendor/appointments')}
+                >
                   View Full Schedule
                 </button>
               </header>
               <div className="schedule-grid">
-                {demoSchedule.map((column) => (
-                  <article key={column.stylist} className="schedule-card">
-                    <h3>{column.stylist}</h3>
-                    <ul>
-                      {column.rows.map((row) => (
-                        <li key={`${column.stylist}-${row.time}`}>
-                          <p className="time">{row.time}</p>
-                          <p className="client">Client: {row.client}</p>
-                          <p className="service">Service: {row.service}</p>
-                        </li>
-                      ))}
-                    </ul>
+                {vendorScheduleLoading ? (
+                  <article className="schedule-card">
+                    <p>Loading schedule...</p>
                   </article>
-                ))}
+                ) : vendorScheduleError ? (
+                  <article className="schedule-card">
+                    <p>{vendorScheduleError}</p>
+                  </article>
+                ) : vendorSchedule.length ? (
+                  vendorSchedule.map((column) => (
+                    <article key={column.staffId || column.staffName} className="schedule-card">
+                      <h3>{column.staffName}</h3>
+                      <ul>
+                        {column.appointments.map((appointment) => (
+                          <li key={appointment.id}>
+                            <p className="time">{formatAppointmentWindow(appointment.starts_at, appointment.ends_at)}</p>
+                            {appointment.salon_name && (
+                              <p className="salon">Salon: {appointment.salon_name}</p>
+                            )}
+                            <p className="client">Client: {appointment.client_name}</p>
+                            <p className="service">Service: {appointment.service_name}</p>
+                            <p className="status">Status: {formatStatusLabel(appointment.status)}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </article>
+                  ))
+                ) : (
+                  <article className="schedule-card">
+                    <p>No upcoming appointments yet.</p>
+                  </article>
+                )}
               </div>
             </section>
           )}
@@ -763,22 +1525,122 @@ function DashboardPage() {
 
             {userRole === 'vendor' && (
               <>
+                <article className="revenue-card" aria-label="Revenue overview">
+                  <header>
+                    <h2>Revenue Overview</h2>
+                    {vendorRevenueLoading && <span className="loading-indicator">Loading…</span>}
+                  </header>
+                  <div className="revenue-body">
+                    {vendorRevenueError && (
+                      <p className="revenue-error">{vendorRevenueError}</p>
+                    )}
+
+                    {vendorRevenueSummary ? (
+                      <>
+                        <div className="revenue-metrics">
+                          <div className="revenue-metric">
+                            <span className="metric-label">Total Revenue (30 days)</span>
+                            <span className="metric-value">{formatCurrency(vendorRevenueSummary.totalRevenueCents)}</span>
+                          </div>
+                          <div className="revenue-metric">
+                            <span className="metric-label">Transactions</span>
+                            <span className="metric-value">{vendorRevenueSummary.transactionCount.toLocaleString()}</span>
+                          </div>
+                          <div className="revenue-metric">
+                            <span className="metric-label">Average Ticket</span>
+                            <span className="metric-value">{formatCurrency(vendorRevenueSummary.averageTicketCents)}</span>
+                          </div>
+                        </div>
+
+                        {vendorRevenueSummary.topSalon && (
+                          <div className="revenue-highlight">
+                            <h3>Top-Performing Salon</h3>
+                            <p>
+                              {vendorRevenueSummary.topSalon.salonName}
+                              {' '}
+                              ·
+                              {' '}
+                              {formatCurrency(vendorRevenueSummary.topSalon.totalRevenueCents)}
+                            </p>
+                          </div>
+                        )}
+
+                        {vendorRevenueSummary.salonBreakdown.length > 1 && (
+                          <div className="revenue-breakdown">
+                            <h3>Revenue by Salon</h3>
+                            <ul>
+                              {vendorRevenueSummary.salonBreakdown.map((salon) => (
+                                <li key={salon.salonId}>
+                                  <span>{salon.salonName}</span>
+                                  <span>{formatCurrency(salon.totalRevenueCents)}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {vendorRevenueSummary.topService && (
+                          <p className="revenue-top-service">
+                            Top service:
+                            {' '}
+                            <strong>{vendorRevenueSummary.topService.serviceName}</strong>
+                            {' '}
+                            ({formatCurrency(vendorRevenueSummary.topService.totalRevenueCents)})
+                          </p>
+                        )}
+
+                        <button
+                          type="button"
+                          className="pill-button"
+                          onClick={() => navigate('/vendor/payments')}
+                        >
+                          View Payment Tracking
+                        </button>
+                      </>
+                    ) : (
+                      !vendorRevenueLoading && !vendorRevenueError && (
+                        <p>No payment activity yet. Payments will appear here once clients are charged.</p>
+                      )
+                    )}
+                  </div>
+                </article>
+
                 <article className="reviews-card" aria-label="Recent review">
                   <header>
                     <h2>Recent Reviews</h2>
                   </header>
                   <div className="review-body">
-                    <p className="review-rating" aria-label="Rating: 5 out of 5">
-                      ★★★★★
-                    </p>
-                    <p className="review-title">Love Beauty Cuts</p>
-                    <p className="review-text">
-                      Sarah was great. Would recommend this salon.
-                    </p>
-                    <p className="review-meta">Anya S • 10/10/25</p>
-                    <button type="button" className="pill-button">
-                      Reply
-                    </button>
+                    {vendorReviewLoading ? (
+                      <p>Loading review...</p>
+                    ) : vendorReviewError ? (
+                      <p>{vendorReviewError}</p>
+                    ) : vendorReview ? (
+                      <>
+                        <p
+                          className="review-rating"
+                          aria-label={`Rating: ${vendorReview.rating || 0} out of 5`}
+                        >
+                          {vendorReview.rating ? renderRatingStars(vendorReview.rating) : 'No rating yet'}
+                        </p>
+                        <p className="review-title">{vendorReview.salon_name}</p>
+                        <p className="review-text">
+                          {vendorReview.comment || 'No comment provided.'}
+                        </p>
+                        <p className="review-meta">
+                          {vendorReview.client_name || 'Anonymous'}
+                          {vendorReview.created_at ? ` • ${formatDashboardDate(vendorReview.created_at)}` : ''}
+                        </p>
+                        <button
+                          type="button"
+                          className="pill-button"
+                          onClick={() => navigate('/vendor/reviews')}
+                        >
+                          Reply
+                        </button>
+                      </>
+                    ) : (
+                      <p>No reviews yet. Invite clients to share their experience.</p>
+                    )}
                   </div>
                 </article>
 
@@ -789,20 +1651,27 @@ function DashboardPage() {
                   <div className="performance-stats">
                     <dl>
                       <div>
-                        <dt>Monthly Bookings</dt>
-                        <dd>{demoStats.bookings.value}</dd>
-                        <span className="delta positive">{demoStats.bookings.delta}</span>
+                        <dt>Total Appointments</dt>
+                        <dd>{vendorMetrics.totalAppointments}</dd>
+                        <span className="delta">Across all salons</span>
                       </div>
                       <div>
-                        <dt>Total Revenue</dt>
-                        <dd>{demoStats.revenue.value}</dd>
-                        <span className="delta positive">{demoStats.revenue.delta}</span>
+                        <dt>Upcoming Appointments</dt>
+                        <dd>{vendorMetrics.upcomingAppointments}</dd>
+                        <span className="delta">Next confirmed visits</span>
+                      </div>
+                      <div>
+                        <dt>Completion Rate</dt>
+                        <dd>{vendorMetrics.completionRate}%</dd>
+                        <span className="delta positive">
+                          {vendorMetrics.completedAppointments} completed overall
+                        </span>
                       </div>
                     </dl>
                     <div className="performance-chart" aria-hidden="true">
                       <div className="chart-circle">
-                        <span className="chart-value">{demoStats.totalSales}</span>
-                        <span className="chart-label">Total Sales</span>
+                        <span className="chart-value">{vendorMetrics.completedLast30}</span>
+                        <span className="chart-label">Completed last 30 days</span>
                       </div>
                     </div>
                   </div>

@@ -77,6 +77,11 @@ function Header({ showSearch = true, showSignupLink = false }) {
                 Staff
               </Link>
             )}
+            {user?.role === 'vendor' && (
+              <Link to="/vendor/shop" className="nav-link">
+                Shop
+              </Link>
+            )}
             <div className="user-menu">
               <button
                 onClick={handleLogout}

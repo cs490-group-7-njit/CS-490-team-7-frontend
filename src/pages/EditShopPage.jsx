@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { updateShop, getShopById } from '../api/shops'
-import Header from '../components/Header'
+import VendorPortalLayout from '../components/VendorPortalLayout'
 import './MyShopsPage.css'
 
 function EditShopPage() {
@@ -218,8 +218,7 @@ function EditShopPage() {
 
   if (loadingShop) {
     return (
-      <div className="page">
-        <Header />
+      <VendorPortalLayout activeKey="shopInfo">
         <div className="loading-state">
           <div className="loading-spinner"></div>
           <p>Loading shop data...</p>
@@ -227,14 +226,13 @@ function EditShopPage() {
             Salon ID: {salonId} | User ID: {user?.user_id}
           </p>
         </div>
-      </div>
+      </VendorPortalLayout>
     )
   }
 
   if (errors.general) {
     return (
-      <div className="page">
-        <Header />
+      <VendorPortalLayout activeKey="shopInfo">
         <div className="error-state">
           <h2>Error Loading Shop</h2>
           <p>{errors.general}</p>
@@ -245,14 +243,12 @@ function EditShopPage() {
             Back to My Shops
           </button>
         </div>
-      </div>
+      </VendorPortalLayout>
     )
   }
 
   return (
-    <div className="page">
-      <Header />
-      
+    <VendorPortalLayout activeKey="shopInfo">
       <div className="shop-form-container">
         <div className="shop-form-header">
           <h1>Edit Shop</h1>
@@ -474,7 +470,7 @@ function EditShopPage() {
           </div>
         </form>
       </div>
-    </div>
+    </VendorPortalLayout>
   )
 }
 

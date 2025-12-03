@@ -9,6 +9,7 @@ import {
 } from '../api/promotions';
 import { getSalons } from '../api/staff';
 import { useAuth } from '../context/AuthContext';
+import VendorPortalLayout from '../components/VendorPortalLayout';
 import '../pages/promotions.css';
 
 export default function PromotionsPage() {
@@ -200,12 +201,20 @@ export default function PromotionsPage() {
   };
 
   if (loading && !promotions) {
-    return <div className="promotions-container"><p>Loading...</p></div>;
+    return (
+      <VendorPortalLayout activeKey="marketing">
+        <div className="promotions-page">
+          <div className="promotions-container"><p>Loading...</p></div>
+        </div>
+      </VendorPortalLayout>
+    );
   }
 
   return (
-    <div className="promotions-container">
-      <h1>Promotional Offers</h1>
+    <VendorPortalLayout activeKey="marketing">
+      <div className="promotions-page">
+        <div className="promotions-container">
+          <h1>Promotional Offers</h1>
 
       {/* Salon Selector */}
       <div className="salon-selector">
@@ -537,6 +546,8 @@ export default function PromotionsPage() {
           )}
         </>
       )}
-    </div>
+        </div>
+      </div>
+    </VendorPortalLayout>
   );
 }
