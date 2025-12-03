@@ -94,7 +94,7 @@ function SalonDetailsPage() {
   }, [salon?.services, salon?.pay_online])
 
   // Memoize vendor contact button to prevent unnecessary re-renders
-  const renderContactVendorButton = useMemo(() => {
+  const contactVendorButton = useMemo(() => {
     const vendorId = salon?.vendor?.user_id || salon?.vendor?.id
     if (!vendorId) {
       return <span className="vendor-unavailable">Vendor contact unavailable</span>
@@ -304,7 +304,7 @@ function SalonDetailsPage() {
                 {salon.vendor.email && (
                   <p className="vendor-email">📧 {salon.vendor.email}</p>
                 )}
-                {renderContactVendorButton}
+                {contactVendorButton}
               </div>
             </section>
           )}
