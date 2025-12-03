@@ -112,6 +112,10 @@ function SalonDetailsPage() {
     )
   }
 
+  // Extract payment link logic for better readability
+  const firstServiceId = salon?.services?.[0]?.service_id || salon?.services?.[0]?.id || null
+  const showPayOnlineButton = salon?.pay_online && salon?.services?.length > 0 && firstServiceId
+
   return (
     <div className="page salon-details-page">
       <Header showSearch={false} />
@@ -325,16 +329,11 @@ function SalonDetailsPage() {
             >
               Book an Appointment
             </button>
-            {salon && salon.pay_online && salon.services && salon.services.length > 0 && (() => {
-              // Get the first service ID for payment
-              const firstServiceId = salon.services[0].service_id || salon.services[0].id
-              if (!firstServiceId) return null
-              return (
-                <Link key="pay" to={`/payments/checkout?serviceId=${firstServiceId}`}>
-                  <button className="btn-secondary">Pay Online</button>
-                </Link>
-              )
-            })()}
+            {showPayOnlineButton && (
+              <Link key="pay" to={`/payments/checkout?serviceId=${firstServiceId}`}>
+                <button className="btn-secondary">Pay Online</button>
+              </Link>
+            )}
           </div>
         </section>
       </main>
