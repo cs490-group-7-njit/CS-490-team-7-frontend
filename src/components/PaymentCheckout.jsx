@@ -72,8 +72,8 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
             } catch (storageErr) {
               console.warn('Failed to store paymentIntentId in sessionStorage:', storageErr)
             }
+            return
           }
-        }
         onSuccess && onSuccess(result.paymentIntent)
       } else {
         setError('Payment failed or was not completed')
