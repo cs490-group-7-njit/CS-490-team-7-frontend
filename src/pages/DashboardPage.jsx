@@ -752,15 +752,13 @@ function DashboardPage() {
       case 'Salon Management':
         navigate('/admin/salons')
         break
-      case 'Data Analytics':
+      case 'Analytics':
         navigate('/admin/analytics')
         break
       case 'Salon Verification':
+        // TODO: Implement a dedicated salon verification page.
         // For now, route to admin salons where verification happens
         navigate('/admin/salons')
-        break
-      case 'Analytics':
-        navigate('/admin/analytics')
         break
       case 'Reports':
         // No dedicated reports page yet – use analytics for now
@@ -772,7 +770,6 @@ function DashboardPage() {
       case 'Settings':
         navigate('/admin/settings')
         break
-
       case 'Dashboard':
         navigate('/dashboard')
         break
@@ -786,7 +783,7 @@ function DashboardPage() {
       case 'client':
         return ['Dashboard', 'My Bookings', 'Messages', 'Notifications', 'Favorite Salons', 'Rewards', 'Profile']
       case 'admin':
-        return ['Dashboard', 'User Management', 'Salon Management', 'Data Analytics', 'Salon Verification', 'Analytics', 'Reports', 'System Health', 'Settings']
+        return ['Dashboard', 'User Management', 'Salon Management', 'Analytics', 'Salon Verification', 'Reports', 'System Health', 'Settings']
       default: // vendor
         return ['Dashboard', 'Appointments', 'My Shops', 'Services', 'Staff', 'Reviews', 'Revenue', 'Marketing', 'Products', 'Shop Info']
     }
@@ -1083,7 +1080,10 @@ function DashboardPage() {
                 <div className="summary-card">
                   <p className="summary-title">Reward Points</p>
                   <p className="summary-status">
-                    <span className="points-value">{loyaltyLoading ? 'Loading...' : (loyaltyData?.total_points || 0).toLocaleString()}</span> points
+                    <span className="points-value">
+                      {loyaltyLoading ? 'Loading...' : (loyaltyData?.total_points || 0).toLocaleString()}
+                    </span>{' '}
+                    points
                   </p>
                   <button type="button" className="pill-button">
                     Redeem Points
@@ -1449,7 +1449,9 @@ function DashboardPage() {
                   <div className="rewards-stats">
                     <div className="reward-item">
                       <h4>Current Points</h4>
-                      <p className="reward-value">{loyaltyLoading ? 'Loading...' : (loyaltyData?.total_points || 0).toLocaleString()}</p>
+                      <p className="reward-value">
+                        {loyaltyLoading ? 'Loading...' : (loyaltyData?.total_points || 0).toLocaleString()}
+                      </p>
                     </div>
                     <div className="reward-item">
                       <h4>Points to Next Reward</h4>

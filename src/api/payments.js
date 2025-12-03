@@ -1,4 +1,4 @@
-import { apiBaseURL, get } from './http';
+import { apiBaseURL, get, post } from './http'
 
 /**
  * Get all payment methods for a user
@@ -147,4 +147,35 @@ export async function getSalonPaymentsByDate(salonId, date) {
     console.error('Error fetching payments for date:', error)
     throw error
   }
+}
+
+/**
+ * Create a Stripe PaymentIntent via backend
+ * Backend route: POST /create-payment-intent
+ * body: { appointment_id } OR { service_id }
+ * @param {Object} params - Parameters object
+ * @param {number|null} params.appointmentId - The appointment ID
+ * @param {number|null} params.serviceId - The service ID
+ * @returns {Promise<{client_secret: string, payment_intent_id: string, amount_cents?: number}>} Resolves with Stripe PaymentIntent details
+ */
+export async function createPaymentIntent({ appointmentId = null, serviceId = null }) {
+  const payload = {};
+  if (appointmentId) payload.appointment_id = appointmentId;
+  if (serviceId) payload.service_id = serviceId;
+  return post('/create-payment-intent', payload);
+}
+
+/**
+ * Confirm payment and record transaction
+ * Backend route: POST /confirm-payment
+ * body: { payment_intent_id, appointment_id }
+ * @param {string} paymentIntentId - The Stripe payment intent ID
+ * @param {number} appointmentId - The appointment ID
+ * @returns {Promise<Object>} Resolves with confirmation result
+ */
+export async function confirmPayment(paymentIntentId, appointmentId) {
+  return post('/confirm-payment', {
+    payment_intent_id: paymentIntentId,
+    appointment_id: appointmentId
+  });
 }
