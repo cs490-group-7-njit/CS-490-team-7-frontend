@@ -85,7 +85,7 @@ function ComposeMessage() {
         {loading ? (
           <div className="loading">Loading recipient...</div>
         ) : error ? (
-          <div className="error">Error: {error}</div>
+          <div className="error">Unable to load recipient: {error}</div>
         ) : (
           <div className="compose-container">
             <form onSubmit={handleSubmit} className="compose-form">
