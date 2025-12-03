@@ -91,7 +91,7 @@ function SalonDetailsPage() {
     const firstServiceId = firstService?.service_id ?? firstService?.id
     const showPayOnlineButton = salon?.pay_online && salon?.services?.length > 0 && firstServiceId
     return { firstServiceId, showPayOnlineButton }
-  }, [salon?.services, salon?.pay_online])
+  }, [salon])
 
   // Memoize vendor contact button to prevent unnecessary re-renders
   const contactVendorButton = useMemo(() => {
