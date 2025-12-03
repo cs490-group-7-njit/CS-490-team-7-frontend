@@ -55,7 +55,7 @@ export default function VendorSidebar({ activeKey }) {
 
         if (!canceled) {
           if (salonId != null) {
-            setShopInfoPath(`/salons/${salonId}`)
+            setShopInfoPath(`/shops/${salonId}/edit`)
           } else {
             setShopInfoPath('/shops/new')
           }

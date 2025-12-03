@@ -45,7 +45,7 @@ import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
 import VendorReviewsPage from './pages/VendorReviewsPage'
 import VendorLoyaltyProgramPage from './pages/VendorLoyaltyProgramPage'
 import VendorShopPage from './pages/VendorShopPage'
-import SettingsPage from './pages/SettingsPage';
+import SettingsPage from './pages/SettingsPage'
 
 
 function App() {

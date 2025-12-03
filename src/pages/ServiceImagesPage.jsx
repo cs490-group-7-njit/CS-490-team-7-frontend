@@ -37,6 +37,62 @@ export default function ServiceImagesPage() {
   }) // 'upload', 'gallery', 'service'
   const hasAppliedInitialQuery = useRef(false)
 
+  const enhanceGalleryResponse = useCallback((data) => {
+    if (!data) {
+      return null
+    }
+
+    const attachUrl = (items = []) =>
+      items.map((img) => ({
+        ...img,
+        resolvedUrl: resolveAppointmentImageUrl(img),
+      }))
+
+    return {
+      ...data,
+      images: attachUrl(data.images || []),
+      images_by_type: {
+        before: attachUrl(data.images_by_type?.before || []),
+        after: attachUrl(data.images_by_type?.after || []),
+        other: attachUrl(data.images_by_type?.other || []),
+      },
+    }
+  }, [])
+
+  const loadAppointmentImages = useCallback(async (targetAppointmentId) => {
+    const effectiveAppointmentId = targetAppointmentId ?? appointmentId
+    if (!effectiveAppointmentId) {
+      return
+    }
+    try {
+      setLoading(true)
+      const response = await getAppointmentImages(effectiveAppointmentId)
+      setImages(enhanceGalleryResponse(response))
+    } catch (err) {
+      setError('Failed to load images')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }, [appointmentId, enhanceGalleryResponse])
+
+  const loadServiceImages = useCallback(async (targetServiceId) => {
+    const effectiveServiceId = targetServiceId ?? serviceId
+    if (!effectiveServiceId) {
+      return
+    }
+    try {
+      setLoading(true)
+      const response = await getServiceImages(effectiveServiceId)
+      setServiceImages(enhanceGalleryResponse(response))
+    } catch (err) {
+      setError('Failed to load service images')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }, [enhanceGalleryResponse, serviceId])
+
   // Load salons on mount
   useEffect(() => {
     if (user?.role === 'vendor') {
@@ -61,28 +117,6 @@ export default function ServiceImagesPage() {
       loadServiceImages(queryServiceId)
     }
   }, [loadAppointmentImages, loadServiceImages])
-
-  const enhanceGalleryResponse = useCallback((data) => {
-    if (!data) {
-      return null
-    }
-
-    const attachUrl = (items = []) =>
-      items.map((img) => ({
-        ...img,
-        resolvedUrl: resolveAppointmentImageUrl(img),
-      }))
-
-    return {
-      ...data,
-      images: attachUrl(data.images || []),
-      images_by_type: {
-        before: attachUrl(data.images_by_type?.before || []),
-        after: attachUrl(data.images_by_type?.after || []),
-        other: attachUrl(data.images_by_type?.other || []),
-      },
-    }
-  }, [])
 
   const loadSalons = async (vendorId, preferredSalonId) => {
     try {
@@ -157,40 +191,6 @@ export default function ServiceImagesPage() {
       setLoading(false)
     }
   }
-
-  const loadAppointmentImages = useCallback(async (targetAppointmentId) => {
-    const effectiveAppointmentId = targetAppointmentId ?? appointmentId
-    if (!effectiveAppointmentId) {
-      return
-    }
-    try {
-      setLoading(true)
-      const response = await getAppointmentImages(effectiveAppointmentId)
-      setImages(enhanceGalleryResponse(response))
-    } catch (err) {
-      setError('Failed to load images')
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }, [appointmentId, enhanceGalleryResponse])
-
-  const loadServiceImages = useCallback(async (targetServiceId) => {
-    const effectiveServiceId = targetServiceId ?? serviceId
-    if (!effectiveServiceId) {
-      return
-    }
-    try {
-      setLoading(true)
-      const response = await getServiceImages(effectiveServiceId)
-      setServiceImages(enhanceGalleryResponse(response))
-    } catch (err) {
-      setError('Failed to load service images')
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }, [enhanceGalleryResponse, serviceId])
 
   const handleDeleteImage = async (imageId) => {
     if (!appointmentId || !imageId) return
