@@ -61,7 +61,7 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
             console.warn('confirmPayment failed:', err.message)
             setError('Payment succeeded but could not be fully recorded. Please try again or provide this code for reference: ' + result.paymentIntent.id)
             try {
-              window.localStorage.setItem('pendingPaymentIntentId', result.paymentIntent.id)
+              window.sessionStorage.setItem('pendingPaymentIntentId', result.paymentIntent.id)
             } catch (storageErr) {
               console.warn('Failed to store paymentIntentId in localStorage:', storageErr)
             }
