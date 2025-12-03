@@ -1,4 +1,4 @@
-import { apiBaseURL, get, post } from './http'
+import { del, get, post, put } from './http'
 
 /**
  * Get all payment methods for a user
@@ -6,11 +6,7 @@ import { apiBaseURL, get, post } from './http'
  * @returns {Promise<Object>}
  */
 export async function getPaymentMethods(userId) {
-  const response = await fetch(`${apiBaseURL}/users/${userId}/payment-methods`, {
-    credentials: 'include',
-  });
-  if (!response.ok) throw new Error('Failed to fetch payment methods');
-  return response.json();
+  return get(`/users/${userId}/payment-methods`, { credentials: 'include' })
 }
 
 /**
@@ -20,14 +16,11 @@ export async function getPaymentMethods(userId) {
  * @returns {Promise<Object>}
  */
 export async function addPaymentMethod(userId, paymentData) {
-  const response = await fetch(`${apiBaseURL}/users/${userId}/payment-methods`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify(paymentData),
-  });
-  if (!response.ok) throw new Error('Failed to add payment method');
-  return response.json();
+  return post(
+    `/users/${userId}/payment-methods`,
+    paymentData,
+    { credentials: 'include' }
+  )
 }
 
 /**
@@ -37,15 +30,10 @@ export async function addPaymentMethod(userId, paymentData) {
  * @returns {Promise<Object>}
  */
 export async function deletePaymentMethod(userId, paymentMethodId) {
-  const response = await fetch(
-    `${apiBaseURL}/users/${userId}/payment-methods/${paymentMethodId}`,
-    {
-      method: 'DELETE',
-      credentials: 'include',
-    }
-  );
-  if (!response.ok) throw new Error('Failed to delete payment method');
-  return response.json();
+  return del(
+    `/users/${userId}/payment-methods/${paymentMethodId}`,
+    { credentials: 'include' }
+  )
 }
 
 /**
@@ -55,15 +43,11 @@ export async function deletePaymentMethod(userId, paymentMethodId) {
  * @returns {Promise<Object>}
  */
 export async function setDefaultPaymentMethod(userId, paymentMethodId) {
-  const response = await fetch(
-    `${apiBaseURL}/users/${userId}/payment-methods/${paymentMethodId}/default`,
-    {
-      method: 'PUT',
-      credentials: 'include',
-    }
-  );
-  if (!response.ok) throw new Error('Failed to set default payment method');
-  return response.json();
+  return put(
+    `/users/${userId}/payment-methods/${paymentMethodId}/default`,
+    undefined,
+    { credentials: 'include' }
+  )
 }
 
 /**
@@ -74,12 +58,10 @@ export async function setDefaultPaymentMethod(userId, paymentMethodId) {
  * @returns {Promise<Object>}
  */
 export async function getTransactions(userId, page = 1, limit = 20) {
-  const response = await fetch(
-    `${apiBaseURL}/users/${userId}/transactions?page=${page}&limit=${limit}`,
+  return get(
+    `/users/${userId}/transactions?page=${page}&limit=${limit}`,
     { credentials: 'include' }
-  );
-  if (!response.ok) throw new Error('Failed to fetch transactions');
-  return response.json();
+  )
 }
 
 /**
@@ -89,14 +71,11 @@ export async function getTransactions(userId, page = 1, limit = 20) {
  * @returns {Promise<Object>}
  */
 export async function createTransaction(userId, transactionData) {
-  const response = await fetch(`${apiBaseURL}/users/${userId}/transactions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify(transactionData),
-  });
-  if (!response.ok) throw new Error('Failed to create transaction');
-  return response.json();
+  return post(
+    `/users/${userId}/transactions`,
+    transactionData,
+    { credentials: 'include' }
+  )
 }
 
 /**

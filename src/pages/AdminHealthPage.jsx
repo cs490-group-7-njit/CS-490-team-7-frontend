@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
+import { get } from '../api/http'
 import './admin-health.css'
 
 function AdminHealthPage() {
@@ -25,20 +26,20 @@ function AdminHealthPage() {
     try {
       setLoading(true)
       
-      const [healthRes, uptimeRes, alertsRes] = await Promise.all([
-        fetch('/admin/health/platform'),
-        fetch('/admin/health/uptime'),
-        fetch('/admin/health/alerts')
+      const [healthRes, uptimeRes, alertsRes] = await Promise.allSettled([
+        get('/admin/health/platform'),
+        get('/admin/health/uptime'),
+        get('/admin/health/alerts')
       ])
 
-      if (healthRes.ok) {
-        setPlatformHealth(await healthRes.json())
+      if (healthRes.status === 'fulfilled') {
+        setPlatformHealth(healthRes.value)
       }
-      if (uptimeRes.ok) {
-        setUptimeHistory(await uptimeRes.json())
+      if (uptimeRes.status === 'fulfilled') {
+        setUptimeHistory(uptimeRes.value)
       }
-      if (alertsRes.ok) {
-        setAlerts(await alertsRes.json())
+      if (alertsRes.status === 'fulfilled') {
+        setAlerts(alertsRes.value)
       }
     } catch (error) {
       console.error('Error fetching health data:', error)

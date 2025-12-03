@@ -13,18 +13,23 @@ function getAuthToken() {
 
 async function request(path, options = {}) {
   const token = getAuthToken()
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(options.headers || {}),
+  const headers = { ...(options.headers || {}) }
+  const isFormData = options.body instanceof FormData
+  const hasContentType = Object.keys(headers).some(
+    (key) => key.toLowerCase() === 'content-type'
+  )
+
+  if (!isFormData && !hasContentType && options.body !== undefined) {
+    headers['Content-Type'] = 'application/json'
   }
 
-  if (token) {
+  if (token && !headers.Authorization) {
     headers['Authorization'] = `Bearer ${token}`
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers,
     ...options,
+    headers,
   })
 
   const contentType = response.headers.get('content-type') || ''
@@ -32,7 +37,7 @@ async function request(path, options = {}) {
   const body = isJson ? await response.json() : null
 
   if (!response.ok) {
-    const message = body?.message || 'Request failed'
+    const message = body?.message || response.statusText || 'Request failed'
     const error = new Error(message)
     error.status = response.status
     error.body = body
@@ -42,30 +47,40 @@ async function request(path, options = {}) {
   return body
 }
 
-export function post(path, payload) {
+export function post(path, payload, options = {}) {
+  const isFormData = payload instanceof FormData
+  const body = payload === undefined ? undefined : (isFormData ? payload : JSON.stringify(payload))
+
   return request(path, {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body,
+    ...options,
   })
 }
 
-export function get(path) {
+export function get(path, options = {}) {
   return request(path, {
     method: 'GET',
+    ...options,
   })
 }
 
-export function put(path, payload) {
+export function put(path, payload, options = {}) {
+  const isFormData = payload instanceof FormData
+  const body = payload === undefined ? undefined : (isFormData ? payload : JSON.stringify(payload))
+
   return request(path, {
     method: 'PUT',
-    body: JSON.stringify(payload),
+    body,
+    ...options,
   })
 }
 
-export function del(path) {
+export function del(path, options = {}) {
   return request(path, {
     method: 'DELETE',
+    ...options,
   })
 }
 
-export { API_BASE_URL as apiBaseURL }
+export { API_BASE_URL as apiBaseURL, request }

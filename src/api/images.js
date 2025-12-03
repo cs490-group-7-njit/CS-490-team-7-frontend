@@ -1,4 +1,4 @@
-import { apiBaseURL } from './http'
+import { del, get, post, put } from './http'
 
 /**
  * Upload an image for an appointment (before/after service)
@@ -15,16 +15,11 @@ export async function uploadAppointmentImage(appointmentId, file, type = 'other'
     formData.append('type', type)
     formData.append('description', description)
 
-    const response = await fetch(
-      `${apiBaseURL}/appointments/${appointmentId}/images`,
-      {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      }
+    return post(
+      `/appointments/${appointmentId}/images`,
+      formData,
+      { credentials: 'include' }
     )
-    if (!response.ok) throw new Error('Failed to upload image')
-    return response.json()
   } catch (error) {
     console.error('Error uploading appointment image:', error)
     throw error
@@ -38,12 +33,10 @@ export async function uploadAppointmentImage(appointmentId, file, type = 'other'
  */
 export async function getAppointmentImages(appointmentId) {
   try {
-    const response = await fetch(
-      `${apiBaseURL}/appointments/${appointmentId}/images`,
+    return get(
+      `/appointments/${appointmentId}/images`,
       { credentials: 'include' }
     )
-    if (!response.ok) throw new Error('Failed to fetch images')
-    return response.json()
   } catch (error) {
     console.error('Error fetching appointment images:', error)
     throw error
@@ -58,15 +51,10 @@ export async function getAppointmentImages(appointmentId) {
  */
 export async function deleteAppointmentImage(appointmentId, imageId) {
   try {
-    const response = await fetch(
-      `${apiBaseURL}/appointments/${appointmentId}/images/${imageId}`,
-      {
-        method: 'DELETE',
-        credentials: 'include',
-      }
+    return del(
+      `/appointments/${appointmentId}/images/${imageId}`,
+      { credentials: 'include' }
     )
-    if (!response.ok) throw new Error('Failed to delete image')
-    return response.json()
   } catch (error) {
     console.error('Error deleting appointment image:', error)
     throw error
@@ -82,17 +70,11 @@ export async function deleteAppointmentImage(appointmentId, imageId) {
  */
 export async function updateAppointmentImageMetadata(appointmentId, imageId, metadata) {
   try {
-    const response = await fetch(
-      `${apiBaseURL}/appointments/${appointmentId}/images/${imageId}`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(metadata),
-      }
+    return put(
+      `/appointments/${appointmentId}/images/${imageId}`,
+      metadata,
+      { credentials: 'include' }
     )
-    if (!response.ok) throw new Error('Failed to update image metadata')
-    return response.json()
   } catch (error) {
     console.error('Error updating image metadata:', error)
     throw error
@@ -106,12 +88,10 @@ export async function updateAppointmentImageMetadata(appointmentId, imageId, met
  */
 export async function getServiceImages(serviceId) {
   try {
-    const response = await fetch(
-      `${apiBaseURL}/services/${serviceId}/images`,
+    return get(
+      `/services/${serviceId}/images`,
       { credentials: 'include' }
     )
-    if (!response.ok) throw new Error('Failed to fetch service images')
-    return response.json()
   } catch (error) {
     console.error('Error fetching service images:', error)
     throw error

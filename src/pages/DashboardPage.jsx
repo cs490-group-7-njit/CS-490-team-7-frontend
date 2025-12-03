@@ -5,6 +5,7 @@ import { getMyShops } from '../api/shops'
 import { getSalonAppointments } from '../api/vendorAppointments'
 import { getSalonReviews } from '../api/reviews'
 import { getSalonPaymentStats } from '../api/payments'
+import { getUserLoyalty } from '../api/loyalty'
 import Header from '../components/Header'
 import VendorPortalLayout from '../components/VendorPortalLayout'
 import { useAuth } from '../context/AuthContext'
@@ -529,11 +530,8 @@ function DashboardPage() {
   const fetchLoyaltyPoints = async () => {
     try {
       setLoyaltyLoading(true)
-      const response = await fetch(`/users/${user.id}/loyalty`)
-      if (response.ok) {
-        const data = await response.json()
-        setLoyaltyData(data)
-      }
+      const data = await getUserLoyalty(user.id)
+      setLoyaltyData(data)
     } catch (error) {
       console.error('Error fetching loyalty points:', error)
     } finally {

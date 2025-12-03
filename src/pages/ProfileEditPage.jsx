@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
+import { updateUserPassword, updateUserProfile } from '../api/users'
 import '../styles/profile-edit.css'
 
 function ProfileEditPage() {
@@ -54,23 +55,10 @@ function ProfileEditPage() {
     setSuccess(null)
 
     try {
-      const response = await fetch(`/users/${user.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          phone: formData.phone.trim() || null,
-        }),
+      const data = await updateUserProfile(user.id, {
+        name: formData.name.trim(),
+        phone: formData.phone.trim() || null,
       })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Failed to update profile')
-      }
-
-      const data = await response.json()
       setUser(data.user)
       setSuccess('Profile updated successfully!')
       setTimeout(() => setSuccess(null), 3000)
@@ -108,21 +96,7 @@ function ProfileEditPage() {
     }
 
     try {
-      const response = await fetch(`/users/${user.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          new_password: passwordData.new_password,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Failed to update password')
-      }
-
+      await updateUserPassword(user.id, passwordData.new_password)
       setSuccess('Password updated successfully!')
       setPasswordData({ new_password: '', confirm_password: '' })
       setTimeout(() => setSuccess(null), 3000)

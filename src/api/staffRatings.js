@@ -1,4 +1,4 @@
-import { apiBaseURL } from './http';
+import { get, post } from './http'
 
 /**
  * Rate a staff member
@@ -9,14 +9,11 @@ import { apiBaseURL } from './http';
  * @returns {Promise<Object>}
  */
 export async function rateStaff(staffId, clientId, rating, comment = '') {
-  const response = await fetch(`${apiBaseURL}/staff/${staffId}/rate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ client_id: clientId, rating, comment }),
-  });
-  if (!response.ok) throw new Error('Failed to rate staff');
-  return response.json();
+  return post(
+    `/staff/${staffId}/rate`,
+    { client_id: clientId, rating, comment },
+    { credentials: 'include' }
+  )
 }
 
 /**
@@ -27,12 +24,10 @@ export async function rateStaff(staffId, clientId, rating, comment = '') {
  * @returns {Promise<Object>}
  */
 export async function getStaffReviews(staffId, page = 1, limit = 20) {
-  const response = await fetch(
-    `${apiBaseURL}/staff/${staffId}/reviews?page=${page}&limit=${limit}`,
+  return get(
+    `/staff/${staffId}/reviews?page=${page}&limit=${limit}`,
     { credentials: 'include' }
-  );
-  if (!response.ok) throw new Error('Failed to fetch staff reviews');
-  return response.json();
+  )
 }
 
 /**
@@ -41,9 +36,5 @@ export async function getStaffReviews(staffId, page = 1, limit = 20) {
  * @returns {Promise<Object>}
  */
 export async function getStaffRating(staffId) {
-  const response = await fetch(`${apiBaseURL}/staff/${staffId}/rating`, {
-    credentials: 'include',
-  });
-  if (!response.ok) throw new Error('Failed to fetch staff rating');
-  return response.json();
+  return get(`/staff/${staffId}/rating`, { credentials: 'include' })
 }

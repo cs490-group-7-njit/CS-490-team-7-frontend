@@ -1,4 +1,4 @@
-import { get } from './http'
+import { get, put } from './http'
 
 /**
  * Get vendor info by vendor user ID
@@ -11,6 +11,16 @@ export const getVendorInfo = async (vendorUserId) => {
   return response
 }
 
+export const updateUserProfile = (userId, payload) => {
+  return put(`/users/${userId}`, payload)
+}
+
+export const updateUserPassword = (userId, newPassword) => {
+  return put(`/users/${userId}`, { new_password: newPassword })
+}
+
 export default {
   getVendorInfo,
+  updateUserProfile,
+  updateUserPassword,
 }
