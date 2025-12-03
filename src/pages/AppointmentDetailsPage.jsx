@@ -37,8 +37,8 @@ function AppointmentDetailsPage() {
     if (appointment && !isLoading) {
       refreshActivity()
     }
-    // Only re-run when appointment ID changes and appointment is loaded
-  }, [appointment?.appointment_id, isLoading])
+    // Only re-run when appointment ID changes, appointment is loaded, or refreshActivity changes
+  }, [appointment?.appointment_id, isLoading, refreshActivity])
 
   const loadAppointment = async () => {
     try {
