@@ -6,7 +6,7 @@ import { createPaymentIntent, confirmPayment } from '../api/payments'
 import '../pages/payment-tracking.css'
 
 const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-if (!publishableKey) {
+if (!publishableKey && import.meta.env.DEV) {
   console.error('VITE_STRIPE_PUBLISHABLE_KEY environment variable is not set')
 }
 const stripePromise = publishableKey ? loadStripe(publishableKey) : null
