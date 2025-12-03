@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { cancelAppointment, getAppointment, getAvailableSlotsForReschedule, rescheduleAppointment } from '../api/appointmentDetails'
 import Header from '../components/Header'
@@ -26,13 +26,7 @@ function AppointmentDetailsPage() {
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [isRescheduling, setIsRescheduling] = useState(false)
 
-  // Load appointment on mount
-  useEffect(() => {
-    loadAppointment()
-    refreshActivity()
-  }, [appointmentId])
-
-  const loadAppointment = async () => {
+  const loadAppointment = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -44,7 +38,20 @@ function AppointmentDetailsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [appointmentId])
+
+  // Load appointment on mount / when id changes
+  useEffect(() => {
+    loadAppointment()
+  }, [loadAppointment])
+
+  // Refresh activity when appointment is loaded
+  useEffect(() => {
+    if (appointment && !isLoading) {
+      refreshActivity()
+    }
+    // Only re-run when appointment ID changes, appointment is loaded, or refreshActivity changes
+  }, [appointment?.appointment_id, isLoading, refreshActivity])
 
   const handleRescheduleDate = async (e) => {
     const date = e.target.value
@@ -73,7 +80,7 @@ function AppointmentDetailsPage() {
       setSuccessMessage('Appointment cancelled successfully!')
 
       setTimeout(() => {
-        navigate('/appointments')
+        navigate('/appointments/history')
       }, 2000)
     } catch (err) {
       setError(err.message || 'Failed to cancel appointment')
@@ -155,7 +162,10 @@ function AppointmentDetailsPage() {
         <Header />
         <div className="details-container">
           <div className="error-message">{error}</div>
-          <button className="btn btn-primary" onClick={() => navigate('/appointments')}>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate('/appointments/history')}
+          >
             Back to Appointments
           </button>
         </div>
@@ -169,7 +179,10 @@ function AppointmentDetailsPage() {
         <Header />
         <div className="details-container">
           <p>Appointment not found</p>
-          <button className="btn btn-primary" onClick={() => navigate('/appointments')}>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate('/appointments/history')}
+          >
             Back to Appointments
           </button>
         </div>
@@ -183,7 +196,10 @@ function AppointmentDetailsPage() {
       <div className="details-container">
         <div className="details-header">
           <h1>Appointment Details</h1>
-          <button className="btn btn-secondary" onClick={() => navigate('/appointments')}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => navigate('/appointments/history')}
+          >
             ← Back
           </button>
         </div>
@@ -219,7 +235,9 @@ function AppointmentDetailsPage() {
             </div>
             <div className="detail-row">
               <span className="label">Price:</span>
-              <span className="value price">${appointment.service.price_dollars.toFixed(2)}</span>
+              <span className="value price">
+                ${appointment.service.price_dollars.toFixed(2)}
+              </span>
             </div>
           </section>
 
@@ -259,11 +277,11 @@ function AppointmentDetailsPage() {
               <button
                 className="btn-rate-staff"
                 onClick={() => {
-                  console.log('Staff object:', appointment.staff);
-                  const staffId = appointment.staff.staff_id || appointment.staff.id;
+                  console.log('Staff object:', appointment.staff)
+                  const staffId = appointment.staff.staff_id || appointment.staff.id
                   if (!staffId) {
-                    console.error('No staff ID found');
-                    return;
+                    console.error('No staff ID found')
+                    return
                   }
                   navigate(`/staff/${staffId}/rate`);
                 }}

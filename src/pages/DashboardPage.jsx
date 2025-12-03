@@ -272,17 +272,34 @@ function DashboardPage() {
       case 'Shop':
         navigate(userRole === 'vendor' ? '/salons/1' : '/shops')
         break
+
+      // Admin sidebar items
       case 'User Management':
         navigate('/admin/users')
         break
       case 'Salon Management':
         navigate('/admin/salons')
         break
-      case 'Data Analytics':
+      case 'Analytics':
         navigate('/admin/analytics')
         break
+      case 'Salon Verification':
+        // TODO: Implement a dedicated salon verification page.
+        // For now, route to admin salons where verification happens
+        navigate('/admin/salons')
+        break
+      case 'Reports':
+        // No dedicated reports page yet – use analytics for now
+        navigate('/admin/analytics')
+        break
+      case 'System Health':
+        navigate('/admin/health')
+        break
+      case 'Settings':
+        navigate('/admin/settings')
+        break
       case 'Dashboard':
-        // Already on dashboard
+        navigate('/dashboard')
         break
       default:
         console.log(`Navigate to ${item}`)
@@ -328,7 +345,10 @@ function DashboardPage() {
                 <div className="summary-card">
                   <p className="summary-title">Reward Points</p>
                   <p className="summary-status">
-                    <span className="points-value">{loyaltyLoading ? 'Loading...' : (loyaltyData?.total_points || 0).toLocaleString()}</span> points
+                    <span className="points-value">
+                      {loyaltyLoading ? 'Loading...' : (loyaltyData?.total_points || 0).toLocaleString()}
+                    </span>{' '}
+                    points
                   </p>
                   <button type="button" className="pill-button">
                     Redeem Points
@@ -365,7 +385,11 @@ function DashboardPage() {
                   <p className="summary-status">
                     <span className="status-dot" aria-hidden="true" /> {adminData.platformStats.systemUptime} Uptime
                   </p>
-                  <button type="button" className="pill-button">
+                  <button
+                    type="button"
+                    className="pill-button"
+                    onClick={() => navigate('/admin/health')}
+                  >
                     View System Health
                   </button>
                 </div>
@@ -375,7 +399,11 @@ function DashboardPage() {
                   <p className="summary-subtitle">
                     {adminData.platformStats.pendingVerifications} salons awaiting verification
                   </p>
-                  <button type="button" className="pill-button">
+                  <button
+                    type="button"
+                    className="pill-button"
+                    onClick={() => navigate('/admin/salons')}
+                  >
                     Review Verifications
                   </button>
                 </div>
@@ -386,7 +414,11 @@ function DashboardPage() {
                     <span className="revenue-value">{adminData.revenueMetrics.totalRevenue}</span>
                     <span className="delta positive">{adminData.revenueMetrics.monthlyGrowth}</span>
                   </p>
-                  <button type="button" className="pill-button">
+                  <button
+                    type="button"
+                    className="pill-button"
+                    onClick={() => navigate('/admin/analytics')}
+                  >
                     View Analytics
                   </button>
                 </div>
@@ -524,7 +556,11 @@ function DashboardPage() {
                     <p className="section-date">Real-time Data</p>
                     <h2>Platform Metrics</h2>
                   </div>
-                  <button type="button" className="primary-button">
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={() => navigate('/admin/analytics')}
+                  >
                     Generate Report
                   </button>
                 </header>
@@ -564,7 +600,15 @@ function DashboardPage() {
                         <p>{action.salon || action.item}</p>
                       </div>
                       <span className={`priority-badge ${action.priority}`}>{action.priority}</span>
-                      <button type="button" className="pill-button">
+                      <button
+                        type="button"
+                        className="pill-button"
+                        onClick={() =>
+                          action.type === 'verification'
+                            ? navigate('/admin/salons')
+                            : navigate('/admin/analytics')
+                        }
+                      >
                         Review
                       </button>
                     </div>
@@ -643,7 +687,9 @@ function DashboardPage() {
                   <div className="rewards-stats">
                     <div className="reward-item">
                       <h4>Current Points</h4>
-                      <p className="reward-value">{loyaltyLoading ? 'Loading...' : (loyaltyData?.total_points || 0).toLocaleString()}</p>
+                      <p className="reward-value">
+                        {loyaltyLoading ? 'Loading...' : (loyaltyData?.total_points || 0).toLocaleString()}
+                      </p>
                     </div>
                     <div className="reward-item">
                       <h4>Points to Next Reward</h4>
