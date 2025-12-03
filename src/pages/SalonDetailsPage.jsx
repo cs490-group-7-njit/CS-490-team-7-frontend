@@ -113,7 +113,8 @@ function SalonDetailsPage() {
   }
 
   // Extract payment link logic for better readability
-  const firstServiceId = salon?.services?.[0]?.service_id || salon?.services?.[0]?.id || null
+  const firstService = salon?.services?.[0]
+  const firstServiceId = firstService?.service_id || firstService?.id || null
   const showPayOnlineButton = salon?.pay_online && salon?.services?.length > 0 && firstServiceId
 
   return (
