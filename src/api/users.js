@@ -1,12 +1,13 @@
 import { get } from './http'
 
 /**
- * Get vendor info by vendor user id
- * @param {number|string} vendorId
+ * Get vendor info by vendor user ID
+ * @param {number|string} vendorUserId - The user ID of the vendor
+ * @returns {Promise<{user_id: number, name: string, email: string}>} Vendor info
  */
-export const getVendorInfo = async (vendorId) => {
-  if (!vendorId) throw new Error('vendorId is required')
-  const response = await get(`/users/vendor/${vendorId}`)
+export const getVendorInfo = async (vendorUserId) => {
+  if (!vendorUserId) throw new Error('vendorUserId is required')
+  const response = await get(`/users/vendor/${vendorUserId}`)
   return response
 }
 

@@ -42,14 +42,15 @@ function ComposeMessage() {
   }, [vendorIdFromQuery])
 
   const validate = () => {
-    if (!subject || subject.trim().length === 0) return 'Subject is required.'
-    if (!body || body.trim().length === 0) return 'Message body is required.'
+    if (!subject || !subject.trim()) return 'Subject is required.'
+    if (!body || !body.trim()) return 'Message body is required.'
     if (!vendor) return 'Recipient vendor not set.'
     return null
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError(null) // Clear previous errors
     const validationError = validate()
     if (validationError) {
       setError(validationError)
@@ -84,25 +85,20 @@ function ComposeMessage() {
 
         {loading ? (
           <div className="loading">Loading recipient...</div>
-        ) : error ? (
+        ) : error && !vendor ? (
           <div className="error">Unable to load recipient: {error}</div>
         ) : (
           <div className="compose-container">
             <form onSubmit={handleSubmit} className="compose-form">
               <div className="form-group">
-                <label>To:</label>
+                <label id="recipient-label">To:</label>
                 {vendor ? (
-                  <div className="recipient-display">
+                  <div className="recipient-display" aria-labelledby="recipient-label">
                     {vendor.name} ({vendor.email})
                   </div>
                 ) : (
-                  <div className="recipient-display">No recipient selected</div>
+                  <div className="recipient-display" aria-labelledby="recipient-label">No recipient selected</div>
                 )}
-              </div>
-
-              <div style={{ display: 'none' }}>
-                {/* Hidden recipient id used for API */}
-                <input type="hidden" name="recipient_id" value={vendor?.user_id || ''} />
               </div>
 
               <div className="form-group">

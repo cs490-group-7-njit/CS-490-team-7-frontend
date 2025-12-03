@@ -26,7 +26,7 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
           setError('An appointment or service is required to process payment')
           return
         }
-        const res = await createPaymentIntent({ appointment_id: appointmentId, service_id: serviceId })
+        const res = await createPaymentIntent({ appointmentId, serviceId })
         setClientSecret(res.client_secret)
         // Backend may return amount info - if not, we show "amount pending"
         if (res.amount_cents) {
@@ -59,7 +59,7 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
           } catch (err) {
             // Show a non-blocking warning to user and store paymentIntentId for potential retry
             console.warn('confirmPayment failed:', err.message)
-            setError('Payment succeeded but could not be fully recorded. Please contact support and provide this code: ' + result.paymentIntent.id)
+            setError('Payment succeeded but could not be fully recorded. Please try again or provide this code for reference: ' + result.paymentIntent.id)
             try {
               window.localStorage.setItem('pendingPaymentIntentId', result.paymentIntent.id)
             } catch (storageErr) {
@@ -133,15 +133,16 @@ export default function PaymentCheckoutWrapper() {
       <div className="page payment-page">
         <div className="page-content">
           <h1>Pay Online</h1>
-          <div className="error">Payment system is not configured. Please contact support.</div>
+          <div className="error">Payment system is not configured. Please try again later.</div>
           <button onClick={() => navigate(-1)} className="btn-back">Go Back</button>
         </div>
       </div>
     )
   }
 
-  // Validate that IDs are valid numbers
-  if ((appointmentIdParam && isNaN(appointmentId)) || (serviceIdParam && isNaN(serviceId))) {
+  // Validate that IDs are valid positive integers
+  const isValidId = (id) => Number.isInteger(id) && id > 0
+  if ((appointmentIdParam && !isValidId(appointmentId)) || (serviceIdParam && !isValidId(serviceId))) {
     return (
       <div className="page payment-page">
         <div className="page-content">
