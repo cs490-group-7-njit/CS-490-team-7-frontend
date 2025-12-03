@@ -93,18 +93,15 @@ function SalonDetailsPage() {
     return { firstServiceId, showPayOnlineButton }
   }, [salon])
 
-  // Memoize vendor contact button to prevent unnecessary re-renders
-  const contactVendorButton = useMemo(() => {
-    const vendorId = salon?.vendor?.user_id || salon?.vendor?.id
-    if (!vendorId) {
-      return <span className="vendor-unavailable">Vendor contact unavailable</span>
-    }
-    return (
-      <Link to={`/messages/compose?vendorId=${vendorId}`}>
-        <button className="btn-primary">Contact Vendor</button>
-      </Link>
-    )
-  }, [salon?.vendor?.user_id, salon?.vendor?.id])
+  // Inline vendor contact button logic
+  const vendorId = salon?.vendor?.user_id || salon?.vendor?.id;
+  const contactVendorButton = vendorId ? (
+    <Link to={`/messages/compose?vendorId=${vendorId}`}>
+      <button className="btn-primary">Contact Vendor</button>
+    </Link>
+  ) : (
+    <span className="vendor-unavailable">Vendor contact unavailable</span>
+  );
 
   if (loading) {
     return (
