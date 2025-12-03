@@ -325,7 +325,7 @@ function SalonDetailsPage() {
             >
               Book an Appointment
             </button>
-            {salon && salon.pay_online && salon.services && salon.services.length > 0 && (() => {
+            {salon.pay_online && salon.services && salon.services.length > 0 && (() => {
               // Get the first service ID for payment
               const firstServiceId = salon.services[0].service_id || salon.services[0].id
               if (!firstServiceId) return null
