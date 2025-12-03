@@ -94,14 +94,14 @@ function SalonDetailsPage() {
   }, [salon])
 
   // Inline vendor contact button logic
-  const vendorId = salon?.vendor?.user_id || salon?.vendor?.id;
+  const vendorId = salon?.vendor?.user_id || salon?.vendor?.id
   const contactVendorButton = vendorId ? (
     <Link to={`/messages/compose?vendorId=${vendorId}`}>
       <button className="btn-primary">Contact Vendor</button>
     </Link>
   ) : (
     <span className="vendor-unavailable">Vendor contact unavailable</span>
-  );
+  )
 
   if (loading) {
     return (
