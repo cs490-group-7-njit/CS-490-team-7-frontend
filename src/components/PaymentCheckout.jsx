@@ -129,7 +129,7 @@ export default function PaymentCheckoutWrapper() {
         <div className="page-content">
           <h1>Pay Online</h1>
           <div className="error">Payment system is not configured. Please contact support.</div>
-          <button onClick={() => navigate(-1)} style={{ marginTop: 16 }}>Go Back</button>
+          <button onClick={() => navigate(-1)} className="btn-back">Go Back</button>
         </div>
       </div>
     )
@@ -142,7 +142,7 @@ export default function PaymentCheckoutWrapper() {
         <div className="page-content">
           <h1>Pay Online</h1>
           <div className="error">Invalid appointment or service ID provided.</div>
-          <button onClick={() => navigate(-1)} style={{ marginTop: 16 }}>Go Back</button>
+          <button onClick={() => navigate(-1)} className="btn-back">Go Back</button>
         </div>
       </div>
     )
@@ -155,8 +155,8 @@ export default function PaymentCheckoutWrapper() {
         <div className="page-content">
           <h1>Pay Online</h1>
           <div className="error">An appointment or service is required to process payment. Please book an appointment first.</div>
-          <button onClick={() => navigate('/appointments')} style={{ marginTop: 16 }}>Book Appointment</button>
-          <button onClick={() => navigate(-1)} style={{ marginLeft: 8, marginTop: 16 }}>Go Back</button>
+          <button onClick={() => navigate('/appointments')} className="btn-book">Book Appointment</button>
+          <button onClick={() => navigate(-1)} className="btn-back">Go Back</button>
         </div>
       </div>
     )
