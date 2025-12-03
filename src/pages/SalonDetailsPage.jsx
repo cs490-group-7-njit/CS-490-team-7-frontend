@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { getSalonReviews } from '../api/reviews'
 import { getSalonDetails } from '../api/salons'
@@ -85,6 +85,27 @@ function SalonDetailsPage() {
     }
   }, [salonId])
 
+  // Memoize payment link variables to make intention clearer and prevent recalculation
+  const paymentLinkInfo = useMemo(() => {
+    const firstService = salon?.services?.[0]
+    const firstServiceId = firstService?.service_id ?? firstService?.id
+    const showPayOnlineButton = salon?.pay_online && salon?.services?.length > 0 && firstServiceId
+    return { firstServiceId, showPayOnlineButton }
+  }, [salon?.services, salon?.pay_online])
+
+  // Memoize vendor contact button to prevent unnecessary re-renders
+  const renderContactVendorButton = useMemo(() => {
+    const vendorId = salon?.vendor?.user_id || salon?.vendor?.id
+    if (!vendorId) {
+      return <span className="vendor-unavailable">Vendor contact unavailable</span>
+    }
+    return (
+      <Link to={`/messages/compose?vendorId=${vendorId}`}>
+        <button className="btn-primary">Contact Vendor</button>
+      </Link>
+    )
+  }, [salon?.vendor?.user_id, salon?.vendor?.id])
+
   if (loading) {
     return (
       <div className="page salon-details-page">
@@ -109,22 +130,6 @@ function SalonDetailsPage() {
           </div>
         </main>
       </div>
-    )
-  }
-
-  // Extract payment link logic for better readability
-  const firstService = salon?.services?.[0]
-  const firstServiceId = firstService?.service_id ?? firstService?.id
-  const showPayOnlineButton = salon?.pay_online && salon?.services?.length > 0 && firstServiceId
-  const renderContactVendorButton = () => {
-    const vendorId = salon.vendor?.user_id || salon.vendor?.id
-    if (!vendorId) {
-      return <span className="vendor-unavailable">Vendor contact unavailable</span>
-    }
-    return (
-      <Link to={`/messages/compose?vendorId=${vendorId}`}>
-        <button className="btn-primary">Contact Vendor</button>
-      </Link>
     )
   }
 
@@ -299,7 +304,7 @@ function SalonDetailsPage() {
                 {salon.vendor.email && (
                   <p className="vendor-email">📧 {salon.vendor.email}</p>
                 )}
-                {renderContactVendorButton()}
+                {renderContactVendorButton}
               </div>
             </section>
           )}
@@ -326,8 +331,8 @@ function SalonDetailsPage() {
           >
             Book an Appointment
           </button>
-          {showPayOnlineButton && (
-            <Link to={`/payments/checkout?serviceId=${firstServiceId}`}>
+          {paymentLinkInfo.showPayOnlineButton && (
+            <Link to={`/payments/checkout?serviceId=${paymentLinkInfo.firstServiceId}`}>
               <button className="btn-secondary">Pay Online</button>
             </Link>
           )}
