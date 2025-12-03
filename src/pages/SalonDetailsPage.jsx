@@ -112,6 +112,18 @@ function SalonDetailsPage() {
     )
   }
 
+  const renderContactVendorButton = () => {
+    const vendorId = salon.vendor.user_id || salon.vendor.id
+    if (!vendorId) {
+      return <span className="vendor-unavailable">Vendor contact unavailable</span>
+    }
+    return (
+      <Link to={`/messages/compose?vendorId=${vendorId}`}>
+        <button className="btn-primary">Contact Vendor</button>
+      </Link>
+    )
+  }
+
   return (
     <div className="page salon-details-page">
       <Header showSearch={false} />
@@ -284,19 +296,7 @@ function SalonDetailsPage() {
                   <p className="vendor-email">📧 {salon.vendor.email}</p>
                 )}
                 <div className="vendor-actions">
-                  {(() => {
-                    const vendorId = salon.vendor.user_id || salon.vendor.id
-                    if (vendorId) {
-                      return (
-                        <Link to={`/messages/compose?vendorId=${vendorId}`}>
-                          <button className="btn-primary">Contact Vendor</button>
-                        </Link>
-                      )
-                    }
-                    return (
-                      <span className="vendor-unavailable">Vendor contact unavailable</span>
-                    )
-                  })()}
+                  {renderContactVendorButton()}
                 </div>
               </div>
             </section>
