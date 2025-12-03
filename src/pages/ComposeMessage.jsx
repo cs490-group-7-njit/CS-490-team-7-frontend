@@ -29,7 +29,7 @@ function ComposeMessage() {
       setLoading(true)
       try {
         const res = await getVendorInfo(vendorIdFromQuery)
-        // assume backend returns { user_id, name, email }
+        // expects backend to return { user_id, name, email }
         setVendor(res)
       } catch (err) {
         setError(err.message || 'Failed to load vendor info')
