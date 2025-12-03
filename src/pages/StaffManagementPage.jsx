@@ -153,8 +153,8 @@ function StaffManagementPage() {
     try {
       // Make API call to backend to save the schedule
       console.log('Saving schedule for:', scheduleData)
-  const targetShopId = selectedShop.id ?? selectedShop.salon_id
-  await updateStaffSchedule(targetShopId, scheduleData.staffId, scheduleData.schedule)
+      const targetShopId = selectedShop.id ?? selectedShop.salon_id
+      await updateStaffSchedule(targetShopId, scheduleData.staffId, scheduleData.schedule)
       console.log('Schedule saved successfully')
 
       // Update the staff member's schedule in local state

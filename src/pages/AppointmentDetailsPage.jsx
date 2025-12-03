@@ -164,8 +164,6 @@ function AppointmentDetailsPage() {
   const canReschedule = appointment && isUpcoming && appointment.status === 'booked'
   const canCancel = appointment && isUpcoming && appointment.status === 'booked'
   const isVendor = user?.role === 'vendor'
-  const salonIdentifier =
-    appointment?.salon?.id ?? appointment?.salon?.salon_id ?? appointment?.salon_id ?? null
   const serviceIdentifier =
     appointment?.service?.id ?? appointment?.service?.service_id ?? appointment?.service_id ?? null
 

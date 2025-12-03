@@ -18,6 +18,15 @@ const defaultProgram = {
 }
 
 function storageKeyForSalon(salonId) {
+  if (
+    salonId === null ||
+    salonId === undefined ||
+    (typeof salonId === 'string' && salonId.trim() === '') ||
+    (typeof salonId === 'number' && !Number.isFinite(salonId)) ||
+    (typeof salonId !== 'string' && typeof salonId !== 'number')
+  ) {
+    throw new Error('Invalid salonId provided to storageKeyForSalon')
+  }
   return `loyalty_program_${String(salonId)}`
 }
 
