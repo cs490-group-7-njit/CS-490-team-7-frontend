@@ -45,7 +45,7 @@ function ComposeMessage() {
     if (!subject || !subject.trim()) return 'Subject is required.'
     if (!body || !body.trim()) return 'Message body is required.'
     if (!vendor) return 'Recipient vendor not set.'
-    if (!vendor.user_id) return 'Recipient vendor is invalid.'
+    if (!vendor.user_id) return 'Recipient vendor does not have a valid user ID.'
     return null
   }
 
