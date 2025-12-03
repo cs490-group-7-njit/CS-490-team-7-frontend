@@ -25,6 +25,8 @@ import FavoriteSalonsPage from './pages/FavoriteSalonsPage'
 import LoginPage from './pages/LoginPage'
 import LoyaltyPointsPage from './pages/LoyaltyPointsPage'
 import MessagesPage from './pages/MessagesPage'
+import ComposeMessage from './pages/ComposeMessage'
+import PaymentCheckout from './components/PaymentCheckout'
 import MyShopsPage from './pages/MyShopsPage'
 import NotificationsPage from './pages/NotificationsPage'
 import PaymentHistoryPage from './pages/PaymentHistoryPage'
@@ -44,7 +46,6 @@ import StaffRatingPage from './pages/StaffRatingPage'
 import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
 import VendorReviewsPage from './pages/VendorReviewsPage'
 import SettingsPage from './pages/SettingsPage'
-
 
 function App() {
   return (
@@ -300,6 +301,24 @@ function App() {
             element={(
               <PrivateRoute>
                 <MessagesPage />
+              </PrivateRoute>
+            )}
+          />
+
+          <Route
+            path="/messages/compose"
+            element={(
+              <PrivateRoute>
+                <ComposeMessage />
+              </PrivateRoute>
+            )}
+          />
+
+          <Route
+            path="/payments/checkout"
+            element={(
+              <PrivateRoute>
+                <PaymentCheckout />
               </PrivateRoute>
             )}
           />

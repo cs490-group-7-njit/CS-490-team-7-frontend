@@ -398,6 +398,16 @@
   font-size: 16px;
 }
 
+/* Payment Page Buttons */
+.btn-book {
+  margin-top: 16px;
+}
+
+.btn-back {
+  margin-top: 16px;
+  margin-left: 8px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .payment-tracking-container {

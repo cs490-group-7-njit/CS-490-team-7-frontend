@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { cancelAppointment, getAppointment, getAvailableSlotsForReschedule, rescheduleAppointment } from '../api/appointmentDetails'
 import Header from '../components/Header'
@@ -26,14 +26,7 @@ function AppointmentDetailsPage() {
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [isRescheduling, setIsRescheduling] = useState(false)
 
-  // Load appointment on mount / when id changes
-  useEffect(() => {
-    loadAppointment()
-    refreshActivity()
-    // include refreshActivity to avoid React warnings
-  }, [appointmentId, refreshActivity])
-
-  const loadAppointment = async () => {
+  const loadAppointment = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -45,7 +38,20 @@ function AppointmentDetailsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [appointmentId])
+
+  // Load appointment on mount / when id changes
+  useEffect(() => {
+    loadAppointment()
+  }, [loadAppointment])
+
+  // Refresh activity when appointment is loaded
+  useEffect(() => {
+    if (appointment && !isLoading) {
+      refreshActivity()
+    }
+    // Only re-run when appointment ID changes, appointment is loaded, or refreshActivity changes
+  }, [appointment?.appointment_id, isLoading, refreshActivity])
 
   const handleRescheduleDate = async (e) => {
     const date = e.target.value
@@ -277,7 +283,7 @@ function AppointmentDetailsPage() {
                     console.error('No staff ID found')
                     return
                   }
-                  navigate(`/staff/${staffId}/rate`)
+                  navigate(`/staff/${staffId}/rate`);
                 }}
               >
                 ⭐ Rate This Staff Member
