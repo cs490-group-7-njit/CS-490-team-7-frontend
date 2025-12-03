@@ -101,8 +101,8 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
       {error && <div className="error">{error}</div>}
 
       <div className="form-actions">
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={!stripe || loading || !clientSecret}
         >
           {loading ? 'Processing...' : 'Pay Online'}
