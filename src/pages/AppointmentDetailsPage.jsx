@@ -34,10 +34,11 @@ function AppointmentDetailsPage() {
 
   // Refresh activity when appointment is loaded
   useEffect(() => {
-    if (appointment) {
+    if (appointment && !isLoading) {
       refreshActivity()
     }
-  }, [appointment, refreshActivity])
+    // Only re-run when appointment ID changes and appointment is loaded
+  }, [appointment?.appointment_id, isLoading])
 
   const loadAppointment = async () => {
     try {
