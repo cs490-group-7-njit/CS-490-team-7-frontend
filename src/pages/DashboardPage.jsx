@@ -1083,7 +1083,11 @@ function DashboardPage() {
                     </span>{' '}
                     points
                   </p>
-                  <button type="button" className="pill-button">
+                  <button 
+                    type="button" 
+                    className="pill-button"
+                    onClick={() => navigate('/loyalty-points')}
+                  >
                     Redeem Points
                   </button>
                 </div>

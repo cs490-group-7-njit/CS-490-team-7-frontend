@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getLoyaltyRedemptions, getUserLoyalty, redeemLoyaltyPoints } from '../api/loyalty'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
-import { getLoyaltyRedemptions, getUserLoyalty, redeemLoyaltyPoints } from '../api/loyalty'
 import '../styles/loyalty-points.css'
 
 function LoyaltyPointsPage() {
