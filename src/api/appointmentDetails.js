@@ -57,7 +57,7 @@ export const getAvailableSlotsForReschedule = async (staffId, date, durationMinu
  * @returns {Promise<Object>} Updated appointment with completed status
  */
 export const completeAppointment = async (appointmentId) => {
-  const response = await put(`/appointments/${appointmentId}`, {
+  const response = await put(`/appointments/${appointmentId}/status`, {
     status: 'completed'
   })
   return response.appointment
