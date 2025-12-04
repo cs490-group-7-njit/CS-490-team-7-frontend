@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { cancelAppointment, getAppointment, getAvailableSlotsForReschedule, rescheduleAppointment } from '../api/appointmentDetails'
+import { cancelAppointment, completeAppointment, getAppointment, getAvailableSlotsForReschedule, rescheduleAppointment } from '../api/appointmentDetails'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import './appointment-details.css'
@@ -18,6 +18,7 @@ function AppointmentDetailsPage() {
   // UI state
   const [showRescheduleForm, setShowRescheduleForm] = useState(false)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
 
   // Reschedule form state
@@ -87,6 +88,22 @@ function AppointmentDetailsPage() {
     } finally {
       setIsLoading(false)
       setShowCancelConfirm(false)
+    }
+  }
+
+  const handleCompleteAppointment = async () => {
+    try {
+      setIsLoading(true)
+      await completeAppointment(appointmentId)
+      setSuccessMessage('Appointment marked as completed! Loyalty points awarded.')
+      await loadAppointment()
+      setTimeout(() => {
+        setShowCompleteConfirm(false)
+      }, 1500)
+    } catch (err) {
+      setError(err.message || 'Failed to complete appointment')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -400,6 +417,14 @@ function AppointmentDetailsPage() {
                     {showCancelConfirm ? 'Keep Appointment' : 'Cancel Appointment'}
                   </button>
                 )}
+                {appointment.status === 'booked' && (
+                  <button
+                    className="btn btn-success"
+                    onClick={() => setShowCompleteConfirm(!showCompleteConfirm)}
+                  >
+                    {showCompleteConfirm ? 'Cancel' : '✓ Mark as Completed'}
+                  </button>
+                )}
               </div>
             </section>
           )}
@@ -477,6 +502,30 @@ function AppointmentDetailsPage() {
                   disabled={isLoading}
                 >
                   Keep Appointment
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* Complete Confirmation */}
+          {showCompleteConfirm && appointment.status === 'booked' && (
+            <section className="section complete-confirmation">
+              <h3>Mark Appointment as Completed?</h3>
+              <p>This will mark the appointment as completed and award loyalty points to the client.</p>
+              <div className="confirmation-buttons">
+                <button
+                  className="btn btn-success"
+                  onClick={handleCompleteAppointment}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Completing...' : '✓ Yes, Mark as Completed'}
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowCompleteConfirm(false)}
+                  disabled={isLoading}
+                >
+                  Cancel
                 </button>
               </div>
             </section>

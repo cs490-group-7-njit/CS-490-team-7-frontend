@@ -180,6 +180,15 @@
   background-color: #c82333;
 }
 
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #218838;
+}
+
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -315,6 +324,24 @@
 
 .cancel-confirmation p {
   color: #721c24;
+  margin-bottom: 1rem;
+}
+
+.complete-confirmation {
+  background-color: #d4edda;
+  border-left: 4px solid #28a745;
+  padding: 1.5rem;
+  border-radius: 4px;
+  margin-top: 2rem;
+}
+
+.complete-confirmation h3 {
+  color: #155724;
+  margin-top: 0;
+}
+
+.complete-confirmation p {
+  color: #155724;
   margin-bottom: 1rem;
 }
 

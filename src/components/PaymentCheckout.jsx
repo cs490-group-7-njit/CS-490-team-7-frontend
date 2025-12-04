@@ -1,8 +1,8 @@
+import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { loadStripe } from '@stripe/stripe-js'
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
-import { createPaymentIntent, confirmPayment } from '../api/payments'
+import { confirmPayment, createPaymentIntent } from '../api/payments'
 import '../pages/payment-tracking.css'
 
 const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
@@ -195,10 +195,10 @@ export default function PaymentCheckoutWrapper() {
         <h1>Pay Online</h1>
 
         <Elements stripe={stripePromise}>
-          <CheckoutForm 
-            appointmentId={appointmentId} 
-            serviceId={serviceId} 
-            onSuccess={handleSuccess} 
+          <CheckoutForm
+            appointmentId={appointmentId}
+            serviceId={serviceId}
+            onSuccess={handleSuccess}
           />
         </Elements>
       </div>
