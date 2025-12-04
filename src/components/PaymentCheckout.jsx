@@ -97,7 +97,25 @@ function CheckoutForm({ appointmentId, serviceId, onSuccess }) {
       <div className="form-group">
         <label>Card details</label>
         <div className="card-element-wrapper">
-          <CardElement options={{ hidePostalCode: true }} />
+          <CardElement options={{
+            hidePostalCode: true,
+            style: {
+              base: {
+                fontSize: '18px',
+                lineHeight: '2.4',
+                color: '#424770',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                letterSpacing: '0.025em',
+                '::placeholder': {
+                  color: '#aab7c4',
+                },
+              },
+              invalid: {
+                color: '#fa755a',
+                iconColor: '#fa755a',
+              },
+            },
+          }} />
         </div>
       </div>
 

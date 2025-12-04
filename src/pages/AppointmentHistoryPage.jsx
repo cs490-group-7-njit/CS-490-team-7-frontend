@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { listAppointments } from '../api/appointments'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
-import { listAppointments } from '../api/appointments'
 import '../styles/appointment-history.css'
 
 const PAGE_SIZE = 5
@@ -40,16 +40,16 @@ function AppointmentHistoryPage() {
         if (statusFilter) {
           filteredAppointments = filteredAppointments.filter(apt => apt.status === statusFilter)
         }
-        
+
         // Sort: active appointments first, cancelled/no-show at the bottom
         filteredAppointments.sort((a, b) => {
           const aIsCancelled = a.status === 'cancelled' || a.status === 'no-show'
           const bIsCancelled = b.status === 'cancelled' || b.status === 'no-show'
-          
+
           if (aIsCancelled === bIsCancelled) return 0
           return aIsCancelled ? 1 : -1
         })
-        
+
         setAppointments(filteredAppointments)
         setPage(1)
         setShowAll(false)
@@ -110,16 +110,16 @@ function AppointmentHistoryPage() {
   const isAppointmentDayAway = (startsAt) => {
     const now = new Date()
     const appointmentDate = new Date(startsAt)
-    
+
     // Get dates at midnight for comparison
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
     const dayAfter = new Date(tomorrow)
     dayAfter.setDate(dayAfter.getDate() + 1)
-    
+
     const apptDateOnly = new Date(appointmentDate.getFullYear(), appointmentDate.getMonth(), appointmentDate.getDate())
-    
+
     // Check if appointment is tomorrow
     return apptDateOnly.getTime() === tomorrow.getTime()
   }
@@ -170,7 +170,7 @@ function AppointmentHistoryPage() {
               <div className="reminder-text">
                 <p className="reminder-title">Upcoming Appointment Tomorrow</p>
                 <p className="reminder-details">
-                  {appointmentsDayAway.length === 1 
+                  {appointmentsDayAway.length === 1
                     ? `You have ${appointmentsDayAway[0].service?.name || 'an appointment'} scheduled for tomorrow at ${formatTime(appointmentsDayAway[0].starts_at)}`
                     : `You have ${appointmentsDayAway.length} appointments scheduled for tomorrow`}
                 </p>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getMessages, markMessageAsRead, sendMessage } from '../api/messages'
 import { listAppointments } from '../api/appointments'
+import { getMessages, markMessageAsRead, sendMessage } from '../api/messages'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import './messages.css'
@@ -28,13 +28,13 @@ function MessagesPage() {
   const isAppointmentDayAway = (startsAt) => {
     const now = new Date()
     const appointmentDate = new Date(startsAt)
-    
+
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
-    
+
     const apptDateOnly = new Date(appointmentDate.getFullYear(), appointmentDate.getMonth(), appointmentDate.getDate())
-    
+
     return apptDateOnly.getTime() === tomorrow.getTime()
   }
 
@@ -44,13 +44,13 @@ function MessagesPage() {
       const appointmentsDayAway = appointments.filter(
         (apt) => apt.status === 'booked' && isAppointmentDayAway(apt.starts_at)
       )
-      
+
       if (appointmentsDayAway.length > 0) {
-        const appointmentTime = new Date(appointmentsDayAway[0].starts_at).toLocaleTimeString('en-US', { 
-          hour: '2-digit', 
-          minute: '2-digit' 
+        const appointmentTime = new Date(appointmentsDayAway[0].starts_at).toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit'
         })
-        
+
         const reminderMessage = {
           message_id: 'system-reminder',
           sender_id: 0,
