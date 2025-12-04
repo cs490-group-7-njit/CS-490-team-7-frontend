@@ -107,6 +107,27 @@ function AppointmentHistoryPage() {
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
   }
 
+  const isAppointmentDayAway = (startsAt) => {
+    const now = new Date()
+    const appointmentDate = new Date(startsAt)
+    
+    // Get dates at midnight for comparison
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const dayAfter = new Date(tomorrow)
+    dayAfter.setDate(dayAfter.getDate() + 1)
+    
+    const apptDateOnly = new Date(appointmentDate.getFullYear(), appointmentDate.getMonth(), appointmentDate.getDate())
+    
+    // Check if appointment is tomorrow
+    return apptDateOnly.getTime() === tomorrow.getTime()
+  }
+
+  const appointmentsDayAway = appointments.filter(
+    (apt) => apt.status === 'booked' && isAppointmentDayAway(apt.starts_at)
+  )
+
   if (!user) {
     return null
   }
@@ -142,6 +163,22 @@ function AppointmentHistoryPage() {
     <div className="page appointment-history-page">
       <Header />
       <main className="history-container">
+        {appointmentsDayAway.length > 0 && (
+          <div className="reminder-banner">
+            <div className="reminder-content">
+              <span className="reminder-icon">🔔</span>
+              <div className="reminder-text">
+                <p className="reminder-title">Upcoming Appointment Tomorrow</p>
+                <p className="reminder-details">
+                  {appointmentsDayAway.length === 1 
+                    ? `You have ${appointmentsDayAway[0].service?.name || 'an appointment'} scheduled for tomorrow at ${formatTime(appointmentsDayAway[0].starts_at)}`
+                    : `You have ${appointmentsDayAway.length} appointments scheduled for tomorrow`}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="history-hero">
           <div>
             <p className="eyebrow">Your bookings</p>

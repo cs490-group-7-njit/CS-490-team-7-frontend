@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getMessages, markMessageAsRead, sendMessage } from '../api/messages'
+import { listAppointments } from '../api/appointments'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import './messages.css'
@@ -17,10 +18,55 @@ function MessagesPage() {
     body: '',
   })
   const [sending, setSending] = useState(false)
+  const [appointmentReminderMessage, setAppointmentReminderMessage] = useState(null)
 
   useEffect(() => {
     fetchMessages()
+    checkForAppointmentReminder()
   }, [])
+
+  const isAppointmentDayAway = (startsAt) => {
+    const now = new Date()
+    const appointmentDate = new Date(startsAt)
+    
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    
+    const apptDateOnly = new Date(appointmentDate.getFullYear(), appointmentDate.getMonth(), appointmentDate.getDate())
+    
+    return apptDateOnly.getTime() === tomorrow.getTime()
+  }
+
+  const checkForAppointmentReminder = async () => {
+    try {
+      const appointments = await listAppointments()
+      const appointmentsDayAway = appointments.filter(
+        (apt) => apt.status === 'booked' && isAppointmentDayAway(apt.starts_at)
+      )
+      
+      if (appointmentsDayAway.length > 0) {
+        const appointmentTime = new Date(appointmentsDayAway[0].starts_at).toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        })
+        
+        const reminderMessage = {
+          message_id: 'system-reminder',
+          sender_id: 0,
+          recipient_id: user.user_id,
+          subject: '🔔 Appointment Reminder',
+          body: `You have ${appointmentsDayAway.length} appointment${appointmentsDayAway.length > 1 ? 's' : ''} scheduled for tomorrow at ${appointmentTime}. Make sure to arrive on time!`,
+          created_at: new Date().toISOString(),
+          is_read: false,
+          is_system: true,
+        }
+        setAppointmentReminderMessage(reminderMessage)
+      }
+    } catch (err) {
+      console.error('Error checking for appointment reminder:', err)
+    }
+  }
 
   const fetchMessages = async () => {
     try {
@@ -180,7 +226,27 @@ function MessagesPage() {
         )}
 
         <div className="messages-list">
-          {messages.length === 0 ? (
+          {appointmentReminderMessage && (
+            <div
+              key="system-reminder"
+              className="message-item received system-message unread"
+            >
+              <div className="message-header">
+                <div className="message-meta">
+                  <span className="message-direction">System</span>
+                  <span className="message-participant">SalonHub</span>
+                </div>
+                <span className="message-date">
+                  {formatDate(appointmentReminderMessage.created_at)}
+                </span>
+              </div>
+              <div className="message-content">
+                <h3 className="message-subject">{appointmentReminderMessage.subject}</h3>
+                <p className="message-body">{appointmentReminderMessage.body}</p>
+              </div>
+            </div>
+          )}
+          {messages.length === 0 && !appointmentReminderMessage ? (
             <div className="no-messages">
               <p>No messages found.</p>
             </div>

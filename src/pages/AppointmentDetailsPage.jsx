@@ -168,8 +168,13 @@ function AppointmentDetailsPage() {
   }
 
   const isUpcoming = appointment && new Date(appointment.starts_at) > new Date()
+  const isToday = appointment && (() => {
+    const today = new Date().toDateString()
+    const appointmentDate = new Date(appointment.starts_at).toDateString()
+    return today === appointmentDate
+  })()
   const canReschedule = appointment && isUpcoming && appointment.status === 'booked'
-  const canCancel = appointment && isUpcoming && appointment.status === 'booked'
+  const canCancel = appointment && (isUpcoming || isToday) && appointment.status === 'booked'
   const isVendor = user?.role === 'vendor'
   const serviceIdentifier =
     appointment?.service?.id ?? appointment?.service?.service_id ?? appointment?.service_id ?? null
