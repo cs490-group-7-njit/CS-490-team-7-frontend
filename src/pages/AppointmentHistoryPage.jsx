@@ -5,6 +5,15 @@ import { useAuth } from '../context/AuthContext'
 import { listAppointments } from '../api/appointments'
 import '../styles/appointment-history.css'
 
+const PAGE_SIZE = 5
+const STATUS_OPTIONS = [
+  { value: '', label: 'All' },
+  { value: 'booked', label: 'Booked' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'no-show', label: 'No Show' },
+]
+
 function AppointmentHistoryPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -12,6 +21,8 @@ function AppointmentHistoryPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [statusFilter, setStatusFilter] = useState('') // '' for all
+  const [page, setPage] = useState(1)
+  const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -30,6 +41,8 @@ function AppointmentHistoryPage() {
           filteredAppointments = filteredAppointments.filter(apt => apt.status === statusFilter)
         }
         setAppointments(filteredAppointments)
+        setPage(1)
+        setShowAll(false)
       } catch (err) {
         console.error('Error fetching appointments:', err)
         setError('Failed to load appointment history. Please try again.')
@@ -40,6 +53,19 @@ function AppointmentHistoryPage() {
 
     fetchAppointmentHistory()
   }, [user, navigate, statusFilter])
+  const totalAppointments = appointments.length
+
+  const effectivePageSize = showAll ? totalAppointments || 1 : PAGE_SIZE
+  const totalPages = Math.max(1, Math.ceil(totalAppointments / effectivePageSize))
+  const currentPage = Math.min(page, totalPages)
+  const start = (currentPage - 1) * effectivePageSize
+  const end = start + effectivePageSize
+  const visibleAppointments = appointments.slice(start, end)
+  const now = new Date()
+  const bookedCount = appointments.filter((apt) => apt.status === 'booked').length
+  const completedCount = appointments.filter((apt) => apt.status === 'completed').length
+  const cancelledCount = appointments.filter((apt) => apt.status === 'cancelled').length
+  const upcomingCount = appointments.filter((apt) => new Date(apt.starts_at) > now).length
 
   const getStatusBadge = (status) => {
     const statusClasses = {
@@ -106,74 +132,138 @@ function AppointmentHistoryPage() {
     <div className="page appointment-history-page">
       <Header />
       <main className="history-container">
-        <div className="history-header">
-          <h1>Appointment History</h1>
-          <p className="subtitle">View and manage all your past appointments</p>
+        <div className="history-hero">
+          <div>
+            <p className="eyebrow">Your bookings</p>
+            <h1>Appointment History</h1>
+            <p className="subtitle">Review every visit, reschedule fast, and keep track of what comes next.</p>
+          </div>
+          <div className="hero-meta">
+            <span className="hero-badge">{totalAppointments} total</span>
+            <span className="hero-date">{now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          </div>
         </div>
 
+        <section className="metrics-grid">
+          <div className="metric-card">
+            <p className="metric-label">Upcoming</p>
+            <p className="metric-value">{upcomingCount}</p>
+            <p className="metric-subtext">Scheduled after today</p>
+          </div>
+          <div className="metric-card">
+            <p className="metric-label">Booked</p>
+            <p className="metric-value">{bookedCount}</p>
+            <p className="metric-subtext">Awaiting your visit</p>
+          </div>
+          <div className="metric-card">
+            <p className="metric-label">Completed</p>
+            <p className="metric-value">{completedCount}</p>
+            <p className="metric-subtext">Finished visits</p>
+          </div>
+          <div className="metric-card">
+            <p className="metric-label">Cancelled</p>
+            <p className="metric-value">{cancelledCount}</p>
+            <p className="metric-subtext">Cancelled or no-show</p>
+          </div>
+        </section>
+
         {/* Status Filter */}
-        <section className="filter-section">
-          <label htmlFor="status-filter">Filter by status:</label>
-          <select
-            id="status-filter"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="status-filter"
-          >
-            <option value="">All Appointments</option>
-            <option value="completed">Completed</option>
-            <option value="booked">Booked</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="no-show">No Show</option>
-          </select>
+        <section className="filter-row">
+          <div className="filter-group">
+            <label htmlFor="status-filter">Filter by status</label>
+            <select
+              id="status-filter"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="status-filter"
+            >
+              {STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="filter-chips">
+            {STATUS_OPTIONS.map((opt) => (
+              <button
+                key={opt.value || 'all-chip'}
+                type="button"
+                className={`filter-chip ${statusFilter === opt.value ? 'active' : ''}`}
+                onClick={() => setStatusFilter(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </section>
 
         {/* Appointments List */}
-        {appointments.length > 0 ? (
+        {visibleAppointments.length > 0 ? (
           <section className="appointments-list">
-            {appointments.map((appt) => (
+            {visibleAppointments.map((appt) => (
               <div key={appt.id} className="appointment-card">
                 <div className="card-header">
                   <div className="appointment-title">
+                    <p className="card-date">{formatDate(appt.starts_at)}</p>
                     <h3>{appt.service_name}</h3>
                     <p className="salon-name">{appt.salon_name}</p>
                   </div>
-                  <span className={`status-badge ${getStatusBadge(appt.status)}`}>
-                    {getStatusLabel(appt.status)}
-                  </span>
+                  <div className="status-stack">
+                    <span className={`status-badge ${getStatusBadge(appt.status)}`}>
+                      {getStatusLabel(appt.status)}
+                    </span>
+                    <span className="time-pill">{formatTime(appt.starts_at)}</span>
+                  </div>
                 </div>
 
                 <div className="card-body">
-                  <div className="detail-row">
-                    <span className="detail-label">📅 Date & Time:</span>
-                    <span className="detail-value">
-                      {formatDate(appt.starts_at)} at {formatTime(appt.starts_at)}
-                    </span>
-                  </div>
-
-                  {appt.staff_name && (
-                    <div className="detail-row">
-                      <span className="detail-label">💇 Staff:</span>
-                      <span className="detail-value">{appt.staff_name}</span>
+                  <div className="card-meta-grid">
+                    <div className="meta-item">
+                      <span className="meta-icon">📅</span>
+                      <div>
+                        <p className="meta-label">Date & Time</p>
+                        <p className="meta-value">
+                          {formatDate(appt.starts_at)} at {formatTime(appt.starts_at)}
+                        </p>
+                      </div>
                     </div>
-                  )}
 
-                  {appt.notes && (
-                    <div className="detail-row">
-                      <span className="detail-label">📝 Notes:</span>
-                      <span className="detail-value">{appt.notes}</span>
+                    {appt.staff_name && (
+                      <div className="meta-item">
+                        <span className="meta-icon">💇</span>
+                        <div>
+                          <p className="meta-label">Staff</p>
+                          <p className="meta-value">{appt.staff_name}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="meta-item">
+                      <span className="meta-icon">⏱️</span>
+                      <div>
+                        <p className="meta-label">Duration</p>
+                        <p className="meta-value">
+                          {Math.round((new Date(appt.ends_at) - new Date(appt.starts_at)) / 60000)} minutes
+                        </p>
+                      </div>
                     </div>
-                  )}
 
-                  <div className="detail-row">
-                    <span className="detail-label">⏱️ Duration:</span>
-                    <span className="detail-value">
-                      {Math.round((new Date(appt.ends_at) - new Date(appt.starts_at)) / 60000)} minutes
-                    </span>
+                    {appt.notes && (
+                      <div className="meta-item span-2">
+                        <span className="meta-icon">📝</span>
+                        <div>
+                          <p className="meta-label">Notes</p>
+                          <p className="meta-value">{appt.notes}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <div className="card-footer">
+                  <div className="card-footer-left">
+                    <span className="pill">{getStatusLabel(appt.status)}</span>
+                    <span className="pill light">{formatDate(appt.starts_at)}</span>
+                  </div>
                   <button
                     onClick={() => navigate(`/appointments/${appt.id}`)}
                     className="view-details-btn"
@@ -183,6 +273,42 @@ function AppointmentHistoryPage() {
                 </div>
               </div>
             ))}
+            <div className="list-footer">
+              <div className="list-meta">
+                Showing {visibleAppointments.length} of {totalAppointments} {statusFilter ? statusFilter : 'appointments'}
+              </div>
+              <div className="pager">
+                <button
+                  type="button"
+                  className="pager-btn"
+                  onClick={() => {
+                    setShowAll((prev) => !prev)
+                    setPage(1)
+                  }}
+                >
+                  {showAll ? 'Show paged' : 'Show all'}
+                </button>
+                <button
+                  type="button"
+                  className="pager-btn"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1 || showAll}
+                >
+                  ← Prev
+                </button>
+                <span className="pager-info">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  className="pager-btn"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages || showAll}
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
           </section>
         ) : (
           <section className="no-appointments">
