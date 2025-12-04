@@ -71,13 +71,14 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 .appointments-header {
   display: grid;
-  grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) minmax(120px, 1.2fr) minmax(100px, 1fr) minmax(80px, 0.8fr) minmax(100px, 1fr);
-  gap: 1rem;
+  grid-template-columns: 140px 140px 180px 140px 120px 160px;
+  gap: 1.5rem;
   padding: 1rem;
   background-color: #f8f9fa;
   font-weight: 600;
@@ -85,16 +86,18 @@
   border-bottom: 2px solid #e9ecef;
   font-size: 0.9rem;
   align-items: center;
+  min-width: min-content;
 }
 
 .appointment-row {
   display: grid;
-  grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) minmax(120px, 1.2fr) minmax(100px, 1fr) minmax(80px, 0.8fr) minmax(100px, 1fr);
-  gap: 1rem;
+  grid-template-columns: 140px 140px 180px 140px 120px 160px;
+  gap: 1.5rem;
   padding: 1rem;
   border-bottom: 1px solid #e9ecef;
   align-items: center;
   transition: background-color 0.2s ease;
+  min-width: min-content;
 }
 
 .appointment-row:hover {
@@ -152,6 +155,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  pointer-events: auto;
 }
 
 .status-badge {
@@ -193,6 +197,72 @@
   background-color: white;
   cursor: pointer;
   transition: border-color 0.2s ease;
+  pointer-events: auto;
+  z-index: 10;
+  position: relative;
+}
+
+.status-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.status-btn {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-weight: 500;
+  pointer-events: auto !important;
+  user-select: none;
+}
+
+.status-btn:active {
+  transform: scale(0.98);
+}
+
+.status-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.status-btn:hover {
+  background-color: #f0f0f0;
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.status-btn-completed {
+  border-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-btn-completed:hover {
+  background-color: #d1e7dd;
+}
+
+.status-btn-no-show {
+  border-color: #f8d7da;
+  color: #842029;
+}
+
+.status-btn-no-show:hover {
+  background-color: #f8d7da;
+}
+
+.status-btn-cancelled {
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+.status-btn-cancelled:hover {
+  background-color: #f5c6cb;
 }
 
 .status-select:hover {

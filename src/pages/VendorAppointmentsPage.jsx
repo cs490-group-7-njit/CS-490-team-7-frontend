@@ -83,6 +83,10 @@ function VendorAppointmentsPage() {
   }
 
   const handleStatusChange = async (appointmentId, newStatus) => {
+    if (!newStatus) return
+    
+    console.log('Changing appointment', appointmentId, 'to status:', newStatus)
+    
     try {
       setUpdatingId(appointmentId)
       await updateAppointmentStatus(appointmentId, newStatus)
@@ -94,6 +98,7 @@ function VendorAppointmentsPage() {
         setSuccessMessage('')
       }, 1500)
     } catch (err) {
+      console.error('Error updating appointment:', err)
       setError(err.message || 'Failed to update appointment')
     } finally {
       setUpdatingId(null)
@@ -227,6 +232,7 @@ function VendorAppointmentsPage() {
 
                 {appointments.map(appt => {
                   const nextStatuses = getAvailableStatusTransitions(appt.status)
+                  console.log('Appointment:', appt.id, 'Status:', appt.status, 'Next statuses:', nextStatuses, 'Full appt:', appt)
 
                   return (
                     <div key={appt.id} className="appointment-row">
@@ -244,18 +250,25 @@ function VendorAppointmentsPage() {
                       </span>
                       <span className="col-actions">
                         {nextStatuses.length > 0 && updatingId !== appt.id ? (
-                          <select
-                            value=""
-                            onChange={(e) => handleStatusChange(appt.id, e.target.value)}
-                            className="status-select"
-                          >
-                            <option value="">Change Status</option>
+                          <div className="status-actions">
                             {nextStatuses.map(status => (
-                              <option key={status} value={status}>
-                                → {status.toUpperCase()}
-                              </option>
+                              <button
+                                key={status}
+                                type="button"
+                                onClick={(e) => {
+                                  console.log('Button clicked!', status, appt.id)
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  handleStatusChange(appt.id, status)
+                                }}
+                                className={`status-btn status-btn-${status}`}
+                                title={`Mark as ${status}`}
+                                style={{ cursor: 'pointer' }}
+                              >
+                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                              </button>
                             ))}
-                          </select>
+                          </div>
                         ) : updatingId === appt.id ? (
                           <span className="updating">Updating...</span>
                         ) : (
