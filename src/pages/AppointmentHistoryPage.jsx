@@ -40,6 +40,16 @@ function AppointmentHistoryPage() {
         if (statusFilter) {
           filteredAppointments = filteredAppointments.filter(apt => apt.status === statusFilter)
         }
+        
+        // Sort: active appointments first, cancelled/no-show at the bottom
+        filteredAppointments.sort((a, b) => {
+          const aIsCancelled = a.status === 'cancelled' || a.status === 'no-show'
+          const bIsCancelled = b.status === 'cancelled' || b.status === 'no-show'
+          
+          if (aIsCancelled === bIsCancelled) return 0
+          return aIsCancelled ? 1 : -1
+        })
+        
         setAppointments(filteredAppointments)
         setPage(1)
         setShowAll(false)
