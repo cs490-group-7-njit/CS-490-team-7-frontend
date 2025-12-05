@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getPlatformStats, getRevenueMetrics, getAppointmentTrends, getLoyaltyProgram, getPendingActions, getUserDemographics, getRetentionMetrics, getPlatformHealth, getPlatformUptime, getHealthAlerts } from '../api/admin'
+import { getAppointmentTrends, getHealthAlerts, getLoyaltyProgram, getPendingActions, getPlatformHealth, getPlatformStats, getPlatformUptime, getRetentionMetrics, getRevenueMetrics, getUserDemographics } from '../api/admin'
 import { listAppointments } from '../api/appointments'
 import { getUserLoyalty } from '../api/loyalty'
 import { getSalonPaymentStats } from '../api/payments'
