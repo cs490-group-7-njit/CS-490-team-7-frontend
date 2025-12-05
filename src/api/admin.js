@@ -93,19 +93,11 @@ export async function getRealtimeAnalytics() {
 // Generate reports with various formats and types
 export async function generateReport(options = {}) {
   const {
-    reportType = 'summary',
-    format = 'json',
-    period = '30d',
-    dateFrom = '',
-    dateTo = ''
+    format = 'json'
   } = options
 
   const params = new URLSearchParams()
-  params.append('report_type', reportType)
   params.append('format', format)
-  params.append('period', period)
-  if (dateFrom) params.append('date_from', dateFrom)
-  if (dateTo) params.append('date_to', dateTo)
 
   return get(`/admin/reports?${params}`)
 }
@@ -121,5 +113,33 @@ export async function getRevenueMetrics() {
 
 export async function getAppointmentTrends() {
   return get('/admin/appointment-trends')
+}
+
+export async function getLoyaltyProgram() {
+  return get('/admin/loyalty-program')
+}
+
+export async function getPendingActions() {
+  return get('/admin/pending-actions')
+}
+
+export async function getUserDemographics() {
+  return get('/admin/user-demographics')
+}
+
+export async function getRetentionMetrics() {
+  return get('/admin/retention-metrics')
+}
+
+export async function getPlatformHealth() {
+  return get('/admin/health/platform')
+}
+
+export async function getPlatformUptime() {
+  return get('/admin/health/uptime')
+}
+
+export async function getHealthAlerts() {
+  return get('/admin/health/alerts')
 }
 

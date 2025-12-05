@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getPlatformStats, getRevenueMetrics, getAppointmentTrends } from '../api/admin'
+import { getAppointmentTrends, getHealthAlerts, getLoyaltyProgram, getPendingActions, getPlatformHealth, getPlatformStats, getPlatformUptime, getRetentionMetrics, getRevenueMetrics, getUserDemographics } from '../api/admin'
 import { listAppointments } from '../api/appointments'
 import { getUserLoyalty } from '../api/loyalty'
 import { getSalonPaymentStats } from '../api/payments'
@@ -147,6 +147,27 @@ function DashboardPage() {
   const [appointmentTrends, setAppointmentTrends] = useState(null)
   const [appointmentTrendsLoading, setAppointmentTrendsLoading] = useState(false)
   const [appointmentTrendsError, setAppointmentTrendsError] = useState(null)
+  const [loyaltyProgram, setLoyaltyProgram] = useState(null)
+  const [loyaltyProgramLoading, setLoyaltyProgramLoading] = useState(false)
+  const [loyaltyProgramError, setLoyaltyProgramError] = useState(null)
+  const [pendingActions, setPendingActions] = useState(null)
+  const [pendingActionsLoading, setPendingActionsLoading] = useState(false)
+  const [pendingActionsError, setPendingActionsError] = useState(null)
+  const [userDemographics, setUserDemographics] = useState(null)
+  const [userDemographicsLoading, setUserDemographicsLoading] = useState(false)
+  const [userDemographicsError, setUserDemographicsError] = useState(null)
+  const [retentionMetrics, setRetentionMetrics] = useState(null)
+  const [retentionMetricsLoading, setRetentionMetricsLoading] = useState(false)
+  const [retentionMetricsError, setRetentionMetricsError] = useState(null)
+  const [platformHealth, setPlatformHealth] = useState(null)
+  const [platformHealthLoading, setPlatformHealthLoading] = useState(false)
+  const [platformHealthError, setPlatformHealthError] = useState(null)
+  const [platformUptime, setPlatformUptime] = useState(null)
+  const [platformUptimeLoading, setPlatformUptimeLoading] = useState(false)
+  const [platformUptimeError, setPlatformUptimeError] = useState(null)
+  const [healthAlerts, setHealthAlerts] = useState(null)
+  const [healthAlertsLoading, setHealthAlertsLoading] = useState(false)
+  const [healthAlertsError, setHealthAlertsError] = useState(null)
 
   // Refresh user activity when dashboard is accessed
   useEffect(() => {
@@ -652,12 +673,131 @@ function DashboardPage() {
     }
   }
 
-  // Fetch platform stats, revenue metrics, and appointment trends when admin logs in
+  const fetchLoyaltyProgram = async () => {
+    try {
+      setLoyaltyProgramLoading(true)
+      setLoyaltyProgramError(null)
+      const data = await getLoyaltyProgram()
+      if (data && data.loyalty_program) {
+        setLoyaltyProgram(data.loyalty_program)
+      }
+    } catch (error) {
+      console.error('Error fetching loyalty program:', error)
+      setLoyaltyProgramError(error.message)
+    } finally {
+      setLoyaltyProgramLoading(false)
+    }
+  }
+
+  const fetchPendingActions = async () => {
+    try {
+      setPendingActionsLoading(true)
+      setPendingActionsError(null)
+      const data = await getPendingActions()
+      if (data && data.pending_actions !== undefined) {
+        setPendingActions(data.pending_actions)
+      }
+    } catch (error) {
+      console.error('Error fetching pending actions:', error)
+      setPendingActionsError(error.message)
+    } finally {
+      setPendingActionsLoading(false)
+    }
+  }
+
+  const fetchUserDemographics = async () => {
+    try {
+      setUserDemographicsLoading(true)
+      setUserDemographicsError(null)
+      const data = await getUserDemographics()
+      if (data && data.user_demographics) {
+        setUserDemographics(data.user_demographics)
+      }
+    } catch (error) {
+      console.error('Error fetching user demographics:', error)
+      setUserDemographicsError(error.message)
+    } finally {
+      setUserDemographicsLoading(false)
+    }
+  }
+
+  const fetchRetentionMetrics = async () => {
+    try {
+      setRetentionMetricsLoading(true)
+      setRetentionMetricsError(null)
+      const data = await getRetentionMetrics()
+      if (data && data.retention_metrics) {
+        setRetentionMetrics(data.retention_metrics)
+      }
+    } catch (error) {
+      console.error('Error fetching retention metrics:', error)
+      setRetentionMetricsError(error.message)
+    } finally {
+      setRetentionMetricsLoading(false)
+    }
+  }
+
+  const fetchPlatformHealth = async () => {
+    try {
+      setPlatformHealthLoading(true)
+      setPlatformHealthError(null)
+      const data = await getPlatformHealth()
+      if (data && data.health) {
+        setPlatformHealth(data.health)
+      }
+    } catch (error) {
+      console.error('Error fetching platform health:', error)
+      setPlatformHealthError(error.message)
+    } finally {
+      setPlatformHealthLoading(false)
+    }
+  }
+
+  const fetchPlatformUptime = async () => {
+    try {
+      setPlatformUptimeLoading(true)
+      setPlatformUptimeError(null)
+      const data = await getPlatformUptime()
+      if (data && data.uptime) {
+        setPlatformUptime(data.uptime)
+      }
+    } catch (error) {
+      console.error('Error fetching platform uptime:', error)
+      setPlatformUptimeError(error.message)
+    } finally {
+      setPlatformUptimeLoading(false)
+    }
+  }
+
+  const fetchHealthAlerts = async () => {
+    try {
+      setHealthAlertsLoading(true)
+      setHealthAlertsError(null)
+      const data = await getHealthAlerts()
+      if (data && data.alerts !== undefined) {
+        setHealthAlerts(data.alerts)
+      }
+    } catch (error) {
+      console.error('Error fetching health alerts:', error)
+      setHealthAlertsError(error.message)
+    } finally {
+      setHealthAlertsLoading(false)
+    }
+  }
+
+  // Fetch all admin data when admin logs in
   useEffect(() => {
     if (user?.role === 'admin') {
       fetchPlatformStats()
       fetchRevenueMetrics()
       fetchAppointmentTrends()
+      fetchLoyaltyProgram()
+      fetchPendingActions()
+      fetchUserDemographics()
+      fetchRetentionMetrics()
+      fetchPlatformHealth()
+      fetchPlatformUptime()
+      fetchHealthAlerts()
     }
   }, [user])
 
@@ -820,9 +960,6 @@ function DashboardPage() {
       case 'Salon Management':
         navigate('/admin/salons')
         break
-      case 'Analytics':
-        navigate('/admin/analytics')
-        break
       case 'Salon Verification':
         // TODO: Implement a dedicated salon verification page.
         // For now, route to admin salons where verification happens
@@ -851,7 +988,7 @@ function DashboardPage() {
       case 'client':
         return ['Dashboard', 'My Bookings', 'Messages', 'Notifications', 'Favorite Salons', 'Rewards', 'Profile']
       case 'admin':
-        return ['Dashboard', 'User Management', 'Salon Management', 'Analytics', 'Salon Verification', 'Reports', 'System Health', 'Settings']
+        return ['Dashboard', 'User Management', 'Salon Management', 'Salon Verification', 'Reports', 'System Health', 'Settings']
       default: // vendor
         return ['Dashboard', 'Appointments', 'My Shops', 'Services', 'Staff', 'Reviews', 'Revenue', 'Marketing', 'Products', 'Shop Info']
     }
@@ -1292,7 +1429,7 @@ function DashboardPage() {
                 <div className="summary-card">
                   <p className="summary-title">System Status</p>
                   <p className="summary-status">
-                    <span className="status-dot" aria-hidden="true" /> {adminData.platformStats.systemUptime} Uptime
+                    <span className="status-dot" aria-hidden="true" /> {platformStatsLoading ? '...' : `${platformStats?.system?.uptime || '99.9%'} Uptime`}
                   </p>
                   <button
                     type="button"
@@ -1306,7 +1443,7 @@ function DashboardPage() {
                 <div className="summary-card">
                   <p className="summary-title">Pending Verifications</p>
                   <p className="summary-subtitle">
-                    {adminData.platformStats.pendingVerifications} salons awaiting verification
+                    {platformStatsLoading ? '...' : `${platformStats?.salons?.pending_verification || 0} salons awaiting verification`}
                   </p>
                   <button
                     type="button"
@@ -1494,8 +1631,8 @@ function DashboardPage() {
                   </div>
                   <div className="metric-card">
                     <h3>Loyalty Members</h3>
-                    <p className="metric-value">{adminData.loyaltyProgram.activeMembers.toLocaleString()}</p>
-                    <p className="metric-subtitle">{adminData.loyaltyProgram.programUsage} engagement</p>
+                    <p className="metric-value">{loyaltyProgramLoading ? '...' : loyaltyProgram?.active_members?.toLocaleString() || 0}</p>
+                    <p className="metric-subtitle">{loyaltyProgramLoading ? '...' : `${loyaltyProgram?.program_usage || 0}% engagement`}</p>
                   </div>
                 </div>
               </section>
@@ -1507,26 +1644,32 @@ function DashboardPage() {
                   </div>
                 </header>
                 <div className="pending-actions">
-                  {adminData.pendingActions.map((action, index) => (
-                    <div key={index} className={`action-item ${action.priority}`}>
-                      <div className="action-details">
-                        <h4>{action.type === 'verification' ? 'Salon Verification' : 'Report Generation'}</h4>
-                        <p>{action.salon || action.item}</p>
+                  {pendingActionsLoading ? (
+                    <p>Loading...</p>
+                  ) : pendingActions && pendingActions.length > 0 ? (
+                    pendingActions.map((action, index) => (
+                      <div key={index} className={`action-item ${action.priority}`}>
+                        <div className="action-details">
+                          <h4>{action.type === 'verification' ? 'Salon Verification' : 'Report Generation'}</h4>
+                          <p>{action.salon_name || action.item}</p>
+                        </div>
+                        <span className={`priority-badge ${action.priority}`}>{action.priority}</span>
+                        <button
+                          type="button"
+                          className="pill-button"
+                          onClick={() =>
+                            action.type === 'verification'
+                              ? navigate('/admin/salons')
+                              : navigate('/admin/analytics')
+                          }
+                        >
+                          Review
+                        </button>
                       </div>
-                      <span className={`priority-badge ${action.priority}`}>{action.priority}</span>
-                      <button
-                        type="button"
-                        className="pill-button"
-                        onClick={() =>
-                          action.type === 'verification'
-                            ? navigate('/admin/salons')
-                            : navigate('/admin/analytics')
-                        }
-                      >
-                        Review
-                      </button>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p>No pending actions</p>
+                  )}
                 </div>
               </section>
             </>
@@ -1664,7 +1807,19 @@ function DashboardPage() {
                     </div>
                     <div className="insight-item">
                       <h4>Points Redeemed This Month</h4>
-                      <p>{adminData.loyaltyProgram.pointsRedeemed}</p>
+                      <p>{loyaltyProgramLoading ? '...' : `${(loyaltyProgram?.points_redeemed_month / 1000000).toFixed(1)}M` || '0'}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Client Distribution</h4>
+                      <p>{userDemographicsLoading ? '...' : `${userDemographics?.by_role?.clients?.percentage || 0}% Clients`}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Repeat Customer Rate</h4>
+                      <p>{retentionMetricsLoading ? '...' : `${retentionMetrics?.repeat_customer_rate || 0}%`}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Avg Visits per Client</h4>
+                      <p>{retentionMetricsLoading ? '...' : `${retentionMetrics?.average_visits_per_client || 0}x`}</p>
                     </div>
                   </div>
                 </article>
@@ -1676,21 +1831,53 @@ function DashboardPage() {
                   <div className="performance-stats">
                     <dl>
                       <div>
-                        <dt>Customer Retention</dt>
-                        <dd>78.5%</dd>
-                        <span className="delta positive">+5.2%</span>
+                        <dt>Customer Retention (30d)</dt>
+                        <dd>{retentionMetricsLoading ? '...' : `${retentionMetrics?.retention_30d || 0}%`}</dd>
+                        <span className="delta positive">Real-time</span>
                       </div>
                       <div>
-                        <dt>User Satisfaction</dt>
-                        <dd>4.7/5</dd>
-                        <span className="delta positive">+0.3</span>
+                        <dt>Repeat Customers</dt>
+                        <dd>{retentionMetricsLoading ? '...' : `${retentionMetrics?.repeat_customers || 0}`}</dd>
+                        <span className="delta positive">{retentionMetricsLoading ? '...' : `${retentionMetrics?.repeat_customer_rate || 0}%`}</span>
                       </div>
                     </dl>
                     <div className="performance-chart" aria-hidden="true">
                       <div className="chart-circle">
-                        <span className="chart-value">94%</span>
-                        <span className="chart-label">Platform Health</span>
+                        <span className="chart-value">{userDemographicsLoading ? '...' : `${userDemographics?.by_role?.clients?.percentage || 0}%`}</span>
+                        <span className="chart-label">Client Base</span>
                       </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article className="reviews-card" aria-label="Platform health">
+                  <header>
+                    <h2>Platform Health & Monitoring</h2>
+                  </header>
+                  <div className="insights-list">
+                    <div className="insight-item">
+                      <h4>System Status</h4>
+                      <p>{platformHealthLoading ? '...' : platformHealth?.system_status || 'Operational'}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Uptime</h4>
+                      <p>{platformUptimeLoading ? '...' : `${platformUptime?.uptime_percentage || 0}%`}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Database Health</h4>
+                      <p>{platformHealthLoading ? '...' : platformHealth?.database_status || 'Healthy'}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Error Rate</h4>
+                      <p>{platformHealthLoading ? '...' : `${platformHealth?.error_rate_percentage || 0}%`}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Active Alerts</h4>
+                      <p>{healthAlertsLoading ? '...' : healthAlerts?.alert_count || 0}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>API Response Time</h4>
+                      <p>{platformHealthLoading ? '...' : `${platformHealth?.avg_response_time_ms || 0}ms`}</p>
                     </div>
                   </div>
                 </article>

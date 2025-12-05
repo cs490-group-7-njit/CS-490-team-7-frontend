@@ -37,10 +37,11 @@ async function request(path, options = {}) {
   const body = isJson ? await response.json() : null
 
   if (!response.ok) {
-    const message = body?.message || response.statusText || 'Request failed'
+    const message = body?.message || body?.error || response.statusText || 'Request failed'
     const error = new Error(message)
     error.status = response.status
     error.body = body
+    console.error('HTTP Error - Status:', response.status, 'Body:', body, 'Message:', message)
     throw error
   }
 
