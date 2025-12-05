@@ -246,8 +246,12 @@ function DashboardPage() {
         const aggregated = validStats.reduce(
           (acc, entry) => {
             const stats = entry.stats || {}
-            const totalRevenueCents = Number(stats.total_revenue) || 0
-            const transactionCount = Number(stats.transaction_count) || 0
+            const totalRevenueCents = Number(
+              stats.total_revenue_cents ?? stats.total_revenue ?? 0,
+            )
+            const transactionCount = Number(
+              stats.total_completed ?? stats.transaction_count ?? stats.total_transactions ?? 0,
+            )
 
             acc.totalRevenueCents += totalRevenueCents
             acc.transactionCount += transactionCount
@@ -259,8 +263,11 @@ function DashboardPage() {
             })
 
             const serviceRevenue = stats.revenue_by_service || {}
-            Object.entries(serviceRevenue).forEach(([serviceName, amount]) => {
-              const cents = Number(amount) || 0
+            Object.entries(serviceRevenue).forEach(([serviceName, value]) => {
+              const cents =
+                typeof value === "number"
+                  ? Number(value)
+                  : Number(value?.revenue_cents ?? value?.revenue ?? 0)
               acc.serviceTotals[serviceName] = (acc.serviceTotals[serviceName] || 0) + cents
 
               if (acc.serviceTotals[serviceName] > acc.topService.totalRevenueCents) {
