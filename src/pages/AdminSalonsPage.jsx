@@ -335,7 +335,7 @@ function AdminSalonsPage() {
                   </thead>
                   <tbody>
                     {salons.map((salon) => (
-                      <tr key={salon.salon_id}>
+                      <tr key={salon.id}>
                         <td className="salon-name">{salon.name}</td>
                         <td className="business-type">{salon.business_type || 'Not specified'}</td>
                         <td>
@@ -367,17 +367,17 @@ function AdminSalonsPage() {
                             <div className="action-buttons">
                               <button
                                 className="action-btn approve-btn"
-                                onClick={() => handleVerifySalon(salon.salon_id, 'approve')}
-                                disabled={verifyingSalonId === salon.salon_id}
+                                onClick={() => handleVerifySalon(salon.id, 'approve')}
+                                disabled={verifyingSalonId === salon.id}
                               >
-                                {verifyingSalonId === salon.salon_id ? 'Processing...' : 'Approve'}
+                                {verifyingSalonId === salon.id ? 'Processing...' : 'Approve'}
                               </button>
                               <button
                                 className="action-btn reject-btn"
-                                onClick={() => handleVerifySalon(salon.salon_id, 'reject')}
-                                disabled={verifyingSalonId === salon.salon_id}
+                                onClick={() => handleVerifySalon(salon.id, 'reject')}
+                                disabled={verifyingSalonId === salon.id}
                               >
-                                {verifyingSalonId === salon.salon_id ? 'Processing...' : 'Reject'}
+                                {verifyingSalonId === salon.id ? 'Processing...' : 'Reject'}
                               </button>
                             </div>
                           )}
