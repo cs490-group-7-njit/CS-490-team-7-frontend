@@ -93,19 +93,11 @@ export async function getRealtimeAnalytics() {
 // Generate reports with various formats and types
 export async function generateReport(options = {}) {
   const {
-    reportType = 'summary',
-    format = 'json',
-    period = '30d',
-    dateFrom = '',
-    dateTo = ''
+    format = 'json'
   } = options
 
   const params = new URLSearchParams()
-  params.append('report_type', reportType)
   params.append('format', format)
-  params.append('period', period)
-  if (dateFrom) params.append('date_from', dateFrom)
-  if (dateTo) params.append('date_to', dateTo)
 
   return get(`/admin/reports?${params}`)
 }
