@@ -7,7 +7,7 @@ import { createAppointment, deleteAppointment, getAvailableSlots } from '../api/
 import { confirmPayment, createPaymentIntent } from '../api/payments'
 import { searchSalons } from '../api/salons'
 import { getServicesBySalon } from '../api/services'
-import { getStaffBySalon } from '../api/staff'
+import { getStaffBySalon, getStaffTimeBlocksForDate } from '../api/staff'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import './appointment-booking.css'
@@ -154,16 +154,64 @@ function AppointmentBookingContent({ demoMode }) {
     }
   }
 
+  const removeBlockedSlots = (slots, blocks, durationMinutes) => {
+    if (!Array.isArray(slots) || slots.length === 0) {
+      return []
+    }
+
+    if (!Array.isArray(blocks) || blocks.length === 0) {
+      return slots
+    }
+
+    const blockRanges = blocks
+      .map((block) => {
+        const start = new Date(block.starts_at || block.start_time)
+        const end = new Date(block.ends_at || block.end_time)
+        if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+          return null
+        }
+        return { start, end }
+      })
+      .filter(Boolean)
+
+    if (blockRanges.length === 0) {
+      return slots
+    }
+
+    return slots.filter((slot) => {
+      const slotStart = new Date(slot)
+      if (Number.isNaN(slotStart.getTime())) {
+        return false
+      }
+      const slotEnd = new Date(slotStart.getTime() + durationMinutes * 60000)
+
+      return !blockRanges.some(({ start, end }) => slotStart < end && slotEnd > start)
+    })
+  }
+
   const loadAvailableSlots = async (date) => {
     try {
       setIsLoading(true)
       setError(null)
-      const slots = await getAvailableSlots(
-        selectedStaff.id,
-        date,
+      const [slots, timeBlocks] = await Promise.all([
+        getAvailableSlots(
+          selectedStaff.id,
+          date,
+          selectedService.duration_minutes
+        ),
+        getStaffTimeBlocksForDate(selectedStaff.id, date).catch((err) => {
+          console.warn('Failed to load time blocks for date', err)
+          return []
+        })
+      ])
+
+      const filteredSlots = removeBlockedSlots(
+        slots,
+        timeBlocks,
         selectedService.duration_minutes
       )
-      setAvailableSlots(slots)
+
+      setAvailableSlots(filteredSlots)
     } catch (err) {
       setError(err.message || 'Failed to load available slots')
     } finally {

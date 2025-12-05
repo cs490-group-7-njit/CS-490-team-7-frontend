@@ -87,6 +87,81 @@ export async function updateStaffSchedule(salonId, staffId, scheduleData) {
   }
 }
 
-export async function blockTime(staffId, blockData) {
+const DAY_NAME_TO_INDEX = {
+  Sunday: 0,
+  Monday: 1,
+  Tuesday: 2,
+  Wednesday: 3,
+  Thursday: 4,
+  Friday: 5,
+  Saturday: 6,
+}
+
+export async function getStaffSchedules(staffId) {
+  try {
+    const response = await get(`/staff/${staffId}/schedules`)
+    return response.schedules || []
+  } catch (error) {
+    console.error('Error fetching staff schedules:', error)
+    throw error
+  }
+}
+
+export async function replaceStaffSchedules(staffId, schedule) {
+  try {
+    const existing = await getStaffSchedules(staffId)
+
+    for (const entry of existing) {
+      if (entry?.id == null) continue
+      await del(`/staff/${staffId}/schedules/${entry.id}`)
+    }
+
+    const requests = []
+
+    Object.entries(schedule || {}).forEach(([dayName, config]) => {
+      if (!config || !config.enabled || !Array.isArray(config.shifts)) {
+        return
+      }
+
+      const dayIndex = DAY_NAME_TO_INDEX[dayName]
+      if (dayIndex == null) return
+
+      config.shifts.forEach((shift) => {
+        const start = (shift?.start || '').trim()
+        const end = (shift?.end || '').trim()
+        if (!start || !end) return
+
+        requests.push(
+          post(`/staff/${staffId}/schedules`, {
+            day_of_week: dayIndex,
+            start_time: start,
+            end_time: end,
+          })
+        )
+      })
+    })
+
+    await Promise.all(requests)
+  } catch (error) {
+    console.error('Error replacing staff schedules:', error)
+    throw error
+  }
+}
+
+export async function getStaffTimeBlocks(staffId) {
+  const response = await get(`/staff/${staffId}/time-blocks`)
+  return response.time_blocks || response.timeBlocks || []
+}
+
+export async function getStaffTimeBlocksForDate(staffId, date) {
+  const response = await get(`/staff/${staffId}/time-blocks/${date}`)
+  return response.time_blocks || response.timeBlocks || []
+}
+
+export async function createTimeBlock(staffId, blockData) {
   return post(`/staff/${staffId}/time-blocks`, blockData)
+}
+
+export async function deleteTimeBlock(blockId) {
+  return del(`/time-blocks/${blockId}`)
 }

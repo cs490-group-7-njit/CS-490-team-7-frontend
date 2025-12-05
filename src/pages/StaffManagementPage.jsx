@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { getMyShops } from '../api/shops'
-import { createStaff, deleteStaff, getStaffBySalon, updateStaffSchedule } from '../api/staff'
+import { createStaff, deleteStaff, getStaffBySalon, replaceStaffSchedules, updateStaffSchedule } from '../api/staff'
 import VendorPortalLayout from '../components/VendorPortalLayout'
 import VendorLoadingState from '../components/VendorLoadingState'
 import ScheduleModal from '../components/ScheduleModal'
+import BlockTimeModal from '../components/BlockTimeModal'
 import { useAuth } from '../context/AuthContext'
 import './staff-management.css'
 
@@ -14,6 +15,8 @@ function StaffManagementPage() {
   const [staff, setStaff] = useState([])
   const [selectedStaff, setSelectedStaff] = useState(null)
   const [showScheduleModal, setShowScheduleModal] = useState(false)
+  const [blockTimeStaff, setBlockTimeStaff] = useState(null)
+  const [showBlockTimeModal, setShowBlockTimeModal] = useState(false)
   const [showAddStaffForm, setShowAddStaffForm] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -97,7 +100,8 @@ function StaffManagementPage() {
   }
 
   const handleBlockTime = (staffMember) => {
-    console.log('Block time for:', staffMember.title)
+    setBlockTimeStaff(staffMember)
+    setShowBlockTimeModal(true)
   }
 
   const handleAddStaff = () => {
@@ -155,6 +159,7 @@ function StaffManagementPage() {
       console.log('Saving schedule for:', scheduleData)
       const targetShopId = selectedShop.id ?? selectedShop.salon_id
       await updateStaffSchedule(targetShopId, scheduleData.staffId, scheduleData.schedule)
+    await replaceStaffSchedules(scheduleData.staffId, scheduleData.schedule)
       console.log('Schedule saved successfully')
 
       // Update the staff member's schedule in local state
@@ -164,12 +169,19 @@ function StaffManagementPage() {
             ? {
               ...member,
               hasSchedule: true,
+              schedule: scheduleData.schedule,
               workingDays: Object.keys(scheduleData.schedule).filter(
                 day => scheduleData.schedule[day].enabled && scheduleData.schedule[day].shifts.length > 0
               )
             }
             : member
         )
+      )
+
+      setSelectedStaff((prev) =>
+        prev && prev.id === scheduleData.staffId
+          ? { ...prev, schedule: scheduleData.schedule }
+          : prev
       )
 
       // Close the modal
@@ -330,6 +342,15 @@ function StaffManagementPage() {
           staffMember={selectedStaff}
           onClose={() => setShowScheduleModal(false)}
           onSave={handleScheduleSave}
+        />
+      )}
+      {showBlockTimeModal && blockTimeStaff && (
+        <BlockTimeModal
+          staffMember={blockTimeStaff}
+          onClose={() => {
+            setShowBlockTimeModal(false)
+            setBlockTimeStaff(null)
+          }}
         />
       )}
       </div>
