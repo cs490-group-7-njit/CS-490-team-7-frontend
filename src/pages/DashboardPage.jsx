@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getPlatformStats, getRevenueMetrics } from '../api/admin'
 import { listAppointments } from '../api/appointments'
+import { getUserLoyalty } from '../api/loyalty'
+import { getSalonPaymentStats } from '../api/payments'
+import { getSalonReviews } from '../api/reviews'
 import { getMyShops } from '../api/shops'
 import { getSalonAppointments } from '../api/vendorAppointments'
-import { getSalonReviews } from '../api/reviews'
-import { getSalonPaymentStats } from '../api/payments'
-import { getUserLoyalty } from '../api/loyalty'
-import { getPlatformStats } from '../api/admin'
 import Header from '../components/Header'
 import VendorPortalLayout from '../components/VendorPortalLayout'
 import { useAuth } from '../context/AuthContext'
@@ -107,7 +107,7 @@ const clientData = {
     },
   ],
 }
- 
+
 function DashboardPage() {
   const { user, refreshActivity } = useAuth()
   const navigate = useNavigate()
@@ -140,6 +140,9 @@ function DashboardPage() {
   const [platformStats, setPlatformStats] = useState(null)
   const [platformStatsLoading, setPlatformStatsLoading] = useState(false)
   const [platformStatsError, setPlatformStatsError] = useState(null)
+  const [revenueMetrics, setRevenueMetrics] = useState(null)
+  const [revenueMetricsLoading, setRevenueMetricsLoading] = useState(false)
+  const [revenueMetricsError, setRevenueMetricsError] = useState(null)
 
   // Refresh user activity when dashboard is accessed
   useEffect(() => {
@@ -613,10 +616,27 @@ function DashboardPage() {
     }
   }
 
-  // Fetch platform stats when admin logs in
+  const fetchRevenueMetrics = async () => {
+    try {
+      setRevenueMetricsLoading(true)
+      setRevenueMetricsError(null)
+      const data = await getRevenueMetrics()
+      if (data && data.revenue_metrics) {
+        setRevenueMetrics(data.revenue_metrics)
+      }
+    } catch (error) {
+      console.error('Error fetching revenue metrics:', error)
+      setRevenueMetricsError(error.message)
+    } finally {
+      setRevenueMetricsLoading(false)
+    }
+  }
+
+  // Fetch platform stats and revenue metrics when admin logs in
   useEffect(() => {
     if (user?.role === 'admin') {
       fetchPlatformStats()
+      fetchRevenueMetrics()
     }
   }, [user])
 
@@ -1112,8 +1132,8 @@ function DashboardPage() {
                     </span>{' '}
                     points
                   </p>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="pill-button"
                     onClick={() => navigate('/loyalty-points')}
                   >
@@ -1177,8 +1197,8 @@ function DashboardPage() {
                 <div className="summary-card">
                   <p className="summary-title">Platform Revenue</p>
                   <p className="summary-status">
-                    <span className="revenue-value">{adminData.revenueMetrics.totalRevenue}</span>
-                    <span className="delta positive">{adminData.revenueMetrics.monthlyGrowth}</span>
+                    <span className="revenue-value">{revenueMetricsLoading ? '...' : `$${revenueMetrics?.total_revenue?.dollars?.toLocaleString() || 0}`}</span>
+                    <span className="delta positive">{revenueMetricsLoading ? '...' : `${revenueMetrics?.monthly_growth || 0}%`}</span>
                   </p>
                   <button
                     type="button"
@@ -1517,7 +1537,7 @@ function DashboardPage() {
                     </div>
                     <div className="insight-item">
                       <h4>Average Salon Revenue</h4>
-                      <p>{adminData.revenueMetrics.avgSalonRevenue}</p>
+                      <p>{revenueMetricsLoading ? '...' : `$${revenueMetrics?.avg_salon_revenue?.dollars?.toLocaleString() || 0}`}</p>
                     </div>
                     <div className="insight-item">
                       <h4>Points Redeemed This Month</h4>

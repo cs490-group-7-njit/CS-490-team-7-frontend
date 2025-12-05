@@ -115,3 +115,7 @@ export async function getPlatformStats() {
   return get('/admin/platform-stats')
 }
 
+export async function getRevenueMetrics() {
+  return get('/admin/revenue-metrics')
+}
+
