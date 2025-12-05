@@ -131,3 +131,11 @@ export async function getPendingActions() {
   return get('/admin/pending-actions')
 }
 
+export async function getUserDemographics() {
+  return get('/admin/user-demographics')
+}
+
+export async function getRetentionMetrics() {
+  return get('/admin/retention-metrics')
+}
+

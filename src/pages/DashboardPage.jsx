@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getPlatformStats, getRevenueMetrics, getAppointmentTrends, getLoyaltyProgram, getPendingActions } from '../api/admin'
+import { getPlatformStats, getRevenueMetrics, getAppointmentTrends, getLoyaltyProgram, getPendingActions, getUserDemographics, getRetentionMetrics } from '../api/admin'
 import { listAppointments } from '../api/appointments'
 import { getUserLoyalty } from '../api/loyalty'
 import { getSalonPaymentStats } from '../api/payments'
@@ -152,6 +152,12 @@ function DashboardPage() {
   const [pendingActions, setPendingActions] = useState(null)
   const [pendingActionsLoading, setPendingActionsLoading] = useState(false)
   const [pendingActionsError, setPendingActionsError] = useState(null)
+  const [userDemographics, setUserDemographics] = useState(null)
+  const [userDemographicsLoading, setUserDemographicsLoading] = useState(false)
+  const [userDemographicsError, setUserDemographicsError] = useState(null)
+  const [retentionMetrics, setRetentionMetrics] = useState(null)
+  const [retentionMetricsLoading, setRetentionMetricsLoading] = useState(false)
+  const [retentionMetricsError, setRetentionMetricsError] = useState(null)
 
   // Refresh user activity when dashboard is accessed
   useEffect(() => {
@@ -689,6 +695,38 @@ function DashboardPage() {
     }
   }
 
+  const fetchUserDemographics = async () => {
+    try {
+      setUserDemographicsLoading(true)
+      setUserDemographicsError(null)
+      const data = await getUserDemographics()
+      if (data && data.user_demographics) {
+        setUserDemographics(data.user_demographics)
+      }
+    } catch (error) {
+      console.error('Error fetching user demographics:', error)
+      setUserDemographicsError(error.message)
+    } finally {
+      setUserDemographicsLoading(false)
+    }
+  }
+
+  const fetchRetentionMetrics = async () => {
+    try {
+      setRetentionMetricsLoading(true)
+      setRetentionMetricsError(null)
+      const data = await getRetentionMetrics()
+      if (data && data.retention_metrics) {
+        setRetentionMetrics(data.retention_metrics)
+      }
+    } catch (error) {
+      console.error('Error fetching retention metrics:', error)
+      setRetentionMetricsError(error.message)
+    } finally {
+      setRetentionMetricsLoading(false)
+    }
+  }
+
   // Fetch all admin data when admin logs in
   useEffect(() => {
     if (user?.role === 'admin') {
@@ -697,6 +735,8 @@ function DashboardPage() {
       fetchAppointmentTrends()
       fetchLoyaltyProgram()
       fetchPendingActions()
+      fetchUserDemographics()
+      fetchRetentionMetrics()
     }
   }, [user])
 
@@ -1609,6 +1649,18 @@ function DashboardPage() {
                       <h4>Points Redeemed This Month</h4>
                       <p>{loyaltyProgramLoading ? '...' : `${(loyaltyProgram?.points_redeemed_month / 1000000).toFixed(1)}M` || '0'}</p>
                     </div>
+                    <div className="insight-item">
+                      <h4>Client Distribution</h4>
+                      <p>{userDemographicsLoading ? '...' : `${userDemographics?.by_role?.clients?.percentage || 0}% Clients`}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Repeat Customer Rate</h4>
+                      <p>{retentionMetricsLoading ? '...' : `${retentionMetrics?.repeat_customer_rate || 0}%`}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Avg Visits per Client</h4>
+                      <p>{retentionMetricsLoading ? '...' : `${retentionMetrics?.average_visits_per_client || 0}x`}</p>
+                    </div>
                   </div>
                 </article>
 
@@ -1619,20 +1671,20 @@ function DashboardPage() {
                   <div className="performance-stats">
                     <dl>
                       <div>
-                        <dt>Customer Retention</dt>
-                        <dd>78.5%</dd>
-                        <span className="delta positive">+5.2%</span>
+                        <dt>Customer Retention (30d)</dt>
+                        <dd>{retentionMetricsLoading ? '...' : `${retentionMetrics?.retention_30d || 0}%`}</dd>
+                        <span className="delta positive">Real-time</span>
                       </div>
                       <div>
-                        <dt>User Satisfaction</dt>
-                        <dd>4.7/5</dd>
-                        <span className="delta positive">+0.3</span>
+                        <dt>Repeat Customers</dt>
+                        <dd>{retentionMetricsLoading ? '...' : `${retentionMetrics?.repeat_customers || 0}`}</dd>
+                        <span className="delta positive">{retentionMetricsLoading ? '...' : `${retentionMetrics?.repeat_customer_rate || 0}%`}</span>
                       </div>
                     </dl>
                     <div className="performance-chart" aria-hidden="true">
                       <div className="chart-circle">
-                        <span className="chart-value">94%</span>
-                        <span className="chart-label">Platform Health</span>
+                        <span className="chart-value">{userDemographicsLoading ? '...' : `${userDemographics?.by_role?.clients?.percentage || 0}%`}</span>
+                        <span className="chart-label">Client Base</span>
                       </div>
                     </div>
                   </div>
