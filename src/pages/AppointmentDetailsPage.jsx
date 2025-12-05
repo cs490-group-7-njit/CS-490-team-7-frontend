@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { cancelAppointment, completeAppointment, getAppointment, getAvailableSlotsForReschedule, rescheduleAppointment } from '../api/appointmentDetails'
 import Header from '../components/Header'
+import BeforeAfterGalleryUploader from '../components/BeforeAfterGalleryUploader'
 import { useAuth } from '../context/AuthContext'
 import './appointment-details.css'
 
@@ -9,6 +10,8 @@ function AppointmentDetailsPage() {
   const { appointmentId } = useParams()
   const navigate = useNavigate()
   const { refreshActivity, user } = useAuth()
+
+  console.log('AppointmentDetailsPage mounted, appointmentId:', appointmentId)
 
   // Appointment data
   const [appointment, setAppointment] = useState(null)
@@ -140,10 +143,10 @@ function AppointmentDetailsPage() {
 
     const salonIdentifier =
       appointment.salon?.id ?? appointment.salon?.salon_id ?? appointment.salon_id ?? null
-    const serviceIdentifier =
+    const localServiceIdentifier =
       appointment.service?.id ?? appointment.service?.service_id ?? appointment.service_id ?? null
 
-    if (targetView === 'service' && !serviceIdentifier) {
+    if (targetView === 'service' && !localServiceIdentifier) {
       console.warn('Cannot open service portfolio without a service identifier')
       return
     }
@@ -156,8 +159,8 @@ function AppointmentDetailsPage() {
       params.set('salonId', String(salonIdentifier))
     }
 
-    if (serviceIdentifier != null) {
-      params.set('serviceId', String(serviceIdentifier))
+    if (localServiceIdentifier != null) {
+      params.set('serviceId', String(localServiceIdentifier))
     }
 
     navigate(`/vendor/images?${params.toString()}`)
@@ -186,9 +189,9 @@ function AppointmentDetailsPage() {
 
   const isUpcoming = appointment && new Date(appointment.starts_at) > new Date()
   const isToday = appointment && (() => {
-    const today = new Date().toDateString()
+    const appointmentDateStr = new Date().toDateString()
     const appointmentDate = new Date(appointment.starts_at).toDateString()
-    return today === appointmentDate
+    return appointmentDateStr === appointmentDate
   })()
   const canReschedule = appointment && isUpcoming && appointment.status === 'booked'
   const canCancel = appointment && (isUpcoming || isToday) && appointment.status === 'booked'
@@ -371,30 +374,14 @@ function AppointmentDetailsPage() {
             </section>
           )}
 
-          {isVendor && (
-            <section className="section images-section">
-              <h2>Service Images</h2>
-              <p>
-                Document before and after results or review this service's portfolio.
-              </p>
-              <div className="action-buttons">
-                <button
-                  className="btn btn-primary"
-                  onClick={() => navigateToServiceImages('gallery')}
-                >
-                  Manage Appointment Images
-                </button>
-                {serviceIdentifier && (
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => navigateToServiceImages('service')}
-                  >
-                    View Service Portfolio
-                  </button>
-                )}
-              </div>
-            </section>
-          )}
+          {/* Gallery - Before/After Images */}
+          <section className="section gallery-section">
+            <BeforeAfterGalleryUploader 
+              appointmentId={appointmentId}
+              onImagesUpdated={() => loadAppointment()}
+              readOnly={false}
+            />
+          </section>
 
           {/* Actions */}
           {(canReschedule || canCancel) && (
