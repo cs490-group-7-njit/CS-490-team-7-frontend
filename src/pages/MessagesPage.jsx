@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listAppointments } from '../api/appointments'
 import { getMessages, markMessageAsRead, sendMessage } from '../api/messages'
-import Header from '../components/Header'
+import ClientPortalLayout from '../components/ClientPortalLayout'
 import { useAuth } from '../context/AuthContext'
 import './messages.css'
 
@@ -91,7 +91,7 @@ function MessagesPage() {
       await sendMessage(messageData)
       setShowCompose(false)
       setComposeData({ recipient_id: '', salon_id: '', subject: '', body: '' })
-      await fetchMessages() // Refresh messages
+      await fetchMessages()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -131,169 +131,172 @@ function MessagesPage() {
 
   if (loading) {
     return (
-      <div className="page messages-page">
-        <Header />
-        <div className="page-content">
-          <h1>Messages</h1>
-          <div className="loading">Loading messages...</div>
-        </div>
-      </div>
+      <ClientPortalLayout
+        activeKey="messages"
+        pageClassName="messages-page"
+        contentClassName="page-content"
+      >
+        <h1>Messages</h1>
+        <div className="loading">Loading messages...</div>
+      </ClientPortalLayout>
     )
   }
 
   if (error) {
     return (
-      <div className="page messages-page">
-        <Header />
-        <div className="page-content">
-          <h1>Messages</h1>
-          <div className="error">Error: {error}</div>
-        </div>
-      </div>
+      <ClientPortalLayout
+        activeKey="messages"
+        pageClassName="messages-page"
+        contentClassName="page-content"
+      >
+        <h1>Messages</h1>
+        <div className="error">Error: {error}</div>
+      </ClientPortalLayout>
     )
   }
 
   return (
-    <div className="page messages-page">
-      <Header />
-      <div className="page-content">
-        <div className="messages-header">
-          <h1>Messages</h1>
-          <button
-            type="button"
-            className="compose-btn"
-            onClick={() => setShowCompose(true)}
-          >
-            Compose Message
-          </button>
-        </div>
+    <ClientPortalLayout
+      activeKey="messages"
+      pageClassName="messages-page"
+      contentClassName="page-content"
+    >
+      <div className="messages-header">
+        <h1>Messages</h1>
+        <button
+          type="button"
+          className="compose-btn"
+          onClick={() => setShowCompose(true)}
+        >
+          Compose Message
+        </button>
+      </div>
 
-        {showCompose && (
-          <div className="compose-modal">
-            <div className="compose-content">
-              <h2>Compose Message</h2>
-              <form onSubmit={handleSendMessage}>
-                <div className="form-group">
-                  <label htmlFor="recipient_id">Recipient ID:</label>
-                  <input
-                    type="number"
-                    id="recipient_id"
-                    value={composeData.recipient_id}
-                    onChange={(e) => setComposeData(prev => ({ ...prev, recipient_id: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="salon_id">Salon ID (optional):</label>
-                  <input
-                    type="number"
-                    id="salon_id"
-                    value={composeData.salon_id}
-                    onChange={(e) => setComposeData(prev => ({ ...prev, salon_id: e.target.value }))}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="subject">Subject:</label>
-                  <input
-                    type="text"
-                    id="subject"
-                    value={composeData.subject}
-                    onChange={(e) => setComposeData(prev => ({ ...prev, subject: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="body">Message:</label>
-                  <textarea
-                    id="body"
-                    value={composeData.body}
-                    onChange={(e) => setComposeData(prev => ({ ...prev, body: e.target.value }))}
-                    rows={6}
-                    required
-                  />
-                </div>
-                <div className="form-actions">
-                  <button type="button" onClick={() => setShowCompose(false)}>
-                    Cancel
-                  </button>
-                  <button type="submit" disabled={sending}>
-                    {sending ? 'Sending...' : 'Send Message'}
-                  </button>
-                </div>
-              </form>
+      {showCompose && (
+        <div className="compose-modal">
+          <div className="compose-content">
+            <h2>Compose Message</h2>
+            <form onSubmit={handleSendMessage}>
+              <div className="form-group">
+                <label htmlFor="recipient_id">Recipient ID:</label>
+                <input
+                  type="number"
+                  id="recipient_id"
+                  value={composeData.recipient_id}
+                  onChange={(e) => setComposeData(prev => ({ ...prev, recipient_id: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="salon_id">Salon ID (optional):</label>
+                <input
+                  type="number"
+                  id="salon_id"
+                  value={composeData.salon_id}
+                  onChange={(e) => setComposeData(prev => ({ ...prev, salon_id: e.target.value }))}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="subject">Subject:</label>
+                <input
+                  type="text"
+                  id="subject"
+                  value={composeData.subject}
+                  onChange={(e) => setComposeData(prev => ({ ...prev, subject: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="body">Message:</label>
+                <textarea
+                  id="body"
+                  value={composeData.body}
+                  onChange={(e) => setComposeData(prev => ({ ...prev, body: e.target.value }))}
+                  rows={6}
+                  required
+                />
+              </div>
+              <div className="form-actions">
+                <button type="button" onClick={() => setShowCompose(false)}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={sending}>
+                  {sending ? 'Sending...' : 'Send Message'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <div className="messages-list">
+        {appointmentReminderMessage && (
+          <div
+            key="system-reminder"
+            className="message-item received system-message unread"
+          >
+            <div className="message-header">
+              <div className="message-meta">
+                <span className="message-direction">System</span>
+                <span className="message-participant">SalonHub</span>
+              </div>
+              <span className="message-date">
+                {formatDate(appointmentReminderMessage.created_at)}
+              </span>
+            </div>
+            <div className="message-content">
+              <h3 className="message-subject">{appointmentReminderMessage.subject}</h3>
+              <p className="message-body">{appointmentReminderMessage.body}</p>
             </div>
           </div>
         )}
-
-        <div className="messages-list">
-          {appointmentReminderMessage && (
+        {messages.length === 0 && !appointmentReminderMessage ? (
+          <div className="no-messages">
+            <p>No messages found.</p>
+          </div>
+        ) : (
+          messages.map((message) => (
             <div
-              key="system-reminder"
-              className="message-item received system-message unread"
+              key={message.message_id}
+              className={`message-item ${getMessageDirection(message)} ${!message.is_read ? 'unread' : ''}`}
             >
               <div className="message-header">
                 <div className="message-meta">
-                  <span className="message-direction">System</span>
-                  <span className="message-participant">SalonHub</span>
+                  <span className="message-direction">
+                    {getMessageDirection(message) === 'sent' ? 'To:' : 'From:'}
+                  </span>
+                  <span className="message-participant">
+                    {getMessageDirection(message) === 'sent'
+                      ? `User ${message.recipient_id}`
+                      : `User ${message.sender_id}`
+                    }
+                  </span>
+                  {message.salon_id && (
+                    <span className="message-salon">(Salon {message.salon_id})</span>
+                  )}
                 </div>
                 <span className="message-date">
-                  {formatDate(appointmentReminderMessage.created_at)}
+                  {formatDate(message.created_at)}
                 </span>
               </div>
               <div className="message-content">
-                <h3 className="message-subject">{appointmentReminderMessage.subject}</h3>
-                <p className="message-body">{appointmentReminderMessage.body}</p>
+                <h3 className="message-subject">{message.subject}</h3>
+                <p className="message-body">{message.body}</p>
               </div>
+              {getMessageDirection(message) === 'received' && !message.is_read && (
+                <button
+                  type="button"
+                  className="mark-read-btn"
+                  onClick={() => handleMarkAsRead(message.message_id)}
+                >
+                  Mark as Read
+                </button>
+              )}
             </div>
-          )}
-          {messages.length === 0 && !appointmentReminderMessage ? (
-            <div className="no-messages">
-              <p>No messages found.</p>
-            </div>
-          ) : (
-            messages.map((message) => (
-              <div
-                key={message.message_id}
-                className={`message-item ${getMessageDirection(message)} ${!message.is_read ? 'unread' : ''}`}
-              >
-                <div className="message-header">
-                  <div className="message-meta">
-                    <span className="message-direction">
-                      {getMessageDirection(message) === 'sent' ? 'To:' : 'From:'}
-                    </span>
-                    <span className="message-participant">
-                      {getMessageDirection(message) === 'sent'
-                        ? `User ${message.recipient_id}`
-                        : `User ${message.sender_id}`
-                      }
-                    </span>
-                    {message.salon_id && (
-                      <span className="message-salon">(Salon {message.salon_id})</span>
-                    )}
-                  </div>
-                  <span className="message-date">
-                    {formatDate(message.created_at)}
-                  </span>
-                </div>
-                <div className="message-content">
-                  <h3 className="message-subject">{message.subject}</h3>
-                  <p className="message-body">{message.body}</p>
-                </div>
-                {getMessageDirection(message) === 'received' && !message.is_read && (
-                  <button
-                    type="button"
-                    className="mark-read-btn"
-                    onClick={() => handleMarkAsRead(message.message_id)}
-                  >
-                    Mark as Read
-                  </button>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+          ))
+        )}
       </div>
-    </div>
+    </ClientPortalLayout>
   )
 }
 

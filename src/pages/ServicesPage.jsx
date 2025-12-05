@@ -23,7 +23,7 @@ function ServicesPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price_cents: '',
+    priceDollars: '',
     duration_minutes: ''
   })
 
@@ -97,6 +97,14 @@ function ServicesPage() {
     }))
   }
 
+  const parsePriceToCents = (value) => {
+    const numeric = Number.parseFloat(value)
+    if (Number.isNaN(numeric) || numeric < 0) {
+      return null
+    }
+    return Math.round(numeric * 100)
+  }
+
   const handleAddServiceSubmit = async (e) => {
     e.preventDefault()
     if (!selectedShop) {
@@ -105,7 +113,8 @@ function ServicesPage() {
     }
 
     // Validate required fields
-    if (!formData.name.trim() || !formData.price_cents || !formData.duration_minutes) {
+    const priceCents = parsePriceToCents(formData.priceDollars)
+    if (!formData.name.trim() || priceCents === null || !formData.duration_minutes) {
       setError('Name, price, and duration are required')
       return
     }
@@ -117,13 +126,13 @@ function ServicesPage() {
       const servicePayload = {
         name: formData.name.trim(),
         description: formData.description.trim() || null,
-        price_cents: parseInt(formData.price_cents),
+        price_cents: priceCents,
         duration_minutes: parseInt(formData.duration_minutes)
       }
 
       await createService(selectedShop.id, servicePayload)
       setSaveMessage('Service created successfully!')
-      setFormData({ name: '', description: '', price_cents: '', duration_minutes: '' })
+      setFormData({ name: '', description: '', priceDollars: '', duration_minutes: '' })
       setShowAddForm(false)
       await loadServices(selectedShop.id)
 
@@ -140,7 +149,7 @@ function ServicesPage() {
     setFormData({
       name: service.name,
       description: service.description || '',
-      price_cents: service.price_cents,
+  priceDollars: service.price_cents != null ? String(service.price_cents / 100) : '',
       duration_minutes: service.duration_minutes
     })
     setShowEditForm(true)
@@ -153,6 +162,12 @@ function ServicesPage() {
       return
     }
 
+    const priceCents = parsePriceToCents(formData.priceDollars)
+    if (priceCents === null) {
+      setError('Enter a valid price amount')
+      return
+    }
+
     try {
       setIsLoading(true)
       setError(null)
@@ -160,13 +175,13 @@ function ServicesPage() {
       const servicePayload = {
         name: formData.name.trim(),
         description: formData.description.trim() || null,
-        price_cents: parseInt(formData.price_cents),
+        price_cents: priceCents,
         duration_minutes: parseInt(formData.duration_minutes)
       }
 
       await updateService(selectedShop.id, selectedService.id, servicePayload)
       setSaveMessage('Service updated successfully!')
-      setFormData({ name: '', description: '', price_cents: '', duration_minutes: '' })
+      setFormData({ name: '', description: '', priceDollars: '', duration_minutes: '' })
       setShowEditForm(false)
       setSelectedService(null)
       await loadServices(selectedShop.id)
@@ -244,7 +259,7 @@ function ServicesPage() {
                     setShowAddForm(!showAddForm)
                     setShowEditForm(false)
                     setSelectedService(null)
-                    setFormData({ name: '', description: '', price_cents: '', duration_minutes: '' })
+                    setFormData({ name: '', description: '', priceDollars: '', duration_minutes: '' })
                   }}
                 >
                   {showAddForm ? 'Cancel' : 'Add Service'}
@@ -285,8 +300,8 @@ function ServicesPage() {
                     <input
                       id="price"
                       type="number"
-                      name="price_cents"
-                      value={formData.price_cents}
+                      name="priceDollars"
+                      value={formData.priceDollars}
                       onChange={handleInputChange}
                       placeholder="0.00"
                       step="0.01"
@@ -345,8 +360,8 @@ function ServicesPage() {
                     <input
                       id="edit-price"
                       type="number"
-                      name="price_cents"
-                      value={formData.price_cents}
+                      name="priceDollars"
+                      value={formData.priceDollars}
                       onChange={handleInputChange}
                       step="0.01"
                       min="0"
@@ -376,7 +391,7 @@ function ServicesPage() {
                     onClick={() => {
                       setShowEditForm(false)
                       setSelectedService(null)
-                      setFormData({ name: '', description: '', price_cents: '', duration_minutes: '' })
+                      setFormData({ name: '', description: '', priceDollars: '', duration_minutes: '' })
                     }}
                   >
                     Cancel

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead } from '../api/notifications'
-import Header from '../components/Header'
+import ClientPortalLayout from '../components/ClientPortalLayout'
 import { useAuth } from '../context/AuthContext'
 import './notifications.css'
 
@@ -98,103 +98,106 @@ function NotificationsPage() {
 
   if (loading) {
     return (
-      <div className="page notifications-page">
-        <Header />
-        <div className="page-content">
-          <h1>Notifications</h1>
-          <div className="loading">Loading notifications...</div>
-        </div>
-      </div>
+      <ClientPortalLayout
+        activeKey="notifications"
+        pageClassName="notifications-page"
+        contentClassName="page-content"
+      >
+        <h1>Notifications</h1>
+        <div className="loading">Loading notifications...</div>
+      </ClientPortalLayout>
     )
   }
 
   if (error) {
     return (
-      <div className="page notifications-page">
-        <Header />
-        <div className="page-content">
-          <h1>Notifications</h1>
-          <div className="error">Error: {error}</div>
-        </div>
-      </div>
+      <ClientPortalLayout
+        activeKey="notifications"
+        pageClassName="notifications-page"
+        contentClassName="page-content"
+      >
+        <h1>Notifications</h1>
+        <div className="error">Error: {error}</div>
+      </ClientPortalLayout>
     )
   }
 
   return (
-    <div className="page notifications-page">
-      <Header />
-      <div className="page-content">
-        <div className="notifications-header">
-          <h1>Notifications</h1>
-          <div className="notifications-controls">
-            <div className="filter-buttons">
-              <button
-                type="button"
-                className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-                onClick={() => setFilter('all')}
-              >
-                All ({notifications.length})
-              </button>
-              <button
-                type="button"
-                className={`filter-btn ${filter === 'unread' ? 'active' : ''}`}
-                onClick={() => setFilter('unread')}
-              >
-                Unread ({unreadCount})
-              </button>
-            </div>
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                className="mark-all-read-btn"
-                onClick={markAllAsRead}
-              >
-                Mark All as Read
-              </button>
-            )}
-            <Link to="/discount-alerts" className="view-alerts-link">
-              View discount alerts →
-            </Link>
+    <ClientPortalLayout
+      activeKey="notifications"
+      pageClassName="notifications-page"
+      contentClassName="page-content"
+    >
+      <div className="notifications-header">
+        <h1>Notifications</h1>
+        <div className="notifications-controls">
+          <div className="filter-buttons">
+            <button
+              type="button"
+              className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+              onClick={() => setFilter('all')}
+            >
+              All ({notifications.length})
+            </button>
+            <button
+              type="button"
+              className={`filter-btn ${filter === 'unread' ? 'active' : ''}`}
+              onClick={() => setFilter('unread')}
+            >
+              Unread ({unreadCount})
+            </button>
           </div>
-        </div>
-
-        <div className="notifications-list">
-          {notifications.length === 0 ? (
-            <div className="no-notifications">
-              <p>No notifications found.</p>
-            </div>
-          ) : (
-            notifications.map((notification) => (
-              <div
-                key={notification.notification_id}
-                className={`notification-item ${!notification.is_read ? 'unread' : ''}`}
-              >
-                <div className="notification-icon">
-                  {getNotificationIcon(notification.notification_type)}
-                </div>
-                <div className="notification-content">
-                  <h3 className="notification-title">{notification.title}</h3>
-                  <p className="notification-message">{notification.message}</p>
-                  <span className="notification-date">
-                    {formatDate(notification.created_at)}
-                  </span>
-                </div>
-                {!notification.is_read && (
-                  <button
-                    type="button"
-                    className="mark-read-btn"
-                    onClick={() => markAsRead(notification.notification_id)}
-                    title="Mark as read"
-                  >
-                    ✓
-                  </button>
-                )}
-              </div>
-            ))
+          {unreadCount > 0 && (
+            <button
+              type="button"
+              className="mark-all-read-btn"
+              onClick={markAllAsRead}
+            >
+              Mark All as Read
+            </button>
           )}
+          <Link to="/discount-alerts" className="view-alerts-link">
+            View discount alerts →
+          </Link>
         </div>
       </div>
-    </div>
+
+      <div className="notifications-list">
+        {notifications.length === 0 ? (
+          <div className="no-notifications">
+            <p>No notifications found.</p>
+          </div>
+        ) : (
+          notifications.map((notification) => (
+            <div
+              key={notification.notification_id}
+              className={`notification-item ${!notification.is_read ? 'unread' : ''}`}
+            >
+              <div className="notification-icon">
+                {getNotificationIcon(notification.notification_type)}
+              </div>
+              <div className="notification-content">
+                <h3 className="notification-title">{notification.title}</h3>
+                <p className="notification-message">{notification.message}</p>
+                <span className="notification-date">
+                  {formatDate(notification.created_at)}
+                </span>
+              </div>
+              {!notification.is_read && (
+                <button
+                  type="button"
+                  className="mark-read-btn"
+                  onClick={() => markAsRead(notification.notification_id)}
+                  title="Mark as read"
+                >
+                  ✓
+                </button>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </ClientPortalLayout>
   )
 }
 
