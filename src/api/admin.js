@@ -119,3 +119,7 @@ export async function getRevenueMetrics() {
   return get('/admin/revenue-metrics')
 }
 
+export async function getAppointmentTrends() {
+  return get('/admin/appointment-trends')
+}
+

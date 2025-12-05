@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getPlatformStats, getRevenueMetrics } from '../api/admin'
+import { getPlatformStats, getRevenueMetrics, getAppointmentTrends } from '../api/admin'
 import { listAppointments } from '../api/appointments'
 import { getUserLoyalty } from '../api/loyalty'
 import { getSalonPaymentStats } from '../api/payments'
@@ -143,6 +143,9 @@ function DashboardPage() {
   const [revenueMetrics, setRevenueMetrics] = useState(null)
   const [revenueMetricsLoading, setRevenueMetricsLoading] = useState(false)
   const [revenueMetricsError, setRevenueMetricsError] = useState(null)
+  const [appointmentTrends, setAppointmentTrends] = useState(null)
+  const [appointmentTrendsLoading, setAppointmentTrendsLoading] = useState(false)
+  const [appointmentTrendsError, setAppointmentTrendsError] = useState(null)
 
   // Refresh user activity when dashboard is accessed
   useEffect(() => {
@@ -632,11 +635,28 @@ function DashboardPage() {
     }
   }
 
-  // Fetch platform stats and revenue metrics when admin logs in
+  const fetchAppointmentTrends = async () => {
+    try {
+      setAppointmentTrendsLoading(true)
+      setAppointmentTrendsError(null)
+      const data = await getAppointmentTrends()
+      if (data && data.appointment_trends) {
+        setAppointmentTrends(data.appointment_trends)
+      }
+    } catch (error) {
+      console.error('Error fetching appointment trends:', error)
+      setAppointmentTrendsError(error.message)
+    } finally {
+      setAppointmentTrendsLoading(false)
+    }
+  }
+
+  // Fetch platform stats, revenue metrics, and appointment trends when admin logs in
   useEffect(() => {
     if (user?.role === 'admin') {
       fetchPlatformStats()
       fetchRevenueMetrics()
+      fetchAppointmentTrends()
     }
   }, [user])
 
@@ -1533,7 +1553,7 @@ function DashboardPage() {
                   <div className="insights-list">
                     <div className="insight-item">
                       <h4>Peak Usage Hours</h4>
-                      <p>{adminData.appointmentTrends.peakHours}</p>
+                      <p>{appointmentTrendsLoading ? '...' : appointmentTrends?.peak_hours || 'N/A'}</p>
                     </div>
                     <div className="insight-item">
                       <h4>Average Salon Revenue</h4>
