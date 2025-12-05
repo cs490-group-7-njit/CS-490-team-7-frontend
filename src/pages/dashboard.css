@@ -394,6 +394,8 @@
 .delta {
   font-size: 0.8rem;
   font-weight: 600;
+  display: block;
+  margin-top: 8px;
 }
 
 .delta.positive {
@@ -530,7 +532,7 @@
 /* Admin Dashboard Styles */
 .admin-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
@@ -541,6 +543,7 @@
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
   border: 1px solid rgba(226, 232, 240, 0.6);
   overflow: hidden;
+  min-height: 120px;
 }
 
 .metric-card h3 {
@@ -557,9 +560,8 @@
   color: #0f172a;
   margin: 0;
   display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.2;
 }
 
 .metric-subtitle {
