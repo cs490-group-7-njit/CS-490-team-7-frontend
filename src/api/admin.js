@@ -109,3 +109,9 @@ export async function generateReport(options = {}) {
 
   return get(`/admin/reports?${params}`)
 }
+
+// Get real platform statistics (actual data from database)
+export async function getPlatformStats() {
+  return get('/admin/platform-stats')
+}
+

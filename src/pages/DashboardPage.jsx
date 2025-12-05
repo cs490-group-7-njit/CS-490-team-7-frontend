@@ -6,6 +6,7 @@ import { getSalonAppointments } from '../api/vendorAppointments'
 import { getSalonReviews } from '../api/reviews'
 import { getSalonPaymentStats } from '../api/payments'
 import { getUserLoyalty } from '../api/loyalty'
+import { getPlatformStats } from '../api/admin'
 import Header from '../components/Header'
 import VendorPortalLayout from '../components/VendorPortalLayout'
 import { useAuth } from '../context/AuthContext'
@@ -134,6 +135,11 @@ function DashboardPage() {
   const [appointmentsLoading, setAppointmentsLoading] = useState(false)
   const [recentVisits, setRecentVisits] = useState([])
   const [recentVisitsLoading, setRecentVisitsLoading] = useState(false)
+
+  // Admin platform stats
+  const [platformStats, setPlatformStats] = useState(null)
+  const [platformStatsLoading, setPlatformStatsLoading] = useState(false)
+  const [platformStatsError, setPlatformStatsError] = useState(null)
 
   // Refresh user activity when dashboard is accessed
   useEffect(() => {
@@ -590,6 +596,29 @@ function DashboardPage() {
       setRecentVisitsLoading(false)
     }
   }
+
+  const fetchPlatformStats = async () => {
+    try {
+      setPlatformStatsLoading(true)
+      setPlatformStatsError(null)
+      const data = await getPlatformStats()
+      if (data && data.platform_stats) {
+        setPlatformStats(data.platform_stats)
+      }
+    } catch (error) {
+      console.error('Error fetching platform stats:', error)
+      setPlatformStatsError(error.message)
+    } finally {
+      setPlatformStatsLoading(false)
+    }
+  }
+
+  // Fetch platform stats when admin logs in
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      fetchPlatformStats()
+    }
+  }, [user])
 
   const userRole = user?.role || 'client'
 
@@ -1309,16 +1338,16 @@ function DashboardPage() {
                 <div className="admin-metrics-grid">
                   <div className="metric-card">
                     <h3>Total Users</h3>
-                    <p className="metric-value">{adminData.platformStats.totalUsers.toLocaleString()}</p>
+                    <p className="metric-value">{platformStatsLoading ? '...' : platformStats?.users.total.toLocaleString()}</p>
                   </div>
                   <div className="metric-card">
                     <h3>Active Salons</h3>
-                    <p className="metric-value">{adminData.platformStats.activeSalons}</p>
+                    <p className="metric-value">{platformStatsLoading ? '...' : platformStats?.salons.active}</p>
                   </div>
                   <div className="metric-card">
                     <h3>Today's Appointments</h3>
-                    <p className="metric-value">{adminData.appointmentTrends.todayAppointments.toLocaleString()}</p>
-                    <span className="delta positive">{adminData.appointmentTrends.weeklyGrowth}</span>
+                    <p className="metric-value">{platformStatsLoading ? '...' : platformStats?.appointments.today.toLocaleString()}</p>
+                    <span className="delta positive">{platformStats?.appointments.completion_rate}% completed</span>
                   </div>
                   <div className="metric-card">
                     <h3>Loyalty Members</h3>
