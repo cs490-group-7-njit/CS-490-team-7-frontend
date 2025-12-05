@@ -139,3 +139,15 @@ export async function getRetentionMetrics() {
   return get('/admin/retention-metrics')
 }
 
+export async function getPlatformHealth() {
+  return get('/admin/health/platform')
+}
+
+export async function getPlatformUptime() {
+  return get('/admin/health/uptime')
+}
+
+export async function getHealthAlerts() {
+  return get('/admin/health/alerts')
+}
+

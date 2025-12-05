@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getPlatformStats, getRevenueMetrics, getAppointmentTrends, getLoyaltyProgram, getPendingActions, getUserDemographics, getRetentionMetrics } from '../api/admin'
+import { getPlatformStats, getRevenueMetrics, getAppointmentTrends, getLoyaltyProgram, getPendingActions, getUserDemographics, getRetentionMetrics, getPlatformHealth, getPlatformUptime, getHealthAlerts } from '../api/admin'
 import { listAppointments } from '../api/appointments'
 import { getUserLoyalty } from '../api/loyalty'
 import { getSalonPaymentStats } from '../api/payments'
@@ -158,6 +158,15 @@ function DashboardPage() {
   const [retentionMetrics, setRetentionMetrics] = useState(null)
   const [retentionMetricsLoading, setRetentionMetricsLoading] = useState(false)
   const [retentionMetricsError, setRetentionMetricsError] = useState(null)
+  const [platformHealth, setPlatformHealth] = useState(null)
+  const [platformHealthLoading, setPlatformHealthLoading] = useState(false)
+  const [platformHealthError, setPlatformHealthError] = useState(null)
+  const [platformUptime, setPlatformUptime] = useState(null)
+  const [platformUptimeLoading, setPlatformUptimeLoading] = useState(false)
+  const [platformUptimeError, setPlatformUptimeError] = useState(null)
+  const [healthAlerts, setHealthAlerts] = useState(null)
+  const [healthAlertsLoading, setHealthAlertsLoading] = useState(false)
+  const [healthAlertsError, setHealthAlertsError] = useState(null)
 
   // Refresh user activity when dashboard is accessed
   useEffect(() => {
@@ -727,6 +736,54 @@ function DashboardPage() {
     }
   }
 
+  const fetchPlatformHealth = async () => {
+    try {
+      setPlatformHealthLoading(true)
+      setPlatformHealthError(null)
+      const data = await getPlatformHealth()
+      if (data && data.health) {
+        setPlatformHealth(data.health)
+      }
+    } catch (error) {
+      console.error('Error fetching platform health:', error)
+      setPlatformHealthError(error.message)
+    } finally {
+      setPlatformHealthLoading(false)
+    }
+  }
+
+  const fetchPlatformUptime = async () => {
+    try {
+      setPlatformUptimeLoading(true)
+      setPlatformUptimeError(null)
+      const data = await getPlatformUptime()
+      if (data && data.uptime) {
+        setPlatformUptime(data.uptime)
+      }
+    } catch (error) {
+      console.error('Error fetching platform uptime:', error)
+      setPlatformUptimeError(error.message)
+    } finally {
+      setPlatformUptimeLoading(false)
+    }
+  }
+
+  const fetchHealthAlerts = async () => {
+    try {
+      setHealthAlertsLoading(true)
+      setHealthAlertsError(null)
+      const data = await getHealthAlerts()
+      if (data && data.alerts !== undefined) {
+        setHealthAlerts(data.alerts)
+      }
+    } catch (error) {
+      console.error('Error fetching health alerts:', error)
+      setHealthAlertsError(error.message)
+    } finally {
+      setHealthAlertsLoading(false)
+    }
+  }
+
   // Fetch all admin data when admin logs in
   useEffect(() => {
     if (user?.role === 'admin') {
@@ -737,6 +794,9 @@ function DashboardPage() {
       fetchPendingActions()
       fetchUserDemographics()
       fetchRetentionMetrics()
+      fetchPlatformHealth()
+      fetchPlatformUptime()
+      fetchHealthAlerts()
     }
   }, [user])
 
@@ -1686,6 +1746,38 @@ function DashboardPage() {
                         <span className="chart-value">{userDemographicsLoading ? '...' : `${userDemographics?.by_role?.clients?.percentage || 0}%`}</span>
                         <span className="chart-label">Client Base</span>
                       </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article className="reviews-card" aria-label="Platform health">
+                  <header>
+                    <h2>Platform Health & Monitoring</h2>
+                  </header>
+                  <div className="insights-list">
+                    <div className="insight-item">
+                      <h4>System Status</h4>
+                      <p>{platformHealthLoading ? '...' : platformHealth?.system_status || 'Operational'}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Uptime</h4>
+                      <p>{platformUptimeLoading ? '...' : `${platformUptime?.uptime_percentage || 0}%`}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Database Health</h4>
+                      <p>{platformHealthLoading ? '...' : platformHealth?.database_status || 'Healthy'}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Error Rate</h4>
+                      <p>{platformHealthLoading ? '...' : `${platformHealth?.error_rate_percentage || 0}%`}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>Active Alerts</h4>
+                      <p>{healthAlertsLoading ? '...' : healthAlerts?.alert_count || 0}</p>
+                    </div>
+                    <div className="insight-item">
+                      <h4>API Response Time</h4>
+                      <p>{platformHealthLoading ? '...' : `${platformHealth?.avg_response_time_ms || 0}ms`}</p>
                     </div>
                   </div>
                 </article>
