@@ -959,11 +959,6 @@ function DashboardPage() {
       case 'Salon Management':
         navigate('/admin/salons')
         break
-      case 'Salon Verification':
-        // TODO: Implement a dedicated salon verification page.
-        // For now, route to admin salons where verification happens
-        navigate('/admin/salons')
-        break
       case 'Reports':
         // No dedicated reports page yet – use analytics for now
         navigate('/admin/analytics')
@@ -987,7 +982,7 @@ function DashboardPage() {
       case 'client':
         return ['Dashboard', 'My Bookings', 'Messages', 'Notifications', 'Favorite Salons', 'Rewards', 'Profile']
       case 'admin':
-        return ['Dashboard', 'User Management', 'Salon Management', 'Salon Verification', 'Reports', 'System Health', 'Settings']
+        return ['Dashboard', 'User Management', 'Salon Management', 'Reports', 'System Health', 'Settings']
       default: // vendor
         return ['Dashboard', 'Appointments', 'My Shops', 'Services', 'Staff', 'Reviews', 'Revenue', 'Marketing', 'Products', 'Shop Info']
     }
