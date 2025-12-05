@@ -72,7 +72,7 @@ function Header({ showSearch = true, showSignupLink = false }) {
             <Link to="/dashboard" className="nav-link">
               Dashboard
             </Link>
-            {(user?.role === 'vendor' || user?.role === 'admin') && (
+            {user?.role === 'vendor' && (
               <Link to="/staff" className="nav-link">
                 Staff
               </Link>
