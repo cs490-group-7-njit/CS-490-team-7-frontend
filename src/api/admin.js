@@ -123,3 +123,11 @@ export async function getAppointmentTrends() {
   return get('/admin/appointment-trends')
 }
 
+export async function getLoyaltyProgram() {
+  return get('/admin/loyalty-program')
+}
+
+export async function getPendingActions() {
+  return get('/admin/pending-actions')
+}
+

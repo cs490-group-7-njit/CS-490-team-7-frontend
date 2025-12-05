@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getPlatformStats, getRevenueMetrics, getAppointmentTrends } from '../api/admin'
+import { getPlatformStats, getRevenueMetrics, getAppointmentTrends, getLoyaltyProgram, getPendingActions } from '../api/admin'
 import { listAppointments } from '../api/appointments'
 import { getUserLoyalty } from '../api/loyalty'
 import { getSalonPaymentStats } from '../api/payments'
@@ -146,6 +146,12 @@ function DashboardPage() {
   const [appointmentTrends, setAppointmentTrends] = useState(null)
   const [appointmentTrendsLoading, setAppointmentTrendsLoading] = useState(false)
   const [appointmentTrendsError, setAppointmentTrendsError] = useState(null)
+  const [loyaltyProgram, setLoyaltyProgram] = useState(null)
+  const [loyaltyProgramLoading, setLoyaltyProgramLoading] = useState(false)
+  const [loyaltyProgramError, setLoyaltyProgramError] = useState(null)
+  const [pendingActions, setPendingActions] = useState(null)
+  const [pendingActionsLoading, setPendingActionsLoading] = useState(false)
+  const [pendingActionsError, setPendingActionsError] = useState(null)
 
   // Refresh user activity when dashboard is accessed
   useEffect(() => {
@@ -651,12 +657,46 @@ function DashboardPage() {
     }
   }
 
-  // Fetch platform stats, revenue metrics, and appointment trends when admin logs in
+  const fetchLoyaltyProgram = async () => {
+    try {
+      setLoyaltyProgramLoading(true)
+      setLoyaltyProgramError(null)
+      const data = await getLoyaltyProgram()
+      if (data && data.loyalty_program) {
+        setLoyaltyProgram(data.loyalty_program)
+      }
+    } catch (error) {
+      console.error('Error fetching loyalty program:', error)
+      setLoyaltyProgramError(error.message)
+    } finally {
+      setLoyaltyProgramLoading(false)
+    }
+  }
+
+  const fetchPendingActions = async () => {
+    try {
+      setPendingActionsLoading(true)
+      setPendingActionsError(null)
+      const data = await getPendingActions()
+      if (data && data.pending_actions !== undefined) {
+        setPendingActions(data.pending_actions)
+      }
+    } catch (error) {
+      console.error('Error fetching pending actions:', error)
+      setPendingActionsError(error.message)
+    } finally {
+      setPendingActionsLoading(false)
+    }
+  }
+
+  // Fetch all admin data when admin logs in
   useEffect(() => {
     if (user?.role === 'admin') {
       fetchPlatformStats()
       fetchRevenueMetrics()
       fetchAppointmentTrends()
+      fetchLoyaltyProgram()
+      fetchPendingActions()
     }
   }, [user])
 
@@ -1391,8 +1431,8 @@ function DashboardPage() {
                   </div>
                   <div className="metric-card">
                     <h3>Loyalty Members</h3>
-                    <p className="metric-value">{adminData.loyaltyProgram.activeMembers.toLocaleString()}</p>
-                    <p className="metric-subtitle">{adminData.loyaltyProgram.programUsage} engagement</p>
+                    <p className="metric-value">{loyaltyProgramLoading ? '...' : loyaltyProgram?.active_members?.toLocaleString() || 0}</p>
+                    <p className="metric-subtitle">{loyaltyProgramLoading ? '...' : `${loyaltyProgram?.program_usage || 0}% engagement`}</p>
                   </div>
                 </div>
               </section>
@@ -1404,26 +1444,32 @@ function DashboardPage() {
                   </div>
                 </header>
                 <div className="pending-actions">
-                  {adminData.pendingActions.map((action, index) => (
-                    <div key={index} className={`action-item ${action.priority}`}>
-                      <div className="action-details">
-                        <h4>{action.type === 'verification' ? 'Salon Verification' : 'Report Generation'}</h4>
-                        <p>{action.salon || action.item}</p>
+                  {pendingActionsLoading ? (
+                    <p>Loading...</p>
+                  ) : pendingActions && pendingActions.length > 0 ? (
+                    pendingActions.map((action, index) => (
+                      <div key={index} className={`action-item ${action.priority}`}>
+                        <div className="action-details">
+                          <h4>{action.type === 'verification' ? 'Salon Verification' : 'Report Generation'}</h4>
+                          <p>{action.salon_name || action.item}</p>
+                        </div>
+                        <span className={`priority-badge ${action.priority}`}>{action.priority}</span>
+                        <button
+                          type="button"
+                          className="pill-button"
+                          onClick={() =>
+                            action.type === 'verification'
+                              ? navigate('/admin/salons')
+                              : navigate('/admin/analytics')
+                          }
+                        >
+                          Review
+                        </button>
                       </div>
-                      <span className={`priority-badge ${action.priority}`}>{action.priority}</span>
-                      <button
-                        type="button"
-                        className="pill-button"
-                        onClick={() =>
-                          action.type === 'verification'
-                            ? navigate('/admin/salons')
-                            : navigate('/admin/analytics')
-                        }
-                      >
-                        Review
-                      </button>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p>No pending actions</p>
+                  )}
                 </div>
               </section>
             </>
@@ -1561,7 +1607,7 @@ function DashboardPage() {
                     </div>
                     <div className="insight-item">
                       <h4>Points Redeemed This Month</h4>
-                      <p>{adminData.loyaltyProgram.pointsRedeemed}</p>
+                      <p>{loyaltyProgramLoading ? '...' : `${(loyaltyProgram?.points_redeemed_month / 1000000).toFixed(1)}M` || '0'}</p>
                     </div>
                   </div>
                 </article>
