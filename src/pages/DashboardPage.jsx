@@ -1229,7 +1229,7 @@ function DashboardPage() {
                 <div className="summary-card">
                   <p className="summary-title">System Status</p>
                   <p className="summary-status">
-                    <span className="status-dot" aria-hidden="true" /> {adminData.platformStats.systemUptime} Uptime
+                    <span className="status-dot" aria-hidden="true" /> {platformStatsLoading ? '...' : `${platformStats?.system?.uptime || '99.9%'} Uptime`}
                   </p>
                   <button
                     type="button"
@@ -1243,7 +1243,7 @@ function DashboardPage() {
                 <div className="summary-card">
                   <p className="summary-title">Pending Verifications</p>
                   <p className="summary-subtitle">
-                    {adminData.platformStats.pendingVerifications} salons awaiting verification
+                    {platformStatsLoading ? '...' : `${platformStats?.salons?.pending_verification || 0} salons awaiting verification`}
                   </p>
                   <button
                     type="button"
