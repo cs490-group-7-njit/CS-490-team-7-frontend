@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getMyShops } from '../api/shops'
+import { getSalonProducts, createSalonProduct, updateSalonProduct, deleteSalonProduct } from '../api/products'
 import VendorPortalLayout from '../components/VendorPortalLayout'
 import { useAuth } from '../context/AuthContext'
 import hydratingShampooImage from '../assets/Shampoo.png'
