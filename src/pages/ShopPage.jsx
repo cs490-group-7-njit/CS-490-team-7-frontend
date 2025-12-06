@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMyShops } from '../api/shops'
 import { searchSalons } from '../api/salons'
+import { getSalonProducts } from '../api/products'
 import Header from '../components/Header'
 import { useShoppingCart } from '../context/ShoppingCartContext'
 import { useAuth } from '../context/AuthContext'
@@ -34,56 +35,50 @@ function ShopPage() {
       const allSalons = salonsResponse.salons || []
       console.log('📍 Fetched salons:', allSalons.length, allSalons.map(s => ({ id: s.id || s.salon_id, name: s.name })))
 
-      // Load products from localStorage for each salon
+      // Load products from backend API for each salon
       const allProducts = []
       
       for (const salon of allSalons) {
         const salonId = salon.id || salon.salon_id
-        const storageKey = `${LOCAL_STORAGE_KEY_PREFIX}.${salonId}`
-        
         try {
-          const catalogJson = localStorage.getItem(storageKey)
-          if (catalogJson) {
-            const catalog = JSON.parse(catalogJson)
-            console.log(`📦 Found products for salon ${salonId}:`, catalog)
-            
-            // Array format
-            if (Array.isArray(catalog)) {
-              catalog.forEach((product) => {
-                allProducts.push({
-                  ...product,
-                  salonId,
-                  salonName: salon.name,
-                })
-              })
+          const productsResponse = await getSalonProducts(salonId, { limit: 100 })
+          const salonProducts = productsResponse.products || []
+          console.log(`📦 Found ${salonProducts.length} products for salon ${salonId} (${salon.name})`)
+          
+          salonProducts.forEach((product) => {
+            // Normalize backend product format to frontend format
+            const normalizedProduct = {
+              id: product.id || product.product_id,
+              name: product.name,
+              description: product.description,
+              priceCents: product.price_cents,
+              retailPriceCents: product.price_cents, // Backend doesn't have retail price
+              inventory: product.stock_quantity,
+              status: 'published', // Backend products are already filtered as available
+              tags: product.category ? [product.category] : [],
+              imageUrl: null, // Backend doesn't store images yet
+              salonId,
+              salonName: salon.name,
+              is_available: product.is_available,
             }
-            // Object format (keyed by salonId)
-            else if (typeof catalog === 'object' && catalog[salonId]) {
-              catalog[salonId].forEach((product) => {
-                allProducts.push({
-                  ...product,
-                  salonId,
-                  salonName: salon.name,
-                })
-              })
-            }
-          }
-        } catch (parseError) {
-          console.warn(`Failed to parse products for salon ${salonId}:`, parseError)
+            allProducts.push(normalizedProduct)
+          })
+        } catch (err) {
+          console.warn(`Failed to load products for salon ${salonId}:`, err)
         }
       }
 
       console.log('✅ Total products found:', allProducts.length)
-      console.log('📊 Products by status:', allProducts.reduce((acc, p) => ({ ...acc, [p.status]: (acc[p.status] || 0) + 1 }), {}))
+      console.log('📊 Products:', allProducts.map(p => ({ id: p.id, name: p.name, salon: p.salonName, available: p.is_available })))
 
-      // Filter to published products only
-      const publishedProducts = allProducts.filter(
-        (p) => p.status === 'published'
+      // Filter to available products only
+      const availableProducts = allProducts.filter(
+        (p) => p.is_available !== false
       )
 
-      console.log('🎉 Published products:', publishedProducts.length)
-      setProducts(publishedProducts)
-      setFilteredProducts(publishedProducts)
+      console.log('🎉 Available products:', availableProducts.length)
+      setProducts(availableProducts)
+      setFilteredProducts(availableProducts)
     } catch (err) {
       console.error('Error loading products:', err)
       setError(err.message || 'Failed to load products')
