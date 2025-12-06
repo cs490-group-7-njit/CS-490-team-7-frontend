@@ -32,6 +32,7 @@ function ShopPage() {
       // Get all salons (this is a public endpoint)
       const salonsResponse = await searchSalons({ limit: 100 })
       const allSalons = salonsResponse.salons || []
+      console.log('📍 Fetched salons:', allSalons.length, allSalons.map(s => ({ id: s.id || s.salon_id, name: s.name })))
 
       // Load products from localStorage for each salon
       const allProducts = []
@@ -44,6 +45,7 @@ function ShopPage() {
           const catalogJson = localStorage.getItem(storageKey)
           if (catalogJson) {
             const catalog = JSON.parse(catalogJson)
+            console.log(`📦 Found products for salon ${salonId}:`, catalog)
             
             // Array format
             if (Array.isArray(catalog)) {
@@ -71,11 +73,15 @@ function ShopPage() {
         }
       }
 
+      console.log('✅ Total products found:', allProducts.length)
+      console.log('📊 Products by status:', allProducts.reduce((acc, p) => ({ ...acc, [p.status]: (acc[p.status] || 0) + 1 }), {}))
+
       // Filter to published products only
       const publishedProducts = allProducts.filter(
         (p) => p.status === 'published'
       )
 
+      console.log('🎉 Published products:', publishedProducts.length)
       setProducts(publishedProducts)
       setFilteredProducts(publishedProducts)
     } catch (err) {
