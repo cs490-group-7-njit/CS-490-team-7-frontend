@@ -71,9 +71,11 @@ export default function PromotionsPage() {
       setLoading(true);
       const response = await getSalonPromotions(selectedSalonId);
       setPromotions(response);
+      return response;
     } catch (err) {
       setError('Failed to load promotions');
       console.error(err);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -118,6 +120,7 @@ export default function PromotionsPage() {
 
     try {
       setLoading(true);
+      setError(null);
       
       // Transform form data to match backend API requirements
       let discount_percentage = 0;
@@ -142,7 +145,8 @@ export default function PromotionsPage() {
         vendor_id: user?.id || user?.user_id, // Include vendor ID for authorization
       };
 
-      await createPromotion(selectedSalonId, promotionPayload);
+      const response = await createPromotion(selectedSalonId, promotionPayload);
+      console.log('Promotion created successfully:', response);
 
       // Reset form
       setFormData({
@@ -159,12 +163,19 @@ export default function PromotionsPage() {
       });
 
       setViewMode('list');
-      loadPromotions();
-      loadStats();
-      setError(null);
+      
+      // Reload promotions
+      console.log('Loading promotions...');
+      const promoResponse = await loadPromotions();
+      console.log('Promotions loaded:', promoResponse);
+      
+      await loadStats();
+      
+      // Show success message
+      alert('Promotion created successfully!');
     } catch (err) {
-      setError('Failed to create promotion');
-      console.error(err);
+      console.error('Error creating promotion:', err);
+      setError(err.message || 'Failed to create promotion');
     } finally {
       setLoading(false);
     }
