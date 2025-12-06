@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { cancelAppointment, completeAppointment, getAppointment, getAvailableSlotsForReschedule, rescheduleAppointment } from '../api/appointmentDetails'
-import Header from '../components/Header'
 import BeforeAfterGalleryUploader from '../components/BeforeAfterGalleryUploader'
+import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import './appointment-details.css'
 
@@ -375,7 +375,7 @@ function AppointmentDetailsPage() {
 
           {/* Gallery - Before/After Images */}
           <section className="section gallery-section">
-            <BeforeAfterGalleryUploader 
+            <BeforeAfterGalleryUploader
               appointmentId={appointmentId}
               onImagesUpdated={() => loadAppointment()}
               readOnly={false}

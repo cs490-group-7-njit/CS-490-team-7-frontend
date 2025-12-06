@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMyShops } from '../api/shops'
+import { searchSalons } from '../api/salons'
 import Header from '../components/Header'
 import { useShoppingCart } from '../context/ShoppingCartContext'
 import { useAuth } from '../context/AuthContext'
@@ -29,15 +30,8 @@ function ShopPage() {
       setError(null)
 
       // Get all salons (this is a public endpoint)
-      const response = await fetch('http://3.129.138.4/api/salons', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!response.ok) throw new Error('Failed to load salons')
-      
-      const salonsData = await response.json()
-      const allSalons = salonsData.salons || []
+      const salonsResponse = await searchSalons({ limit: 100 })
+      const allSalons = salonsResponse.salons || []
 
       // Load products from localStorage for each salon
       const allProducts = []
