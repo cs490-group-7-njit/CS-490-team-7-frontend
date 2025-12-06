@@ -111,14 +111,37 @@ export default function PromotionsPage() {
 
   const handleCreatePromotion = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.description) {
-      setError('Title and description are required');
+    if (!formData.description || !formData.discount_value || !formData.end_date) {
+      setError('Description, discount value, and end date are required');
       return;
     }
 
     try {
       setLoading(true);
-      await createPromotion(selectedSalonId, formData);
+      
+      // Transform form data to match backend API requirements
+      let discount_percentage = 0;
+      let discount_cents = 0;
+      
+      if (formData.discount_type === 'percentage') {
+        // For percentage: send percentage value and calculated cents
+        discount_percentage = formData.discount_value;
+        discount_cents = Math.round(formData.discount_value * 100); // Convert to cents representation
+      } else {
+        // For fixed amount: discount_percentage = 0, discount_cents = amount in cents
+        discount_percentage = 0;
+        discount_cents = Math.round(formData.discount_value);
+      }
+      
+      const promotionPayload = {
+        discount_percentage: discount_percentage,
+        discount_cents: discount_cents,
+        description: formData.description,
+        expires_at: new Date(formData.end_date).toISOString(),
+        target_clients: formData.target_segment,
+      };
+
+      await createPromotion(selectedSalonId, promotionPayload);
 
       // Reset form
       setFormData({
