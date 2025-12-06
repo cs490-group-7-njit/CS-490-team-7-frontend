@@ -139,6 +139,7 @@ export default function PromotionsPage() {
         description: formData.description,
         expires_at: new Date(formData.end_date).toISOString(),
         target_clients: formData.target_segment,
+        vendor_id: user?.id || user?.user_id, // Include vendor ID for authorization
       };
 
       await createPromotion(selectedSalonId, promotionPayload);
