@@ -335,16 +335,15 @@ function AppointmentDetailsPage() {
               <button
                 className="btn-rate-staff"
                 onClick={() => {
-                  console.log('Staff object:', appointment.staff)
-                  const staffId = appointment.staff.staff_id || appointment.staff.id
-                  if (!staffId) {
-                    console.error('No staff ID found')
+                  const salonId = appointment.salon?.id ?? appointment.salon?.salon_id ?? appointment.salon_id
+                  if (!salonId) {
+                    console.error('No salon ID found')
                     return
                   }
-                  navigate(`/staff/${staffId}/rate`);
+                  navigate(`/salons/${salonId}`);
                 }}
               >
-                ⭐ Rate This Staff Member
+                ⭐ Review This Salon
               </button>
             </div>
           </section>
