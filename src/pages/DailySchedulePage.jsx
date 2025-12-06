@@ -6,10 +6,13 @@ import {
 } from '../api/schedule'
 import { getMyShops } from '../api/shops'
 import { getStaffBySalon } from '../api/staff'
+import { useAuth } from '../context/AuthContext'
 import './daily-schedule.css'
 
 export default function DailySchedulePage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const isBarber = user?.role === 'barber'
   const [shops, setShops] = useState([])
   const [selectedShop, setSelectedShop] = useState(null)
   const [staffList, setStaffList] = useState([])
@@ -23,8 +26,36 @@ export default function DailySchedulePage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    loadShops()
-  }, [])
+    if (isBarber) {
+      loadBarberSchedule()
+    } else {
+      loadShops()
+    }
+  }, [isBarber])
+
+  const loadBarberSchedule = async () => {
+    try {
+      setLoading(true)
+      // Call the barber-specific endpoint to get their schedule
+      const response = await fetch(`/api/barbers/me/daily-schedule?date=${selectedDate}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('salonhub.auth') ? JSON.parse(localStorage.getItem('salonhub.auth')).token : ''}`
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setSchedule(data)
+        setError('')
+      } else {
+        setError('Failed to load your schedule')
+      }
+    } catch (err) {
+      console.error('Error loading barber schedule:', err)
+      setError('Failed to load your schedule')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const loadShops = async () => {
     try {
@@ -152,11 +183,12 @@ export default function DailySchedulePage() {
   return (
     <div className="daily-schedule-page">
       <div className="schedule-container">
-        <h1>Daily Schedule</h1>
-        <p className="subtitle">View and manage your appointment schedule</p>
+        <h1>{isBarber ? 'Your Daily Schedule' : 'Daily Schedule'}</h1>
+        <p className="subtitle">{isBarber ? 'Your appointments for today' : 'View and manage your appointment schedule'}</p>
 
         {error && <div className="error-message">{error}</div>}
 
+        {!isBarber && (
         <div className="controls-section">
           <div className="control-group">
             <label htmlFor="shop-select">Select Shop</label>
@@ -229,23 +261,46 @@ export default function DailySchedulePage() {
             </>
           )}
         </div>
+        )}
+
+        {isBarber && (
+          <div className="barber-controls">
+            <div className="control-group">
+              <label htmlFor="date-input">Date</label>
+              <input
+                id="date-input"
+                type="date"
+                value={selectedDate}
+                onChange={(e) => {
+                  setSelectedDate(e.target.value)
+                  loadBarberSchedule()
+                }}
+                disabled={loading}
+              />
+            </div>
+          </div>
+        )}
 
         {schedule && (
           <div className="schedule-display">
             {viewMode === 'daily' ? (
               <div className="daily-schedule">
                 <div className="schedule-header">
-                  <h2>{formatDate(selectedDate)}</h2>
-                  <p>
-                    {schedule.staff_name} - {schedule.salon_name}
-                  </p>
-                  <p className="business-hours">
-                    Hours: {schedule.business_hours.opening_time} -{' '}
-                    {schedule.business_hours.closing_time}
-                  </p>
+                  <h2>{isBarber ? formatDate(selectedDate) : formatDate(selectedDate)}</h2>
+                  {!isBarber && (
+                    <>
+                      <p>
+                        {schedule.staff_name} - {schedule.salon_name}
+                      </p>
+                      <p className="business-hours">
+                        Hours: {schedule.business_hours.opening_time} -{' '}
+                        {schedule.business_hours.closing_time}
+                      </p>
+                    </>
+                  )}
                 </div>
 
-                {schedule.appointments.length === 0 ? (
+                {schedule.appointments && schedule.appointments.length === 0 ? (
                   <p className="no-appointments">No appointments scheduled</p>
                 ) : (
                   <div className="appointments-grid">

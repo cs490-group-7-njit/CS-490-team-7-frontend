@@ -8,10 +8,13 @@ import {
   getTimeBlocksForDate,
   updateTimeBlock
 } from '../api/timeblocks'
+import { useAuth } from '../context/AuthContext'
 import './block-time-slots.css'
 
 export default function BlockTimeSlotsPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const isBarber = user?.role === 'barber'
   const [shops, setShops] = useState([])
   const [selectedShop, setSelectedShop] = useState(null)
   const [staffList, setStaffList] = useState([])
