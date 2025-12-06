@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getStaffRating, getStaffReviews, rateStaff } from '../api/staffRatings';
+import { getStaffReviews, rateStaff } from '../api/staffRatings';
 import { useAuth } from '../context/AuthContext';
 import '../pages/staff-rating.css';
 
@@ -33,21 +33,12 @@ export default function StaffRatingPage() {
     try {
       setLoading(true);
 
-      // Fetch staff rating stats
-      const ratingData = await getStaffRating(staffId);
-      setAvgRating(ratingData.avg_rating);
-      setTotalRatings(ratingData.total_ratings);
-
       // Fetch existing reviews
       const reviewsData = await getStaffReviews(staffId, 1, 5);
       setReviews(reviewsData.reviews);
 
-      // Try to get staff name from the first review or set a generic name
-      if (reviewsData.reviews.length > 0) {
-        setStaffName(`Staff Member #${staffId}`);
-      } else {
-        setStaffName(`Staff Member #${staffId}`);
-      }
+      // Set staff name based on reviews or use generic name
+      setStaffName(`Staff Member #${staffId}`);
     } catch (err) {
       setError('Failed to load staff data');
       console.error(err);
