@@ -159,6 +159,149 @@ function toCents(value) {
   return Math.round(number * 100)
 }
 
+function useBackendCatalog(vendorId, shops) {
+  const [catalogBySalon, setCatalogBySalon] = useState({})
+  const [loading, setLoading] = useState(false)
+
+  // Load products from backend for all shops
+  useEffect(() => {
+    if (!vendorId || !shops || shops.length === 0) {
+      setCatalogBySalon({})
+      return
+    }
+
+    const loadAllProducts = async () => {
+      setLoading(true)
+      const newCatalog = {}
+
+      for (const shop of shops) {
+        const salonId = String(shop.id ?? shop.salon_id)
+        try {
+          const response = await getSalonProducts(salonId, { limit: 100 })
+          const products = response.products || []
+          
+          // Convert backend format to frontend format
+          newCatalog[salonId] = products.map(p => ({
+            id: p.id,
+            product_id: p.id,
+            name: p.name,
+            sku: `SKU-${p.id}`,
+            priceCents: p.price_cents,
+            retailPriceCents: p.price_cents,
+            inventory: p.stock_quantity,
+            status: p.is_available ? 'published' : 'draft',
+            description: p.description || '',
+            tags: p.category ? [p.category] : [],
+            imageUrl: null,
+            imageFileName: '',
+          }))
+        } catch (err) {
+          console.warn(`Failed to load products for salon ${salonId}:`, err)
+          newCatalog[salonId] = []
+        }
+      }
+
+      setCatalogBySalon(newCatalog)
+      setLoading(false)
+    }
+
+    loadAllProducts()
+  }, [vendorId, shops])
+
+  const upsertProduct = useCallback(async (salonId, product) => {
+    const salonIdStr = String(salonId)
+    
+    try {
+      let result
+      if (product.product_id) {
+        // Update existing
+        result = await updateSalonProduct(salonIdStr, product.product_id, {
+          name: product.name,
+          description: product.description,
+          price_cents: product.priceCents,
+          stock_quantity: product.inventory,
+          category: product.tags?.[0] || '',
+          is_available: product.status === 'published',
+        })
+      } else {
+        // Create new
+        result = await createSalonProduct(salonIdStr, {
+          name: product.name,
+          description: product.description,
+          price_cents: product.priceCents,
+          stock_quantity: product.inventory,
+          category: product.tags?.[0] || '',
+        })
+      }
+
+      // Update local state with the response
+      const backendProduct = result.product
+      const updatedProduct = {
+        id: backendProduct.id,
+        product_id: backendProduct.id,
+        name: backendProduct.name,
+        sku: `SKU-${backendProduct.id}`,
+        priceCents: backendProduct.price_cents,
+        retailPriceCents: backendProduct.price_cents,
+        inventory: backendProduct.stock_quantity,
+        status: backendProduct.is_available ? 'published' : 'draft',
+        description: backendProduct.description || '',
+        tags: backendProduct.category ? [backendProduct.category] : [],
+        imageUrl: null,
+        imageFileName: '',
+      }
+
+      setCatalogBySalon((prev) => {
+        const next = { ...prev }
+        const list = Array.isArray(next[salonIdStr]) ? [...next[salonIdStr]] : []
+        const index = list.findIndex((item) => item.id === updatedProduct.id)
+        if (index === -1) {
+          list.unshift(updatedProduct)
+        } else {
+          list[index] = updatedProduct
+        }
+        next[salonIdStr] = list
+        return next
+      })
+
+      return updatedProduct
+    } catch (err) {
+      console.error('Failed to save product:', err)
+      throw err
+    }
+  }, [])
+
+  const deleteProduct = useCallback(async (salonId, productId) => {
+    const salonIdStr = String(salonId)
+    
+    try {
+      await deleteSalonProduct(salonIdStr, productId)
+
+      setCatalogBySalon((prev) => {
+        const next = { ...prev }
+        const list = Array.isArray(next[salonIdStr]) ? next[salonIdStr].filter((item) => item.id !== productId) : []
+        next[salonIdStr] = list
+        return next
+      })
+    } catch (err) {
+      console.error('Failed to delete product:', err)
+      throw err
+    }
+  }, [])
+
+  const seedDefaultIfEmpty = useCallback(() => {
+    // No-op for backend version, products already exist
+  }, [])
+
+  return {
+    catalogBySalon,
+    upsertProduct,
+    deleteProduct,
+    seedDefaultIfEmpty,
+    loading,
+  }
+}
+
 function useLocalCatalog(vendorId) {
   const storageKey = useMemo(() => {
     if (!vendorId) {
@@ -256,7 +399,8 @@ export default function VendorShopPage() {
   const [draftProduct, setDraftProduct] = useState(emptyProduct)
   const [showForm, setShowForm] = useState(false)
 
-  const { catalogBySalon, upsertProduct, deleteProduct, seedDefaultIfEmpty } = useLocalCatalog(user?.id)
+  // Use backend catalog instead of localStorage
+  const { catalogBySalon, upsertProduct, deleteProduct, seedDefaultIfEmpty, loading: catalogLoading } = useBackendCatalog(user?.id, shops)
 
   useEffect(() => {
     const loadShops = async () => {
