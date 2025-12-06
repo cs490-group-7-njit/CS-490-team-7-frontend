@@ -228,11 +228,12 @@ export default function PromotionsPage() {
   };
 
   const formatDiscount = (promo) => {
-    if (promo.discount_type === 'percentage') {
-      return `${promo.discount_value}% off`;
-    } else {
-      return `$${(promo.discount_value / 100).toFixed(2)} off`;
+    if (promo.discount_percent) {
+      return `${promo.discount_percent}% off`;
+    } else if (promo.discount_amount_cents) {
+      return `$${(promo.discount_amount_cents / 100).toFixed(2)} off`;
     }
+    return 'No discount info';
   };
 
   if (loading && !promotions) {
@@ -377,7 +378,9 @@ export default function PromotionsPage() {
                     <div key={promo.id} className="promotion-card">
                       <div className="promo-header">
                         <h3>{promo.title}</h3>
-                        <span className={`status-badge ${promo.status}`}>{promo.status}</span>
+                        <span className={`status-badge ${promo.is_active ? 'active' : 'inactive'}`}>
+                          {promo.is_active ? 'Active' : 'Inactive'}
+                        </span>
                       </div>
 
                       <p className="promo-description">{promo.description}</p>
@@ -388,19 +391,9 @@ export default function PromotionsPage() {
                           <span className="value discount">{formatDiscount(promo)}</span>
                         </div>
                         <div className="detail-item">
-                          <span className="label">Code:</span>
-                          <span className="value code">{promo.promo_code}</span>
-                        </div>
-                        <div className="detail-item">
                           <span className="label">Target:</span>
-                          <span className="value">{getSegmentLabel(promo.target_segment)}</span>
+                          <span className="value">{getSegmentLabel(promo.target_customers)}</span>
                         </div>
-                        {promo.min_purchase > 0 && (
-                          <div className="detail-item">
-                            <span className="label">Min Purchase:</span>
-                            <span className="value">${(promo.min_purchase / 100).toFixed(2)}</span>
-                          </div>
-                        )}
                         {promo.start_date && (
                           <div className="detail-item">
                             <span className="label">Valid:</span>
@@ -413,13 +406,6 @@ export default function PromotionsPage() {
                       </div>
 
                       <div className="promo-actions">
-                        <button
-                          className="send-btn"
-                          onClick={() => handleSendPromotion(promo.id)}
-                          disabled={loading}
-                        >
-                          Send to Customers
-                        </button>
                         <button
                           className="delete-btn"
                           onClick={() => handleDeletePromotion(promo.id)}
