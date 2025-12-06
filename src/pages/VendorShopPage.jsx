@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { createSalonProduct, deleteSalonProduct, getSalonProducts, updateSalonProduct } from '../api/products'
 import { getMyShops } from '../api/shops'
-import { getSalonProducts, createSalonProduct, updateSalonProduct, deleteSalonProduct } from '../api/products'
+import repairMaskImage from '../assets/Mask.png'
+import hydratingShampooImage from '../assets/Shampoo.png'
 import VendorPortalLayout from '../components/VendorPortalLayout'
 import { useAuth } from '../context/AuthContext'
-import hydratingShampooImage from '../assets/Shampoo.png'
-import repairMaskImage from '../assets/Mask.png'
 import './vendor-shop.css'
 
 const LOCAL_STORAGE_KEY_PREFIX = 'salonhub.vendorShop'
@@ -179,7 +179,7 @@ function useBackendCatalog(vendorId, shops) {
         try {
           const response = await getSalonProducts(salonId, { limit: 100 })
           const products = response.products || []
-          
+
           // Convert backend format to frontend format
           newCatalog[salonId] = products.map(p => ({
             id: p.id,
@@ -210,7 +210,7 @@ function useBackendCatalog(vendorId, shops) {
 
   const upsertProduct = useCallback(async (salonId, product) => {
     const salonIdStr = String(salonId)
-    
+
     try {
       let result
       if (product.product_id) {
@@ -222,7 +222,7 @@ function useBackendCatalog(vendorId, shops) {
           stock_quantity: product.inventory,
           category: product.tags?.[0] || '',
           is_available: product.status === 'published',
-        })
+        }, vendorId)
       } else {
         // Create new
         result = await createSalonProduct(salonIdStr, {
@@ -231,7 +231,7 @@ function useBackendCatalog(vendorId, shops) {
           price_cents: product.priceCents,
           stock_quantity: product.inventory,
           category: product.tags?.[0] || '',
-        })
+        }, vendorId)
       }
 
       // Update local state with the response
@@ -269,13 +269,13 @@ function useBackendCatalog(vendorId, shops) {
       console.error('Failed to save product:', err)
       throw err
     }
-  }, [])
+  }, [vendorId])
 
   const deleteProduct = useCallback(async (salonId, productId) => {
     const salonIdStr = String(salonId)
-    
+
     try {
-      await deleteSalonProduct(salonIdStr, productId)
+      await deleteSalonProduct(salonIdStr, productId, vendorId)
 
       setCatalogBySalon((prev) => {
         const next = { ...prev }
@@ -287,7 +287,7 @@ function useBackendCatalog(vendorId, shops) {
       console.error('Failed to delete product:', err)
       throw err
     }
-  }, [])
+  }, [vendorId])
 
   const seedDefaultIfEmpty = useCallback(() => {
     // No-op for backend version, products already exist
@@ -600,263 +600,263 @@ export default function VendorShopPage() {
   return (
     <VendorPortalLayout activeKey="products">
       <div className="vendor-shop-page">
-      <header className="vendor-shop-header">
-        <div>
-          <h1>Online Shop</h1>
-          <p className="vendor-shop-subtitle">
-            Build your storefront, track inventory, and get ready to sell directly to clients.
-          </p>
-        </div>
-        <button
-          type="button"
-          className="vendor-shop-primary"
-          onClick={() => setShowForm((prev) => !prev)}
-          disabled={!selectedSalonId}
-        >
-          {showForm ? 'Close Product Form' : 'Add Product'}
-        </button>
-      </header>
-
-      <section className="vendor-shop-controls">
-        <div className="control-group">
-          <label htmlFor="shop-select">Select Shop</label>
-          <select
-            id="shop-select"
-            value={selectedSalonId}
-            onChange={(event) => setSelectedSalonId(event.target.value)}
+        <header className="vendor-shop-header">
+          <div>
+            <h1>Online Shop</h1>
+            <p className="vendor-shop-subtitle">
+              Build your storefront, track inventory, and get ready to sell directly to clients.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="vendor-shop-primary"
+            onClick={() => setShowForm((prev) => !prev)}
+            disabled={!selectedSalonId}
           >
-            <option value="">Choose your shop</option>
-            {shops.map((salon) => {
-              const id = String(salon.id ?? salon.salon_id)
-              const name = salon.name || salon.salon_name
-              return (
-                <option key={id} value={id}>
-                  {name}
-                </option>
-              )
-            })}
-          </select>
-        </div>
-        <div className="control-summary">
-          <span className="summary-title">Catalog Snapshot</span>
-          <ul>
-            <li>
-              <strong>{products.length}</strong>
-              <span>Products</span>
-            </li>
-            <li>
-              <strong>
-                {formatCurrency(
-                  products.reduce((sum, item) => sum + Number(item.priceCents || 0) * Number(item.inventory || 0), 0),
-                )}
-              </strong>
-              <span>Total Inventory Value</span>
-            </li>
-            <li>
-              <strong>{products.filter((item) => item.status === 'published').length}</strong>
-              <span>Live Listings</span>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      {showForm && (
-        <section className="vendor-shop-form">
-          <h2>Create Product</h2>
-          <form onSubmit={handleCreateProduct}>
-            <div className="form-grid">
-              <label>
-                Product Name
-                <input
-                  type="text"
-                  value={draftProduct.name}
-                  onChange={(event) => handleDraftChange('name', event.target.value)}
-                  placeholder="Hydrating Shampoo"
-                  required
-                />
-              </label>
-              <label>
-                SKU
-                <input
-                  type="text"
-                  value={draftProduct.sku}
-                  onChange={(event) => handleDraftChange('sku', event.target.value)}
-                  placeholder="SKU-12345"
-                />
-              </label>
-              <label>
-                Cost (USD)
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={draftProduct.priceCents}
-                  onChange={(event) => handleDraftChange('priceCents', event.target.value)}
-                  placeholder="18.00"
-                />
-              </label>
-              <label>
-                Retail Price (USD)
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={draftProduct.retailPriceCents}
-                  onChange={(event) => handleDraftChange('retailPriceCents', event.target.value)}
-                  placeholder="25.00"
-                />
-              </label>
-              <label>
-                Inventory Count
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={draftProduct.inventory}
-                  onChange={(event) => handleDraftChange('inventory', event.target.value)}
-                  placeholder="10"
-                />
-              </label>
-              <label>
-                Status
-                <select
-                  value={draftProduct.status}
-                  onChange={(event) => handleDraftChange('status', event.target.value)}
-                >
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                </select>
-              </label>
-            </div>
-            <label className="form-full">
-              Description
-              <textarea
-                rows={3}
-                value={draftProduct.description}
-                onChange={(event) => handleDraftChange('description', event.target.value)}
-                placeholder="Briefly describe the benefits and usage."
-              />
-            </label>
-            <label className="form-full">
-              Tags (comma separated)
-              <input
-                type="text"
-                value={draftProduct.tags}
-                onChange={(event) => handleDraftChange('tags', event.target.value)}
-                placeholder="Hair Care, Vegan"
-              />
-            </label>
-            <label className="form-full">
-              Product Image
-              <div className="vendor-shop-image-upload">
-                {draftProduct.imageUrl && (
-                  <div className="vendor-shop-image-preview">
-                    <img src={draftProduct.imageUrl} alt={draftProduct.name || 'Uploaded preview'} />
-                    <div className="vendor-shop-image-preview-details">
-                      <span>{draftProduct.imageFileName || 'Image from URL'}</span>
-                      <button type="button" className="vendor-shop-image-remove" onClick={clearDraftImage}>
-                        Remove image
-                      </button>
-                    </div>
-                  </div>
-                )}
-                <input type="file" accept="image/*" onChange={handleDraftImageUpload} />
-                <span className="vendor-shop-image-helper">Upload a JPG or PNG up to 5 MB.</span>
-              </div>
-            </label>
-            <label className="form-full">
-              Image URL (optional)
-              <input
-                type="text"
-                value={draftProduct.imageFileName ? '' : draftProduct.imageUrl}
-                onChange={(event) => handleDraftChange('imageUrl', event.target.value)}
-                placeholder="https://..."
-              />
-            </label>
-            <div className="form-actions">
-              <button type="button" className="secondary" onClick={resetDraft}>
-                Cancel
-              </button>
-              <button type="submit" className="primary" disabled={!selectedSalonId}>
-                Save to Catalog
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
-
-      {error && <div className="vendor-shop-error">{error}</div>}
-
-  <section className="vendor-shop-grid">
-        <header className="grid-header">
-          <h2>{selectedSalonName} Catalog</h2>
-          <p>Preview how your products will appear to clients once the storefront is connected.</p>
+            {showForm ? 'Close Product Form' : 'Add Product'}
+          </button>
         </header>
-        {products.length === 0 ? (
-          <div className="vendor-shop-empty">
-            No products yet. Add your first product to start building your storefront.
+
+        <section className="vendor-shop-controls">
+          <div className="control-group">
+            <label htmlFor="shop-select">Select Shop</label>
+            <select
+              id="shop-select"
+              value={selectedSalonId}
+              onChange={(event) => setSelectedSalonId(event.target.value)}
+            >
+              <option value="">Choose your shop</option>
+              {shops.map((salon) => {
+                const id = String(salon.id ?? salon.salon_id)
+                const name = salon.name || salon.salon_name
+                return (
+                  <option key={id} value={id}>
+                    {name}
+                  </option>
+                )
+              })}
+            </select>
           </div>
-        ) : (
-          <div className="product-grid">
-            {products.map((product) => (
-              <article key={product.id} className="product-card">
-                <div className="product-image">
-                  {product.imageUrl ? (
-                    <img src={product.imageUrl} alt={product.name} />
-                  ) : (
-                    <div className="product-placeholder">No Image</div>
+          <div className="control-summary">
+            <span className="summary-title">Catalog Snapshot</span>
+            <ul>
+              <li>
+                <strong>{products.length}</strong>
+                <span>Products</span>
+              </li>
+              <li>
+                <strong>
+                  {formatCurrency(
+                    products.reduce((sum, item) => sum + Number(item.priceCents || 0) * Number(item.inventory || 0), 0),
                   )}
-                  <span className={`product-status product-status-${product.status}`}>
-                    {product.status === 'published' ? 'Live' : 'Draft'}
-                  </span>
-                </div>
-                <div className="product-content">
-                  <header>
-                    <h3>{product.name}</h3>
-                    <p className="product-sku">{product.sku}</p>
-                  </header>
-                  <p className="product-description">{product.description || 'No description yet.'}</p>
-                  {product.tags?.length > 0 && (
-                    <ul className="product-tags">
-                      {product.tags.map((tag) => (
-                        <li key={tag}>{tag}</li>
-                      ))}
-                    </ul>
-                  )}
-                  <div className="product-meta">
-                    <div>
-                      <span className="label">Retail</span>
-                      <strong>{formatCurrency(product.retailPriceCents || product.priceCents)}</strong>
+                </strong>
+                <span>Total Inventory Value</span>
+              </li>
+              <li>
+                <strong>{products.filter((item) => item.status === 'published').length}</strong>
+                <span>Live Listings</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        {showForm && (
+          <section className="vendor-shop-form">
+            <h2>Create Product</h2>
+            <form onSubmit={handleCreateProduct}>
+              <div className="form-grid">
+                <label>
+                  Product Name
+                  <input
+                    type="text"
+                    value={draftProduct.name}
+                    onChange={(event) => handleDraftChange('name', event.target.value)}
+                    placeholder="Hydrating Shampoo"
+                    required
+                  />
+                </label>
+                <label>
+                  SKU
+                  <input
+                    type="text"
+                    value={draftProduct.sku}
+                    onChange={(event) => handleDraftChange('sku', event.target.value)}
+                    placeholder="SKU-12345"
+                  />
+                </label>
+                <label>
+                  Cost (USD)
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={draftProduct.priceCents}
+                    onChange={(event) => handleDraftChange('priceCents', event.target.value)}
+                    placeholder="18.00"
+                  />
+                </label>
+                <label>
+                  Retail Price (USD)
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={draftProduct.retailPriceCents}
+                    onChange={(event) => handleDraftChange('retailPriceCents', event.target.value)}
+                    placeholder="25.00"
+                  />
+                </label>
+                <label>
+                  Inventory Count
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={draftProduct.inventory}
+                    onChange={(event) => handleDraftChange('inventory', event.target.value)}
+                    placeholder="10"
+                  />
+                </label>
+                <label>
+                  Status
+                  <select
+                    value={draftProduct.status}
+                    onChange={(event) => handleDraftChange('status', event.target.value)}
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                  </select>
+                </label>
+              </div>
+              <label className="form-full">
+                Description
+                <textarea
+                  rows={3}
+                  value={draftProduct.description}
+                  onChange={(event) => handleDraftChange('description', event.target.value)}
+                  placeholder="Briefly describe the benefits and usage."
+                />
+              </label>
+              <label className="form-full">
+                Tags (comma separated)
+                <input
+                  type="text"
+                  value={draftProduct.tags}
+                  onChange={(event) => handleDraftChange('tags', event.target.value)}
+                  placeholder="Hair Care, Vegan"
+                />
+              </label>
+              <label className="form-full">
+                Product Image
+                <div className="vendor-shop-image-upload">
+                  {draftProduct.imageUrl && (
+                    <div className="vendor-shop-image-preview">
+                      <img src={draftProduct.imageUrl} alt={draftProduct.name || 'Uploaded preview'} />
+                      <div className="vendor-shop-image-preview-details">
+                        <span>{draftProduct.imageFileName || 'Image from URL'}</span>
+                        <button type="button" className="vendor-shop-image-remove" onClick={clearDraftImage}>
+                          Remove image
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <span className="label">Inventory</span>
-                      <strong className={product.inventory <= 5 ? 'inventory-low' : ''}>{product.inventory}</strong>
+                  )}
+                  <input type="file" accept="image/*" onChange={handleDraftImageUpload} />
+                  <span className="vendor-shop-image-helper">Upload a JPG or PNG up to 5 MB.</span>
+                </div>
+              </label>
+              <label className="form-full">
+                Image URL (optional)
+                <input
+                  type="text"
+                  value={draftProduct.imageFileName ? '' : draftProduct.imageUrl}
+                  onChange={(event) => handleDraftChange('imageUrl', event.target.value)}
+                  placeholder="https://..."
+                />
+              </label>
+              <div className="form-actions">
+                <button type="button" className="secondary" onClick={resetDraft}>
+                  Cancel
+                </button>
+                <button type="submit" className="primary" disabled={!selectedSalonId}>
+                  Save to Catalog
+                </button>
+              </div>
+            </form>
+          </section>
+        )}
+
+        {error && <div className="vendor-shop-error">{error}</div>}
+
+        <section className="vendor-shop-grid">
+          <header className="grid-header">
+            <h2>{selectedSalonName} Catalog</h2>
+            <p>Preview how your products will appear to clients once the storefront is connected.</p>
+          </header>
+          {products.length === 0 ? (
+            <div className="vendor-shop-empty">
+              No products yet. Add your first product to start building your storefront.
+            </div>
+          ) : (
+            <div className="product-grid">
+              {products.map((product) => (
+                <article key={product.id} className="product-card">
+                  <div className="product-image">
+                    {product.imageUrl ? (
+                      <img src={product.imageUrl} alt={product.name} />
+                    ) : (
+                      <div className="product-placeholder">No Image</div>
+                    )}
+                    <span className={`product-status product-status-${product.status}`}>
+                      {product.status === 'published' ? 'Live' : 'Draft'}
+                    </span>
+                  </div>
+                  <div className="product-content">
+                    <header>
+                      <h3>{product.name}</h3>
+                      <p className="product-sku">{product.sku}</p>
+                    </header>
+                    <p className="product-description">{product.description || 'No description yet.'}</p>
+                    {product.tags?.length > 0 && (
+                      <ul className="product-tags">
+                        {product.tags.map((tag) => (
+                          <li key={tag}>{tag}</li>
+                        ))}
+                      </ul>
+                    )}
+                    <div className="product-meta">
+                      <div>
+                        <span className="label">Retail</span>
+                        <strong>{formatCurrency(product.retailPriceCents || product.priceCents)}</strong>
+                      </div>
+                      <div>
+                        <span className="label">Inventory</span>
+                        <strong className={product.inventory <= 5 ? 'inventory-low' : ''}>{product.inventory}</strong>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <footer className="product-actions">
-                  <button type="button" onClick={() => handleStatusToggle(product)}>
-                    {product.status === 'published' ? 'Move to Draft' : 'Publish'}
-                  </button>
-                  <button type="button" className="danger" onClick={() => handleDeleteProduct(product.id)}>
-                    Remove
-                  </button>
-                </footer>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
+                  <footer className="product-actions">
+                    <button type="button" onClick={() => handleStatusToggle(product)}>
+                      {product.status === 'published' ? 'Move to Draft' : 'Publish'}
+                    </button>
+                    <button type="button" className="danger" onClick={() => handleDeleteProduct(product.id)}>
+                      Remove
+                    </button>
+                  </footer>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
 
-      {/* Waiting for the following features to be implemented */}
-      <section className="vendor-shop-roadmap">
-        <h2>Up Next</h2>
-        <ul>
-          <li>Connect inventory to the backend to sync across devices.</li>
-          <li>Enable client storefront at beautiful-hair.com/salons/{selectedSalonId}/shop.</li>
-          <li>Offer checkout with saved payment methods and appointment upsells.</li>
-        </ul>
-      </section>
+        {/* Waiting for the following features to be implemented */}
+        <section className="vendor-shop-roadmap">
+          <h2>Up Next</h2>
+          <ul>
+            <li>Connect inventory to the backend to sync across devices.</li>
+            <li>Enable client storefront at beautiful-hair.com/salons/{selectedSalonId}/shop.</li>
+            <li>Offer checkout with saved payment methods and appointment upsells.</li>
+          </ul>
+        </section>
       </div>
     </VendorPortalLayout>
   )

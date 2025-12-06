@@ -1,11 +1,10 @@
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getMyShops } from '../api/shops'
-import { searchSalons } from '../api/salons'
 import { getSalonProducts } from '../api/products'
+import { searchSalons } from '../api/salons'
 import Header from '../components/Header'
-import { useShoppingCart } from '../context/ShoppingCartContext'
 import { useAuth } from '../context/AuthContext'
+import { useShoppingCart } from '../context/ShoppingCartContext'
 import './shop.css'
 
 const LOCAL_STORAGE_KEY_PREFIX = 'salonhub.vendorShop'
@@ -14,7 +13,7 @@ function ShopPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { addToCart, getCartTotals } = useShoppingCart()
-  
+
   const [products, setProducts] = useState([])
   const [filteredProducts, setFilteredProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -37,14 +36,14 @@ function ShopPage() {
 
       // Load products from backend API for each salon
       const allProducts = []
-      
+
       for (const salon of allSalons) {
         const salonId = salon.id || salon.salon_id
         try {
           const productsResponse = await getSalonProducts(salonId, { limit: 100 })
           const salonProducts = productsResponse.products || []
           console.log(`📦 Found ${salonProducts.length} products for salon ${salonId} (${salon.name})`)
-          
+
           salonProducts.forEach((product) => {
             // Normalize backend product format to frontend format
             const normalizedProduct = {
