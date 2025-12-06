@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { listAppointments } from '../api/appointments'
-import Header from '../components/Header'
+import ClientPortalLayout from '../components/ClientPortalLayout'
 import { useAuth } from '../context/AuthContext'
 import '../styles/appointment-history.css'
 
@@ -134,35 +134,46 @@ function AppointmentHistoryPage() {
 
   if (loading) {
     return (
-      <div className="page appointment-history-page">
-        <Header />
-        <div className="loading-container">
-          <div className="loading">Loading appointment history...</div>
+      <ClientPortalLayout
+        activeKey="bookings"
+        pageClassName="appointment-history-page"
+        contentClassName="history-shell"
+      >
+        <div className="history-content">
+          <div className="loading-container">
+            <div className="loading">Loading appointment history...</div>
+          </div>
         </div>
-      </div>
+      </ClientPortalLayout>
     )
   }
 
   if (error) {
     return (
-      <div className="page appointment-history-page">
-        <Header />
-        <main className="history-container">
+      <ClientPortalLayout
+        activeKey="bookings"
+        pageClassName="appointment-history-page"
+        contentClassName="history-shell"
+      >
+        <div className="history-content">
           <div className="error-message">
             <p>{error}</p>
             <button onClick={() => window.location.reload()} className="retry-button">
               Retry
             </button>
           </div>
-        </main>
-      </div>
+        </div>
+      </ClientPortalLayout>
     )
   }
 
   return (
-    <div className="page appointment-history-page">
-      <Header />
-      <main className="history-container">
+    <ClientPortalLayout
+      activeKey="bookings"
+      pageClassName="appointment-history-page"
+      contentClassName="history-shell"
+    >
+      <div className="history-content">
         {appointmentsDayAway.length > 0 && (
           <div className="reminder-banner">
             <div className="reminder-content">
@@ -369,8 +380,8 @@ function AppointmentHistoryPage() {
             </div>
           </section>
         )}
-      </main>
-    </div>
+      </div>
+    </ClientPortalLayout>
   )
 }
 

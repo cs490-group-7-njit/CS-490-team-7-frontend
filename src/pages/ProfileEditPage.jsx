@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Header from '../components/Header'
+import ClientPortalLayout from '../components/ClientPortalLayout'
 import { useAuth } from '../context/AuthContext'
 import { updateUserPassword, updateUserProfile } from '../api/users'
 import '../styles/profile-edit.css'
@@ -113,128 +113,126 @@ function ProfileEditPage() {
   }
 
   return (
-    <div className="page profile-edit-page">
-      <Header />
-      <main className="profile-container">
-        <div className="profile-header">
-          <h1>Edit Profile</h1>
-          <p className="subtitle">Update your account information</p>
+    <ClientPortalLayout
+      activeKey="profile"
+      pageClassName="profile-edit-page"
+      contentClassName="profile-container"
+    >
+      <div className="profile-header">
+        <h1>Edit Profile</h1>
+        <p className="subtitle">Update your account information</p>
+      </div>
+
+      {error && <div className="alert alert-error">{error}</div>}
+      {success && <div className="alert alert-success">{success}</div>}
+
+      <section className="profile-section">
+        <div className="section-title">
+          <h2>Profile Information</h2>
         </div>
 
-        {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
-
-        {/* Profile Information Form */}
-        <section className="profile-section">
-          <div className="section-title">
-            <h2>Profile Information</h2>
+        <form onSubmit={handleProfileSubmit} className="profile-form">
+          <div className="form-group">
+            <label htmlFor="email">Email (Read-only)</label>
+            <input type="email" id="email" value={user.email || ''} disabled className="form-input" />
+            <p className="form-hint">Email cannot be changed</p>
           </div>
 
-          <form onSubmit={handleProfileSubmit} className="profile-form">
-            <div className="form-group">
-              <label htmlFor="email">Email (Read-only)</label>
-              <input type="email" id="email" value={user.email || ''} disabled className="form-input" />
-              <p className="form-hint">Email cannot be changed</p>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="name">Full Name *</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="form-input"
-                placeholder="Enter your full name"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="phone">Phone Number</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="form-input"
-                placeholder="(123) 456-7890"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="role">Account Type</label>
-              <input
-                type="text"
-                id="role"
-                value={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                disabled
-                className="form-input"
-              />
-            </div>
-
-            <button type="submit" className="btn-submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save Changes'}
-            </button>
-          </form>
-        </section>
-
-        {/* Change Password Form */}
-        <section className="profile-section">
-          <div className="section-title">
-            <h2>Change Password</h2>
+          <div className="form-group">
+            <label htmlFor="name">Full Name *</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="form-input"
+              placeholder="Enter your full name"
+              required
+            />
           </div>
 
-          <form onSubmit={handlePasswordSubmit} className="profile-form">
-            <div className="form-group">
-              <label htmlFor="new-password">New Password *</label>
-              <input
-                type="password"
-                id="new-password"
-                name="new_password"
-                value={passwordData.new_password}
-                onChange={handlePasswordChange}
-                className="form-input"
-                placeholder="Enter new password"
-                minLength="6"
-              />
-              <p className="form-hint">Minimum 6 characters</p>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="confirm-password">Confirm Password *</label>
-              <input
-                type="password"
-                id="confirm-password"
-                name="confirm_password"
-                value={passwordData.confirm_password}
-                onChange={handlePasswordChange}
-                className="form-input"
-                placeholder="Re-enter your password"
-                minLength="6"
-              />
-            </div>
-
-            <button type="submit" className="btn-submit" disabled={loading}>
-              {loading ? 'Updating...' : 'Update Password'}
-            </button>
-          </form>
-        </section>
-
-        {/* Account Actions */}
-        <section className="profile-section danger-zone">
-          <div className="section-title">
-            <h2>Account Actions</h2>
+          <div className="form-group">
+            <label htmlFor="phone">Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              className="form-input"
+              placeholder="(123) 456-7890"
+            />
           </div>
 
-          <button onClick={() => navigate('/dashboard')} className="btn-secondary">
-            ← Back to Dashboard
+          <div className="form-group">
+            <label htmlFor="role">Account Type</label>
+            <input
+              type="text"
+              id="role"
+              value={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+              disabled
+              className="form-input"
+            />
+          </div>
+
+          <button type="submit" className="btn-submit" disabled={loading}>
+            {loading ? 'Saving...' : 'Save Changes'}
           </button>
-        </section>
-      </main>
-    </div>
+        </form>
+      </section>
+
+      <section className="profile-section">
+        <div className="section-title">
+          <h2>Change Password</h2>
+        </div>
+
+        <form onSubmit={handlePasswordSubmit} className="profile-form">
+          <div className="form-group">
+            <label htmlFor="new-password">New Password *</label>
+            <input
+              type="password"
+              id="new-password"
+              name="new_password"
+              value={passwordData.new_password}
+              onChange={handlePasswordChange}
+              className="form-input"
+              placeholder="Enter new password"
+              minLength="6"
+            />
+            <p className="form-hint">Minimum 6 characters</p>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirm-password">Confirm Password *</label>
+            <input
+              type="password"
+              id="confirm-password"
+              name="confirm_password"
+              value={passwordData.confirm_password}
+              onChange={handlePasswordChange}
+              className="form-input"
+              placeholder="Re-enter your password"
+              minLength="6"
+            />
+          </div>
+
+          <button type="submit" className="btn-submit" disabled={loading}>
+            {loading ? 'Updating...' : 'Update Password'}
+          </button>
+        </form>
+      </section>
+
+      <section className="profile-section danger-zone">
+        <div className="section-title">
+          <h2>Account Actions</h2>
+        </div>
+
+        <button onClick={() => navigate('/dashboard')} className="btn-secondary">
+          ← Back to Dashboard
+        </button>
+      </section>
+    </ClientPortalLayout>
   )
 }
 

@@ -104,8 +104,36 @@ export default function PaymentTrackingPage() {
   };
 
   const formatCurrency = (cents) => {
-    return `$${(cents / 100).toFixed(2)}`;
+    const value = typeof cents === 'number' ? cents : Number(cents ?? 0);
+    if (!Number.isFinite(value)) {
+      return '$0.00';
+    }
+    return `$${(value / 100).toFixed(2)}`;
   };
+
+  const totalRevenueCents = Number(stats?.total_revenue_cents ?? stats?.total_revenue ?? 0);
+  const transactionCount = Number(stats?.total_completed ?? stats?.transaction_count ?? 0);
+  const averageTransactionCents = transactionCount
+    ? Number(stats?.average_transaction_cents ?? Math.round(totalRevenueCents / transactionCount))
+    : 0;
+
+  const revenueByServiceEntries = stats?.revenue_by_service
+    ? Object.entries(stats.revenue_by_service).map(([serviceName, value]) => {
+        const cents =
+          typeof value === 'number'
+            ? Number(value)
+            : Number(value?.revenue_cents ?? value?.revenue ?? 0);
+        const count =
+          typeof value === 'object' && value !== null
+            ? Number(value.count ?? value.total_count ?? value.quantity ?? 0)
+            : undefined;
+        return [serviceName, cents, count];
+      })
+    : [];
+
+  const revenueByDayEntries = stats?.revenue_by_day
+    ? Object.entries(stats.revenue_by_day).map(([dateKey, cents]) => [dateKey, Number(cents ?? 0)])
+    : [];
 
   if (loading && !payments) {
     return (
@@ -176,21 +204,17 @@ export default function PaymentTrackingPage() {
                 <div className="stat-card">
                   <p className="stat-label">Total Revenue</p>
                   <p className="stat-value">
-                    {formatCurrency(stats.total_revenue || 0)}
+                    {formatCurrency(totalRevenueCents)}
                   </p>
                 </div>
                 <div className="stat-card">
                   <p className="stat-label">Total Transactions</p>
-                  <p className="stat-value">{stats.transaction_count || 0}</p>
+                  <p className="stat-value">{transactionCount}</p>
                 </div>
                 <div className="stat-card">
                   <p className="stat-label">Average Per Transaction</p>
                   <p className="stat-value">
-                    {formatCurrency(
-                      stats.transaction_count > 0
-                        ? Math.round(stats.total_revenue / stats.transaction_count)
-                        : 0
-                    )}
+                    {formatCurrency(averageTransactionCents)}
                   </p>
                 </div>
                 <div className="stat-card">
@@ -200,14 +224,17 @@ export default function PaymentTrackingPage() {
               </div>
 
               {/* Revenue by Service */}
-              {stats.revenue_by_service && Object.keys(stats.revenue_by_service).length > 0 && (
+              {revenueByServiceEntries.length > 0 && (
                 <div className="revenue-by-service">
                   <h3>Revenue by Service</h3>
                   <div className="service-list">
-                    {Object.entries(stats.revenue_by_service).map(([service, amount]) => (
-                      <div key={service} className="service-item">
-                        <span className="service-name">{service}</span>
-                        <span className="service-revenue">{formatCurrency(amount)}</span>
+                    {revenueByServiceEntries.map(([serviceName, cents, count]) => (
+                      <div key={serviceName} className="service-item">
+                        <span className="service-name">
+                          {serviceName}
+                          {count ? ` (${count})` : ''}
+                        </span>
+                        <span className="service-revenue">{formatCurrency(cents)}</span>
                       </div>
                     ))}
                   </div>
@@ -215,18 +242,18 @@ export default function PaymentTrackingPage() {
               )}
 
               {/* Revenue by Day */}
-              {stats.revenue_by_day && Object.keys(stats.revenue_by_day).length > 0 && (
+              {revenueByDayEntries.length > 0 && (
                 <div className="revenue-by-day">
                   <h3>Revenue by Day (Last 30 Days)</h3>
                   <div className="day-list">
-                    {Object.entries(stats.revenue_by_day)
-                      .sort()
+                    {revenueByDayEntries
+                      .sort((a, b) => a[0].localeCompare(b[0]))
                       .reverse()
                       .slice(0, 10)
-                      .map(([date, amount]) => (
-                        <div key={date} className="day-item">
-                          <span className="day-date">{date}</span>
-                          <span className="day-revenue">{formatCurrency(amount)}</span>
+                      .map(([dateKey, cents]) => (
+                        <div key={dateKey} className="day-item">
+                          <span className="day-date">{dateKey}</span>
+                          <span className="day-revenue">{formatCurrency(cents)}</span>
                         </div>
                       ))}
                   </div>
@@ -251,25 +278,38 @@ export default function PaymentTrackingPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {payments.payments.map((payment, idx) => (
-                        <tr key={idx}>
-                          <td>{new Date(payment.date).toLocaleDateString()}</td>
-                          <td>{payment.service || 'N/A'}</td>
-                          <td>{payment.client || 'N/A'}</td>
-                          <td className="amount">{formatCurrency(payment.amount)}</td>
-                        </tr>
-                      ))}
+                      {payments.payments.map((payment, idx) => {
+                        const paymentDate = payment.date || payment.created_at;
+                        const amountCents = payment.amount_cents ?? payment.amount;
+                        return (
+                          <tr key={idx}>
+                            <td>
+                              {paymentDate
+                                ? new Date(paymentDate).toLocaleDateString()
+                                : '—'}
+                            </td>
+                            <td>{payment.service_name ?? payment.service ?? 'N/A'}</td>
+                            <td>{payment.client_name ?? payment.client ?? 'N/A'}</td>
+                            <td className="amount">{formatCurrency(amountCents)}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
               ) : (
                 <p className="no-data">No payments found</p>
               )}
-              {payments.total_revenue !== undefined && (
+              {typeof payments.total_revenue_cents !== 'undefined' || typeof payments.total_revenue !== 'undefined' ? (
                 <div className="total-revenue">
-                  <strong>Total Revenue: {formatCurrency(payments.total_revenue)}</strong>
+                  <strong>
+                    Total Revenue:{' '}
+                    {formatCurrency(
+                      payments.total_revenue_cents ?? payments.total_revenue ?? 0
+                    )}
+                  </strong>
                 </div>
-              )}
+              ) : null}
             </div>
           )}
 
@@ -303,23 +343,37 @@ export default function PaymentTrackingPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {datePayments.payments.map((payment, idx) => (
-                              <tr key={idx}>
-                                <td>
-                                  {payment.time || new Date(payment.date).toLocaleTimeString()}
-                                </td>
-                                <td>{payment.service || 'N/A'}</td>
-                                <td>{payment.client || 'N/A'}</td>
-                                <td className="amount">{formatCurrency(payment.amount)}</td>
-                              </tr>
-                            ))}
+                            {datePayments.payments.map((payment, idx) => {
+                              const amountCents = payment.amount_cents ?? payment.amount;
+                              const timeValue = payment.time || payment.date;
+                              return (
+                                <tr key={idx}>
+                                  <td>
+                                    {timeValue
+                                      ? new Date(timeValue).toLocaleTimeString()
+                                      : '—'}
+                                  </td>
+                                  <td>{payment.service_name ?? payment.service ?? 'N/A'}</td>
+                                  <td>{payment.client_name ?? payment.client ?? 'N/A'}</td>
+                                  <td className="amount">{formatCurrency(amountCents)}</td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>
-                      {datePayments.total_revenue !== undefined && (
+                      {(typeof datePayments.daily_total_cents !== 'undefined' ||
+                        typeof datePayments.total_revenue_cents !== 'undefined' ||
+                        typeof datePayments.total_revenue !== 'undefined') && (
                         <div className="date-total">
                           <strong>
-                            Daily Revenue: {formatCurrency(datePayments.total_revenue)}
+                            Daily Revenue:{' '}
+                            {formatCurrency(
+                              datePayments.daily_total_cents ??
+                                datePayments.total_revenue_cents ??
+                                datePayments.total_revenue ??
+                                0
+                            )}
                           </strong>
                         </div>
                       )}

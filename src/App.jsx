@@ -3,6 +3,7 @@ import './App.css'
 import PrivateRoute from './components/PrivateRoute'
 import SmartHome from './components/SmartHome'
 import { AuthProvider } from './context/AuthContext'
+import { ShoppingCartProvider } from './context/ShoppingCartContext'
 import AddShopPage from './pages/AddShopPage'
 import AdminAnalyticsPage from './pages/AdminAnalyticsPage'
 import AdminHealthPage from './pages/AdminHealthPage'
@@ -44,15 +45,20 @@ import SocialMediaPage from './pages/SocialMediaPage'
 import StaffManagementPage from './pages/StaffManagementPage'
 import StaffRatingPage from './pages/StaffRatingPage'
 import VendorAppointmentsPage from './pages/VendorAppointmentsPage'
+import VendorGalleryPage from './pages/VendorGalleryPage'
 import VendorReviewsPage from './pages/VendorReviewsPage'
 import VendorLoyaltyProgramPage from './pages/VendorLoyaltyProgramPage'
 import VendorShopPage from './pages/VendorShopPage'
 import SettingsPage from './pages/SettingsPage'
+import ShopPage from './pages/ShopPage'
+import ShoppingCartPage from './pages/ShoppingCartPage'
+import SalonsShopPage from './pages/SalonsShopPage'
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <ShoppingCartProvider>
+        <BrowserRouter>
         <Routes>
           {/* public routes */}
           <Route path="/" element={<SmartHome />} />
@@ -208,6 +214,16 @@ function App() {
             )}
           />
 
+          {/* Vendor Gallery - Before/After Showcase */}
+          <Route
+            path="/vendor/gallery"
+            element={(
+              <PrivateRoute>
+                <VendorGalleryPage />
+              </PrivateRoute>
+            )}
+          />
+
           {/* UC-1.15: Track Payments */}
           <Route
             path="/vendor/payments"
@@ -243,6 +259,36 @@ function App() {
             element={(
               <PrivateRoute>
                 <VendorShopPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.1: Client Shop - Browse Products */}
+          <Route
+            path="/shop"
+            element={(
+              <PrivateRoute>
+                <ShopPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.1a: Client Shop - Browse by Salons */}
+          <Route
+            path="/shop/salons"
+            element={(
+              <PrivateRoute>
+                <SalonsShopPage />
+              </PrivateRoute>
+            )}
+          />
+
+          {/* UC-2.2: Shopping Cart */}
+          <Route
+            path="/cart"
+            element={(
+              <PrivateRoute>
+                <ShoppingCartPage />
               </PrivateRoute>
             )}
           />
@@ -465,6 +511,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      </ShoppingCartProvider>
     </AuthProvider>
   );
 }

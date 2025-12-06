@@ -15,23 +15,50 @@ const DEFAULT_SCHEDULE = {
   Sunday: { enabled: false, shifts: [] }
 }
 
+const createEmptySchedule = () => JSON.parse(JSON.stringify(DEFAULT_SCHEDULE))
+
+const normalizeSchedule = (rawSchedule) => {
+  const normalized = createEmptySchedule()
+
+  if (!rawSchedule || typeof rawSchedule !== 'object') {
+    return normalized
+  }
+
+  Object.keys(normalized).forEach((day) => {
+    const dayData = rawSchedule[day]
+
+    if (!dayData || typeof dayData !== 'object') {
+      normalized[day] = { enabled: false, shifts: [] }
+      return
+    }
+
+    const shifts = Array.isArray(dayData.shifts)
+      ? dayData.shifts
+          .map((shift) => ({
+            start: shift.start || shift.begin || shift.from || '',
+            end: shift.end || shift.finish || shift.to || ''
+          }))
+          .filter((shift) => shift.start && shift.end)
+      : []
+
+    normalized[day] = {
+      enabled: typeof dayData.enabled === 'boolean' ? dayData.enabled : shifts.length > 0,
+      shifts
+    }
+  })
+
+  return normalized
+}
+
 function ScheduleModal({ staffMember, onClose, onSave }) {
-  const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE)
+  const [schedule, setSchedule] = useState(createEmptySchedule())
   const [errors, setErrors] = useState({})
 
   useEffect(() => {
-    // Initialize with existing schedule data if available
     if (staffMember) {
-      const initialSchedule = { ...DEFAULT_SCHEDULE }
-
-      // Mock existing schedule data
-      initialSchedule.Monday = { enabled: true, shifts: [{ start: '10:00', end: '14:30' }, { start: '15:30', end: '19:00' }] }
-      initialSchedule.Tuesday = { enabled: true, shifts: [{ start: '09:00', end: '12:30' }, { start: '13:30', end: '18:00' }] }
-      initialSchedule.Wednesday = { enabled: true, shifts: [{ start: '09:00', end: '17:00' }] }
-      initialSchedule.Thursday = { enabled: true, shifts: [{ start: '09:00', end: '17:00' }] }
-      initialSchedule.Friday = { enabled: true, shifts: [{ start: '09:00', end: '17:00' }] }
-
-      setSchedule(initialSchedule)
+      setSchedule(normalizeSchedule(staffMember.schedule))
+    } else {
+      setSchedule(createEmptySchedule())
     }
   }, [staffMember])
 

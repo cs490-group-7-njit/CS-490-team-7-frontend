@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getFavoriteSalons } from '../api/favorites'
-import Header from '../components/Header'
+import ClientPortalLayout from '../components/ClientPortalLayout'
 import { useAuth } from '../context/AuthContext'
 import '../styles/favorite-salons.css'
 
@@ -46,121 +46,125 @@ function FavoriteSalonsPage() {
 
   if (loading) {
     return (
-      <div className="page favorite-salons-page">
-        <Header />
+      <ClientPortalLayout
+        activeKey="favorites"
+        pageClassName="favorite-salons-page"
+        contentClassName="favorites-container"
+      >
         <div className="loading-container">
           <div className="loading">Loading favorite salons...</div>
         </div>
-      </div>
+      </ClientPortalLayout>
     )
   }
 
   return (
-    <div className="page favorite-salons-page">
-      <Header />
-      <main className="favorites-container">
-        <div className="favorites-header">
-          <h1>❤️ My Favorite Salons</h1>
-          <p className="subtitle">Your saved favorite beauty salons</p>
+    <ClientPortalLayout
+      activeKey="favorites"
+      pageClassName="favorite-salons-page"
+      contentClassName="favorites-container"
+    >
+      <div className="favorites-header">
+        <h1>❤️ My Favorite Salons</h1>
+        <p className="subtitle">Your saved favorite beauty salons</p>
+      </div>
+
+      {error && <div className="alert alert-error">{error}</div>}
+
+      {salons.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">💔</div>
+          <h2>No favorite salons yet</h2>
+          <p>Start adding salons to your favorites to view them here!</p>
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => navigate('/salons/search')}
+          >
+            Browse Salons
+          </button>
         </div>
-
-        {error && <div className="alert alert-error">{error}</div>}
-
-        {salons.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">💔</div>
-            <h2>No favorite salons yet</h2>
-            <p>Start adding salons to your favorites to view them here!</p>
-            <button
-              type="button"
-              className="primary-button"
-              onClick={() => navigate('/salons/search')}
-            >
-              Browse Salons
-            </button>
+      ) : (
+        <>
+          <div className="favorites-info">
+            <p>Total favorites: <strong>{totalSalons}</strong></p>
           </div>
-        ) : (
-          <>
-            <div className="favorites-info">
-              <p>Total favorites: <strong>{totalSalons}</strong></p>
-            </div>
 
-            <div className="salons-grid">
-              {salons.map((salon) => (
-                <div key={salon.salon_id} className="salon-card">
-                  <div className="card-header">
-                    <h3>{salon.name}</h3>
-                    <span className="business-type">{salon.business_type}</span>
-                  </div>
-
-                  <div className="card-content">
-                    <div className="info-item">
-                      <strong>Vendor:</strong>
-                      <span>{salon.vendor.name}</span>
-                    </div>
-
-                    <div className="info-item">
-                      <strong>Address:</strong>
-                      <span>{salon.address}</span>
-                    </div>
-
-                    <div className="info-item">
-                      <strong>Phone:</strong>
-                      <span>{salon.phone}</span>
-                    </div>
-
-                    {salon.description && (
-                      <div className="info-item">
-                        <strong>About:</strong>
-                        <span>{salon.description}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="card-footer">
-                    <button
-                      type="button"
-                      className="secondary-button"
-                      onClick={() => navigate(`/salons/${salon.salon_id}`)}
-                    >
-                      View Details
-                    </button>
-                  </div>
+          <div className="salons-grid">
+            {salons.map((salon) => (
+              <div key={salon.salon_id} className="salon-card">
+                <div className="card-header">
+                  <h3>{salon.name}</h3>
+                  <span className="business-type">{salon.business_type}</span>
                 </div>
-              ))}
-            </div>
 
-            {(hasMore || page > 1) && (
-              <div className="pagination">
-                {page > 1 && (
+                <div className="card-content">
+                  <div className="info-item">
+                    <strong>Vendor:</strong>
+                    <span>{salon.vendor.name}</span>
+                  </div>
+
+                  <div className="info-item">
+                    <strong>Address:</strong>
+                    <span>{salon.address}</span>
+                  </div>
+
+                  <div className="info-item">
+                    <strong>Phone:</strong>
+                    <span>{salon.phone}</span>
+                  </div>
+
+                  {salon.description && (
+                    <div className="info-item">
+                      <strong>About:</strong>
+                      <span>{salon.description}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="card-footer">
                   <button
                     type="button"
-                    className="pagination-button"
-                    onClick={() => setPage(page - 1)}
+                    className="secondary-button"
+                    onClick={() => navigate(`/salons/${salon.salon_id}`)}
                   >
-                    ← Previous
+                    View Details
                   </button>
-                )}
-
-                <span className="page-info">
-                  Page {page} ({(page - 1) * 20 + 1} - {Math.min(page * 20, totalSalons)} of {totalSalons})
-                </span>
-
-                {hasMore && (
-                  <button
-                    type="button"
-                    className="pagination-button"
-                    onClick={() => setPage(page + 1)}
-                  >
-                    Next →
-                  </button>
-                )}
+                </div>
               </div>
-            )}
-          </>
-        )}
-      </main>
-    </div>
+            ))}
+          </div>
+
+          {(hasMore || page > 1) && (
+            <div className="pagination">
+              {page > 1 && (
+                <button
+                  type="button"
+                  className="pagination-button"
+                  onClick={() => setPage(page - 1)}
+                >
+                  ← Previous
+                </button>
+              )}
+
+              <span className="page-info">
+                Page {page} ({(page - 1) * 20 + 1} - {Math.min(page * 20, totalSalons)} of {totalSalons})
+              </span>
+
+              {hasMore && (
+                <button
+                  type="button"
+                  className="pagination-button"
+                  onClick={() => setPage(page + 1)}
+                >
+                  Next →
+                </button>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </ClientPortalLayout>
   )
 }
 

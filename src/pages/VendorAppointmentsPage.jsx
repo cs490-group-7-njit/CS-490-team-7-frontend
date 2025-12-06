@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { getMyShops } from '../api/shops'
 import { getSalonAppointments, updateAppointmentStatus } from '../api/vendorAppointments'
+import { getStaffBySalon } from '../api/staff'
 import VendorLoadingState from '../components/VendorLoadingState'
 import VendorPortalLayout from '../components/VendorPortalLayout'
 import { useAuth } from '../context/AuthContext'
@@ -8,21 +10,26 @@ import './vendor-appointments.css'
 
 function VendorAppointmentsPage() {
   const { user, refreshActivity } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const initialStaffFromUrl = useMemo(() => searchParams.get('staffId'), [searchParams])
 
   // Data state
   const [shops, setShops] = useState([])
   const [selectedShop, setSelectedShop] = useState(null)
   const [appointments, setAppointments] = useState([])
+  const [staffMembers, setStaffMembers] = useState([])
 
   // Filter state
   const [statusFilter, setStatusFilter] = useState('booked')
   const [dateFilter, setDateFilter] = useState('')
+  const [selectedStaffId, setSelectedStaffId] = useState(initialStaffFromUrl)
 
   // UI state
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [successMessage, setSuccessMessage] = useState('')
   const [updatingId, setUpdatingId] = useState(null)
+  const [isStaffLoading, setIsStaffLoading] = useState(false)
 
   // Refresh activity on mount
   useEffect(() => {
@@ -42,6 +49,16 @@ function VendorAppointmentsPage() {
       loadAppointments()
     }
   }, [selectedShop, statusFilter, dateFilter])
+
+  // Load staff list whenever shop changes
+  useEffect(() => {
+    if (selectedShop) {
+      loadStaffMembers(selectedShop)
+    } else {
+      setStaffMembers([])
+      setSelectedStaffId(null)
+    }
+  }, [selectedShop])
 
   const loadShops = async () => {
     try {
@@ -79,6 +96,40 @@ function VendorAppointmentsPage() {
       setError(err.message || 'Failed to load appointments')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const loadStaffMembers = async (shop) => {
+    try {
+      setIsStaffLoading(true)
+      const salonId = shop.id ?? shop.salon_id
+      const staffList = await getStaffBySalon(salonId)
+      setStaffMembers(staffList)
+
+      if (staffList.length === 0) {
+        setSelectedStaffId(null)
+        return
+      }
+
+      // Try to preserve staff selection from URL or previous state
+      const normalizedTarget = initialStaffFromUrl || selectedStaffId
+      if (normalizedTarget) {
+        const valid = staffList.some(
+          (member) => String(member.id ?? member.staff_id) === String(normalizedTarget)
+        )
+        if (valid) {
+          setSelectedStaffId(String(normalizedTarget))
+          return
+        }
+      }
+
+      // Default to "All staff" when previous selection is not available
+      setSelectedStaffId(null)
+    } catch (err) {
+      console.error('Failed to load staff list:', err)
+      setError(err.message || 'Failed to load staff members')
+    } finally {
+      setIsStaffLoading(false)
     }
   }
 
@@ -136,7 +187,34 @@ function VendorAppointmentsPage() {
   }
 
   const statuses = ['booked', 'completed', 'cancelled', 'no-show']
-  const today = new Date().toISOString().split('T')[0]
+
+  const displayedAppointments = useMemo(() => {
+    if (!selectedStaffId) return appointments
+    return appointments.filter((appt) => {
+      const staffIdentifier = appt.staff?.id ?? appt.staff?.staff_id ?? appt.staff_id
+      return String(staffIdentifier) === String(selectedStaffId)
+    })
+  }, [appointments, selectedStaffId])
+
+  const activeStaffMember = useMemo(() => {
+    if (!selectedStaffId) return null
+    return staffMembers.find(
+      (member) => String(member.id ?? member.staff_id) === String(selectedStaffId)
+    )
+  }, [staffMembers, selectedStaffId])
+
+  const handleStaffSelection = (value) => {
+    const nextValue = value === '' ? null : value
+    setSelectedStaffId(nextValue)
+
+    const params = new URLSearchParams(searchParams)
+    if (nextValue) {
+      params.set('staffId', nextValue)
+    } else {
+      params.delete('staffId')
+    }
+    setSearchParams(params)
+  }
 
   if (isLoading && shops.length === 0) {
     return (
@@ -210,12 +288,66 @@ function VendorAppointmentsPage() {
                 </div>
               </div>
 
+              <div className="staff-view-panel">
+                <div className="staff-view-header">
+                  <h2>Staff Schedule View</h2>
+                  <p>Select a team member to focus this page on their appointments. Share the link so they can check their schedule directly.</p>
+                </div>
+
+                <div className="staff-view-controls">
+                  <div className="form-group">
+                    <label htmlFor="staff-filter">Select Team Member:</label>
+                    <select
+                      id="staff-filter"
+                      value={selectedStaffId ?? ''}
+                      onChange={(e) => handleStaffSelection(e.target.value)}
+                      disabled={isStaffLoading || staffMembers.length === 0}
+                    >
+                      <option value="">All Staff</option>
+                      {staffMembers.map((staff) => {
+                        const memberId = staff.id ?? staff.staff_id
+                        const memberName = staff.user?.name || staff.title || `Staff #${memberId}`
+                        return (
+                          <option key={memberId} value={memberId}>
+                            {memberName}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    {isStaffLoading && <small>Loading team members…</small>}
+                    {!isStaffLoading && staffMembers.length === 0 && (
+                      <small>No staff found for this salon yet.</small>
+                    )}
+                  </div>
+
+                  {selectedStaffId && (
+                    <div className="staff-view-buttons">
+                      <button
+                        type="button"
+                        onClick={() => handleStaffSelection('')}
+                        className="staff-link-btn secondary"
+                      >
+                        Reset to all staff
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {activeStaffMember && (
+                  <div className="staff-summary">
+                    <strong>Viewing schedule for:</strong>{' '}
+                    {activeStaffMember.user?.name || activeStaffMember.title || 'Selected staff'}
+                    <span className="staff-total">Upcoming appointments: {displayedAppointments.length}</span>
+                  </div>
+                )}
+              </div>
+
               {/* Appointments List */}
               {isLoading && shops.length > 0 && (
                 <VendorLoadingState message="Updating appointments..." compact />
               )}
 
-              {!isLoading && appointments.length === 0 ? (
+              {!isLoading && displayedAppointments.length === 0 ? (
                 <div className="no-appointments">
                   <p>No appointments found with the selected filters.</p>
                 </div>
@@ -230,7 +362,7 @@ function VendorAppointmentsPage() {
                     <span className="col-actions">Actions</span>
                   </div>
 
-                  {appointments.map(appt => {
+                  {displayedAppointments.map(appt => {
                     const nextStatuses = getAvailableStatusTransitions(appt.status)
                     console.log('Appointment:', appt.id, 'Status:', appt.status, 'Next statuses:', nextStatuses, 'Full appt:', appt)
 

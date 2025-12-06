@@ -8,6 +8,7 @@ import { getSalonReviews } from '../api/reviews'
 import { getMyShops } from '../api/shops'
 import { getSalonAppointments } from '../api/vendorAppointments'
 import Header from '../components/Header'
+import ClientPortalLayout from '../components/ClientPortalLayout'
 import VendorPortalLayout from '../components/VendorPortalLayout'
 import { useAuth } from '../context/AuthContext'
 import './dashboard.css'
@@ -245,8 +246,12 @@ function DashboardPage() {
         const aggregated = validStats.reduce(
           (acc, entry) => {
             const stats = entry.stats || {}
-            const totalRevenueCents = Number(stats.total_revenue) || 0
-            const transactionCount = Number(stats.transaction_count) || 0
+            const totalRevenueCents = Number(
+              stats.total_revenue_cents ?? stats.total_revenue ?? 0,
+            )
+            const transactionCount = Number(
+              stats.total_completed ?? stats.transaction_count ?? stats.total_transactions ?? 0,
+            )
 
             acc.totalRevenueCents += totalRevenueCents
             acc.transactionCount += transactionCount
@@ -258,8 +263,11 @@ function DashboardPage() {
             })
 
             const serviceRevenue = stats.revenue_by_service || {}
-            Object.entries(serviceRevenue).forEach(([serviceName, amount]) => {
-              const cents = Number(amount) || 0
+            Object.entries(serviceRevenue).forEach(([serviceName, value]) => {
+              const cents =
+                typeof value === "number"
+                  ? Number(value)
+                  : Number(value?.revenue_cents ?? value?.revenue ?? 0)
               acc.serviceTotals[serviceName] = (acc.serviceTotals[serviceName] || 0) + cents
 
               if (acc.serviceTotals[serviceName] > acc.topService.totalRevenueCents) {
@@ -1248,6 +1256,108 @@ function DashboardPage() {
           </section>
         </div>
       </VendorPortalLayout>
+    )
+  }
+
+  if (userRole === 'client') {
+    return (
+      <ClientPortalLayout activeKey="dashboard">
+        <h1>{greeting}</h1>
+
+        <section className="dashboard-summary" aria-label="Client overview">
+          <div className="summary-card">
+            <p className="summary-title">Reward Points</p>
+            <p className="summary-status">
+              <span className="points-value">
+                {loyaltyLoading ? 'Loading...' : (loyaltyData?.total_points || 0).toLocaleString()}
+              </span>{' '}
+              points
+            </p>
+            <button
+              type="button"
+              className="pill-button"
+              onClick={() => navigate('/loyalty-points')}
+            >
+              Redeem Points
+            </button>
+          </div>
+
+          <div className="summary-card">
+            <p className="summary-title">Next Appointment</p>
+            <p className="summary-subtitle">
+              {appointmentsLoading
+                ? 'Loading...'
+                : nextAppointment
+                  ? `${nextAppointment.salon_name} - ${formatAppointmentTime(nextAppointment.starts_at)}`
+                  : 'No upcoming appointments'}
+            </p>
+            <button
+              type="button"
+              className="pill-button"
+              onClick={() => navigate('/appointments/history')}
+            >
+              View Details
+            </button>
+          </div>
+        </section>
+
+        <section className="schedule-section" aria-label="Nearby salons">
+          <header className="section-header">
+            <div>
+              <p className="section-date">Available Today</p>
+              <h2>Nearby Salons</h2>
+            </div>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={() => navigate('/salons/search')}
+            >
+              Find More Salons
+            </button>
+          </header>
+          <div className="schedule-grid">
+            {clientData.nearbyShops.map((shop) => (
+              <article key={shop.name} className="schedule-card">
+                <h3>{shop.name}</h3>
+                <p className="distance">{shop.distance} away</p>
+                <p className="rating">★ {shop.rating}</p>
+                <p className="availability">Next: {shop.nextAvailable}</p>
+                <button
+                  type="button"
+                  className="pill-button"
+                  onClick={() => navigate('/salons/search')}
+                >
+                  Book Now
+                </button>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="schedule-section" aria-label="Popular salons">
+          <header className="section-header">
+            <div>
+              <h2>Most Popular Salons</h2>
+            </div>
+          </header>
+          <div className="schedule-grid">
+            {clientData.popularShops.map((shop) => (
+              <article key={shop.name} className="schedule-card">
+                <h3>{shop.name}</h3>
+                <p className="bookings">{shop.bookings} bookings this month</p>
+                <p className="rating">★ {shop.rating}</p>
+                <button
+                  type="button"
+                  className="pill-button"
+                  onClick={() => navigate('/salons/search')}
+                >
+                  View Details
+                </button>
+              </article>
+            ))}
+          </div>
+        </section>
+      </ClientPortalLayout>
     )
   }
 

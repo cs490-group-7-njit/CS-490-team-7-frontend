@@ -1,8 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useShoppingCart } from '../context/ShoppingCartContext'
 
 function Header({ showSearch = true, showSignupLink = false }) {
   const { user, logout, isAuthenticated } = useAuth()
+  const { cartItems } = useShoppingCart()
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -78,9 +80,30 @@ function Header({ showSearch = true, showSignupLink = false }) {
               </Link>
             )}
             {user?.role === 'vendor' && (
-              <Link to="/vendor/shop" className="nav-link">
-                Shop
-              </Link>
+              <>
+                <Link to="/vendor/shop" className="nav-link">
+                  Shop
+                </Link>
+                <Link to="/vendor/gallery" className="nav-link">
+                  Gallery
+                </Link>
+              </>
+            )}
+            {user?.role !== 'vendor' && user?.role !== 'admin' && (
+              <>
+                <Link to="/shop/salons" className="nav-link">
+                  🏪 Shop Tabs
+                </Link>
+                <Link to="/shop" className="nav-link">
+                  🛒 Browse Products
+                </Link>
+                <Link to="/cart" className="nav-link cart-link">
+                  🛒 Cart
+                  {cartItems.length > 0 && (
+                    <span className="cart-badge">{cartItems.length}</span>
+                  )}
+                </Link>
+              </>
             )}
             <div className="user-menu">
               <button
